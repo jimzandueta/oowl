@@ -497,6 +497,12 @@
       .flow .grn {
         color: #3fb950;
       }
+      .flow .red {
+        color: var(--red);
+      }
+      .flow .yellow {
+        color: var(--yellow);
+      }
 
       /* ── COMPARE TABLE ── */
       .compare th:first-child {
@@ -981,38 +987,32 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
         <section id="how-it-works">
           <h2>How it works</h2>
 
-          <div class="flow">
-            <span class="hl">your request</span> → dispatcher
-            <span class="dim">│</span>
-            <span class="dim">├─</span> trivial? →
-            <span class="grn">one implementer → done</span>
-            <span class="dim">│</span>
-            <span class="dim">└─</span> substantial?
-            <span class="dim">│</span>
-            <span class="dim">├─</span> architect writes
-            <span class="hl">design.md</span> <span class="dim">│ </span>+
-            designer writes <span class="hl">ui-spec.md</span> (if UI)
-            <span class="dim">│</span>
-            <span class="dim">├─</span> <span class="grn">[ you approve ]</span>
-            <span class="dim">│</span>
-            <span class="dim">├─</span> planner writes
-            <span class="hl">implementation.md</span>
-            <span class="dim">│</span>
-            <span class="dim">├─</span> plan-reviewer validates → PLAN_APPROVED
-            <span class="dim">│</span>
-            <span class="dim">├─</span> <span class="grn">[ you approve ]</span>
-            <span class="dim">│</span>
-            <span class="dim">├─</span> builder schedules implementation waves
-            <span class="dim">│</span>
-            <span class="dim">├─</span> dispatcher runs assigned agents
-            <span class="dim">│ </span>each with file locks + verification
-            requirements
-            <span class="dim">│</span>
-            <span class="dim">├─</span> reviewer writes
-            <span class="hl">review.md</span>
-            <span class="dim">│</span>
-            <span class="dim">└─</span> <span class="grn">done</span>
-          </div>
+          <div class="flow"><span class="hl">your request</span> → dispatcher
+<span class="dim">  │</span>
+<span class="dim">  ├─</span> <span class="grn">trivial?</span> (under ~20 lines, under 3 files, nothing sensitive)
+<span class="dim">  │   └─</span> one implementer → <span class="grn">done</span>
+<span class="dim">  │</span>
+<span class="dim">  └─</span> <span class="hl">substantial</span>
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> architect writes <span class="hl">design.md</span>
+<span class="dim">      │ </span>    + designer writes <span class="hl">ui-spec.md</span> (if UI)
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> <span class="grn">[ you approve the design ]</span>
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> planner writes <span class="hl">implementation.md</span>
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> plan-reviewer validates → <span class="grn">PLAN_APPROVED</span>
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> <span class="grn">[ you approve the plan ]</span>
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> builder schedules implementation waves
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> dispatcher runs assigned agents
+<span class="dim">      │ </span>    (each with file locks + verification)
+<span class="dim">      │</span>
+<span class="dim">      ├─</span> reviewer writes <span class="hl">review.md</span>
+<span class="dim">      │</span>
+<span class="dim">      └─</span> <span class="grn">done</span></div>
 
           <h3>Why this instead of one big agent</h3>
           <table class="compare">
@@ -1095,31 +1095,46 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
           </p>
 
           <h3>How signals flow</h3>
-          <div class="flow">
-            <span class="hl">dispatcher</span> classify request │ ├─ trivial →
-            emits <span class="grn">TRIVIAL_FIX_DISPATCH</span> → implementer →
-            <span class="grn">TASK_COMPLETE</span> │ └─ substantial │ ├─
-            architect/designer → <span class="grn">PHASE_COMPLETE</span> (design
-            done) │ └─ if UI → designer →
-            <span class="grn">UI_SPEC_COMPLETE</span> │ ├─ [user approves
-            design] → <span class="hl">planner</span> │ ├─ plan-reviewer →
-            <span class="grn">PLAN_APPROVED</span> or
-            <span class="red">PLAN_REJECTED</span> → planner revises │ ├─ [user
-            approves plan] → <span class="hl">builder</span> │ ├─ builder →
-            <span class="grn">REQUEST_CONSULT</span> (single task) │ →
-            <span class="grn">REQUEST_CONSULT_BATCH</span> (parallel tasks,
-            atomic) │ ├─ dispatcher dispatches → implementers │ ├─ success →
-            <span class="grn">TASK_COMPLETE</span> │ ├─ blocked →
-            <span class="red">TASK_BLOCKED</span> → escalation or user │ ├─
-            sensitive area → <span class="yellow">NEEDS_USER_INPUT</span> │ └─
-            low-tier + sensitive →
-            <span class="yellow">ESCALATION_REQUEST</span> │ ├─ if parallel
-            dispatch fails → <span class="red">PARALLEL_DISPATCH_FAILED</span> │
-            ├─ if protected artifact missing →
-            <span class="red">PROTECTED_ARTIFACT_MISSING</span> → STOP │ ├─
-            reviewer → <span class="grn">REVIEW_COMPLETE</span> │ └─ escalation
-            agent → <span class="grn">ESCALATION_COMPLETE</span>
-          </div>
+          <div class="flow"><span class="hl">dispatcher</span> classify request
+<span class="dim">│</span>
+<span class="dim">├─</span> trivial →
+<span class="dim">│   </span>dispatcher emits <span class="grn">TRIVIAL_FIX_DISPATCH</span> →
+<span class="dim">│   </span>implementer returns <span class="grn">TASK_COMPLETE</span>
+<span class="dim">│</span>
+<span class="dim">└─</span> substantial
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> architect → <span class="grn">PHASE_COMPLETE</span> (phase: design)
+<span class="dim">    │   └─</span> if UI → designer returns
+<span class="dim">    │       </span> <span class="grn">PHASE_COMPLETE</span> (phase: ui-spec)
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> <span class="grn">[ user approves design ]</span>
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> planner → <span class="grn">PHASE_COMPLETE</span>
+<span class="dim">    ├─</span> plan-reviewer → <span class="grn">PLAN_APPROVED</span> or
+<span class="dim">    │   </span> <span class="red">PLAN_REJECTED</span> → planner revises
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> <span class="grn">[ user approves plan ]</span>
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> builder → <span class="grn">REQUEST_CONSULT</span> (single)
+<span class="dim">    │   </span> or <span class="grn">REQUEST_CONSULT_BATCH</span> (2-3, atomic)
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> dispatcher dispatches implementers
+<span class="dim">    │   ├─</span> success → <span class="grn">TASK_COMPLETE</span>
+<span class="dim">    │   ├─</span> blocked → <span class="yellow">NEEDS_USER_INPUT</span>
+<span class="dim">    │   ├─</span> sensitive → <span class="yellow">NEEDS_USER_INPUT</span>
+<span class="dim">    │   └─</span> low-tier + sensitive →
+<span class="dim">    │       </span> <span class="yellow">ESCALATION_REQUEST</span>
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> parallel dispatch fail →
+<span class="dim">    │   </span> <span class="red">PARALLEL_DISPATCH_FAILED</span>
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> protected artifact missing →
+<span class="dim">    │   </span> <span class="red">PROTECTED_ARTIFACT_MISSING</span> → STOP
+<span class="dim">    │</span>
+<span class="dim">    ├─</span> reviewer → <span class="grn">REVIEW_COMPLETE</span>
+<span class="dim">    │</span>
+<span class="dim">    └─</span> escalation agent →
+<span class="dim">        </span> <span class="grn">ESCALATION_COMPLETE</span></div>
 
           <h3>Signal reference</h3>
 
@@ -1150,7 +1165,7 @@ Verification: &lt;required checks&gt;</code></pre>
 
           <details>
             <summary>
-              <code>PHASE_COMPLETE</code> (architect / designer / reviewer →
+              <code>PHASE_COMPLETE</code> (architect / designer / planner / reviewer →
               dispatcher)
             </summary>
             <div class="faq-body">
