@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    name: Node tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  validate:
+    name: Validate framework
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install jq
+        run: sudo apt-get update -y && sudo apt-get install -y jq
+
+      - name: Shell syntax check
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n scripts/apply-profile-models.sh
+
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          scandir: '.'
+          ignore_paths: 'framework opencode'
+
+      - name: Validate JSON profiles
+        run: |
+          set -e
+          for f in framework/model-profiles/*.json framework/profile-models.json; do
+            echo "Validating $f"
+            jq -e . "$f" > /dev/null
+          done
+
+      - name: Apply each bundled profile (smoke)
+        run: |
+          for p in low balanced high; do
+            echo "Applying $p"
+            bash scripts/apply-profile-models.sh "$p"
+          done
+
+      - name: Validate JSONC config
+        run: |
+          node -e '
+            const fs = require("fs");
+            const src = fs.readFileSync("opencode.jsonc", "utf8");
+            let out = "", i = 0, inStr = false, esc = false;
+            while (i < src.length) {
+              const c = src[i], n = src[i + 1];
+              if (inStr) {
+                out += c;
+                if (esc) esc = false;
+                else if (c === "\\") esc = true;
+                else if (c === "\"") inStr = false;
+                i++;
+              } else if (c === "\"") {
+                inStr = true; out += c; i++;
+              } else if (c === "/" && n === "/") {
+                while (i < src.length && src[i] !== "\n") i++;
+              } else if (c === "/" && n === "*") {
+                i += 2;
+                while (i < src.length && !(src[i] === "*" && src[i + 1] === "/")) i++;
+                i += 2;
+              } else {
+                out += c; i++;
+              }
+            }
+            JSON.parse(out);
+            console.log("OK: opencode.jsonc");
+          '
+
+      - name: Install deps and build
+        run: npm ci && npm run build
+
+      - name: CLI smoke tests
+        run: |
+          node bin/oowl.js --help
+          node bin/oowl.js badcmd || test $? -eq 1
+
+      - name: npm pack check
+        run: npm pack --dry-run
+
+  deploy-docs:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    needs: [test, validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare site structure
+        run: |
+          mkdir -p _site/docs
+          cp -r docs/. _site/docs/
+          printf '<html><head><meta http-equiv="refresh" content="0;url=docs/"></head></html>' > _site/index.html
+
+      - name: Upload docs artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

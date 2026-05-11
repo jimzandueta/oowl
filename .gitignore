@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Backups
+*.bak
+*.orig
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node
+node_modules/
+
+# Build output
+dist/
+
+# Local environment overrides
+.env
+.env.*
+*.local
+*.local.*

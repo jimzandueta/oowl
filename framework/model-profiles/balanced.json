@@ -1,0 +1,128 @@
+{
+  "profile": "balanced",
+  "description": "Balanced profile for daily fullstack work. Uses stronger models for planning, backend, database, code review, cloud, polished frontend, and deep security only where quality pays off.",
+  "global": {
+    "model": "opencode-go/deepseek-v4-flash",
+    "small_model": "opencode/nemotron-3-super-free",
+    "default_agent": "dispatcher"
+  },
+  "agent_order": [
+    "dispatcher",
+    "architect",
+    "planner",
+    "plan-reviewer",
+    "builder",
+    "reviewer",
+    "designer",
+    "frontend-engineer",
+    "frontend-polisher",
+    "backend-engineer",
+    "database-engineer",
+    "cloud-architect",
+    "test-engineer",
+    "code-reviewer",
+    "security-reviewer",
+    "security-auditor",
+    "low-engineer",
+    "low-task-worker",
+    "low-architect",
+    "low-designer",
+    "high-engineer",
+    "high-architect",
+    "high-designer"
+  ],
+  "agents": {
+    "dispatcher": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "reason": "Cheap foreground routing, approval gates, and Task dispatch."
+    },
+    "architect": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Design, architecture tradeoffs, and design.md creation."
+    },
+    "planner": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Implementation planning, file locks, task prompts, and parallel groups."
+    },
+    "plan-reviewer": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Strict plan validation, task completeness, and parallel-safety review."
+    },
+    "builder": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "reason": "Scheduler-only build coordination; does not implement or invoke Task."
+    },
+    "reviewer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "Review coordination, verification summary, and readiness recommendation."
+    },
+    "designer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "UI/UX design, layout, flows, accessibility, and ui-spec.md."
+    },
+    "frontend-engineer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "React, TypeScript, forms, accessibility, frontend state, and tests."
+    },
+    "frontend-polisher": {
+      "model": "opencode-go/kimi-k2.6",
+      "reason": "High-polish UI, refined interaction behavior, and visual quality."
+    },
+    "backend-engineer": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "APIs, services, workers, validation, integrations, and domain logic."
+    },
+    "database-engineer": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Schema, migrations, indexes, transactions, and data integrity."
+    },
+    "cloud-architect": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "reason": "Cloud, IaC, deployment, IAM, reliability, observability, and rollback safety."
+    },
+    "test-engineer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "Unit tests, integration tests, regression coverage, fixtures, and verification."
+    },
+    "code-reviewer": {
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Read-only correctness, maintainability, performance, and architecture review."
+    },
+    "security-reviewer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "First-pass read-only security review."
+    },
+    "security-auditor": {
+      "model": "opencode-go/glm-5.1",
+      "reason": "Deep security review for auth, IAM, secrets, PII, and production risk."
+    },
+    "low-engineer": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "reason": "Lowest-cost bounded non-sensitive coding."
+    },
+    "low-task-worker": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "reason": "Lowest-cost bounded non-sensitive read/check/summarize work."
+    },
+    "low-architect": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "Cost-effective non-sensitive architecture reasoning."
+    },
+    "low-designer": {
+      "model": "opencode-go/qwen3.5-plus",
+      "reason": "Cost-effective non-sensitive UI/product design."
+    },
+    "high-engineer": {
+      "model": "github-copilot/gpt-5.3-codex",
+      "reason": "Premium coding escalation."
+    },
+    "high-architect": {
+      "model": "github-copilot/claude-sonnet-4.6",
+      "reason": "Premium architecture, reliability, cloud, and security escalation."
+    },
+    "high-designer": {
+      "model": "github-copilot/claude-opus-4.7",
+      "reason": "Premium UX, product, and system-design escalation."
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Profile-specific agent and command definitions live in .opencode/.
+  // Global Task access is ask; only dispatcher receives an explicit Task allow-list.
+
+  "plugin": [
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "caveman@git+https://github.com/juliusbrussee/caveman.git"
+  ],
+
+  "model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode/nemotron-3-super-free",
+  "default_agent": "dispatcher",
+
+  "permission": {
+    "*": "ask",
+
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+
+    // AGENTS.md is the workflow definition. No agent may edit, write, or delete it.
+    "edit": {
+      "AGENTS.md": "deny",
+      "*": "ask"
+    },
+    "write": {
+      "AGENTS.md": "deny",
+      "*": "ask"
+    },
+
+    "bash": {
+      "*": "ask",
+      "pwd": "allow",
+      "ls *": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "grep *": "allow",
+      "rg *": "allow",
+      "rm AGENTS.md": "deny"
+    },
+
+    "skill": {
+      "*": "allow"
+    },
+
+    "task": "ask",
+    "todowrite": "allow",
+    "lsp": "allow"
+  },
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  }
+}

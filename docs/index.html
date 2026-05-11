@@ -1,0 +1,1970 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>oowl — OpenCode Opinionated Workflow Layer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <style>
+      :root {
+        --bg: #0f1117;
+        --bg-sidebar: #161b27;
+        --bg-card: #1a2035;
+        --bg-code: #0d1117;
+        --border: #2a3045;
+        --accent: #4f8ef7;
+        --accent-dim: #2d5bb5;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --text: #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim: #6e7681;
+        --sidebar-width: 260px;
+        --topbar-height: 56px;
+        --font:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        --font-mono:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      /* ── TOPBAR ── */
+      .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--topbar-height);
+        background: var(--bg-sidebar);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+        z-index: 100;
+      }
+
+      .topbar-logo {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .topbar-logo .owl-icon {
+        font-size: 22px;
+      }
+
+      .topbar-tagline {
+        color: var(--text-muted);
+        font-size: 13px;
+        display: none;
+      }
+
+      @media (min-width: 700px) {
+        .topbar-tagline {
+          display: block;
+        }
+      }
+
+      .topbar-links {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .topbar-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s;
+      }
+
+      .topbar-links a:hover {
+        color: var(--text);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--accent-dim);
+        color: #fff;
+      }
+
+      /* ── LAYOUT ── */
+      .layout {
+        display: flex;
+        padding-top: var(--topbar-height);
+        min-height: 100vh;
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        width: var(--sidebar-width);
+        flex-shrink: 0;
+        position: fixed;
+        top: var(--topbar-height);
+        left: 0;
+        bottom: 0;
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 24px 0 40px;
+        display: none;
+      }
+
+      @media (min-width: 900px) {
+        .sidebar {
+          display: block;
+        }
+      }
+
+      .sidebar-section {
+        margin-bottom: 8px;
+      }
+
+      .sidebar-heading {
+        padding: 6px 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-dim);
+      }
+
+      .sidebar-link {
+        display: block;
+        padding: 5px 20px;
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+      }
+
+      .sidebar-link:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .sidebar-link.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: rgba(79, 142, 247, 0.08);
+      }
+
+      /* ── CONTENT ── */
+      .content {
+        flex: 1;
+        min-width: 0;
+        padding: 48px 32px 80px;
+        max-width: 860px;
+      }
+
+      @media (min-width: 900px) {
+        .content {
+          margin-left: var(--sidebar-width);
+        }
+      }
+
+      /* ── HERO ── */
+      .hero {
+        text-align: center;
+        padding: 32px 0 56px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 56px;
+      }
+
+      .hero-owl-emoji {
+        font-size: 56px;
+        line-height: 1;
+        margin-bottom: 12px;
+      }
+
+      .hero h1 {
+        font-size: 48px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #e6edf3 0%, #4f8ef7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-sub {
+        font-size: 18px;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+      }
+
+      .hero-badges {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+      }
+
+      .hero-badges img {
+        height: 20px;
+      }
+
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--accent);
+        color: #fff !important;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+
+      .hero-cta:hover {
+        background: var(--accent-dim);
+      }
+
+      /* ── TYPOGRAPHY ── */
+      .content section {
+        margin-bottom: 64px;
+        scroll-margin-top: calc(var(--topbar-height) + 24px);
+      }
+
+      .content h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--text);
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .content h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 28px 0 12px;
+        color: var(--text);
+      }
+
+      .content p {
+        color: var(--text);
+        margin-bottom: 16px;
+      }
+
+      .content strong {
+        color: var(--text);
+      }
+
+      .content a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .content a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── CODE ── */
+      .content pre {
+        background: var(--bg-code) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 18px 20px;
+        overflow-x: auto;
+        margin: 16px 0 20px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      code:not(pre code) {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        background: var(--bg-card);
+        color: #e6b87a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+      }
+
+      /* ── STEPS ── */
+      .steps {
+        counter-reset: step;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .step {
+        display: flex;
+        gap: 20px;
+        position: relative;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        background: var(--accent);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        margin-top: 2px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 15px;
+        top: 34px;
+        bottom: -24px;
+        width: 2px;
+        background: var(--border);
+      }
+
+      .step-body {
+        padding-bottom: 28px;
+      }
+
+      .step-body h3 {
+        margin-top: 4px;
+      }
+
+      /* ── TABLES ── */
+      .content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0 20px;
+        font-size: 14px;
+      }
+
+      .content th {
+        text-align: left;
+        padding: 10px 14px;
+        background: var(--bg-card);
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .content td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+        vertical-align: top;
+      }
+
+      .content tr:last-child td {
+        border-bottom: none;
+      }
+      .content tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      /* ── CARDS ── */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin: 20px 0;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+
+      .card-icon {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+
+      .card h3 {
+        font-size: 15px;
+        margin: 0 0 6px;
+        color: var(--text);
+      }
+
+      .card p {
+        font-size: 13px;
+        margin: 0;
+        color: var(--text-muted);
+      }
+
+      /* ── CALLOUTS ── */
+      .callout {
+        display: flex;
+        gap: 14px;
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin: 20px 0;
+        border: 1px solid;
+      }
+
+      .callout-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .callout.info {
+        background: rgba(79, 142, 247, 0.08);
+        border-color: rgba(79, 142, 247, 0.3);
+      }
+
+      .callout.warn {
+        background: rgba(210, 153, 34, 0.08);
+        border-color: rgba(210, 153, 34, 0.3);
+      }
+
+      .callout p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      /* ── FLOW DIAGRAM ── */
+      .flow {
+        background: var(--bg-code);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin: 16px 0 20px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: #8b949e;
+        overflow-x: auto;
+        white-space: pre;
+        line-height: 1.5;
+      }
+
+      .flow .hl {
+        color: #4f8ef7;
+      }
+      .flow .dim {
+        color: #4d5566;
+      }
+      .flow .grn {
+        color: #3fb950;
+      }
+
+      /* ── COMPARE TABLE ── */
+      .compare th:first-child {
+        width: 40%;
+      }
+      .compare .vs-old {
+        color: var(--red);
+      }
+      .compare .vs-new {
+        color: var(--green);
+      }
+
+      /* ── AGENT BADGES ── */
+      .agent-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 20px;
+      }
+
+      .agent-tag {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-muted);
+      }
+
+      .agent-tag.tier-cheap {
+        border-color: #3fb950;
+        color: #3fb950;
+      }
+      .agent-tag.tier-mid {
+        border-color: #4f8ef7;
+        color: #4f8ef7;
+      }
+      .agent-tag.tier-high {
+        border-color: #d29922;
+        color: #d29922;
+      }
+
+      /* ── FAQ ── */
+      .faq {
+        margin: 0;
+      }
+
+      details {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+
+      summary {
+        padding: 14px 18px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        user-select: none;
+      }
+
+      summary::before {
+        content: "›";
+        color: var(--text-dim);
+        font-size: 18px;
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+
+      details[open] summary::before {
+        transform: rotate(90deg);
+      }
+      details[open] {
+        background: var(--bg-card);
+      }
+
+      .faq-body {
+        padding: 4px 18px 18px 42px;
+        color: var(--text-muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .faq-body p {
+        margin-bottom: 10px;
+      }
+      .faq-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── FOOTER ── */
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: 32px 0 0;
+        margin-top: 32px;
+        color: var(--text-dim);
+        font-size: 13px;
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .footer a {
+        color: var(--text-muted);
+        text-decoration: none;
+      }
+      .footer a:hover {
+        color: var(--text);
+      }
+
+      /* ── MOBILE NAV ── */
+      .mobile-nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 22px;
+        margin-left: auto;
+        padding: 4px;
+      }
+
+      @media (max-width: 899px) {
+        .mobile-nav-toggle {
+          display: block;
+        }
+        .sidebar.open {
+          display: block;
+          z-index: 99;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <a href="#" class="topbar-logo">
+        <span class="owl-icon">🦉</span>
+        <span>oowl</span>
+      </a>
+      <span class="topbar-tagline">OpenCode Opinionated Workflow Layer</span>
+      <nav class="topbar-links">
+        <span class="badge">v1.0.3</span>
+        <a href="https://github.com/jimzandueta/oowl" target="_blank">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+            />
+          </svg>
+          GitHub
+        </a>
+        <a
+          href="https://www.npmjs.com/package/@jimzandueta/oowl"
+          target="_blank"
+        >
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M0 0v24h24V0H0zm6.672 19.992H4.008V8.004h2.664v11.988zm5.328 0H9.336V8.004H12v8.652h2.664V8.004h2.664v11.988H12zm8.328 0h-2.664V8.004h2.664v11.988z"
+            />
+          </svg>
+          npm
+        </a>
+      </nav>
+      <button
+        class="mobile-nav-toggle"
+        onclick="document.querySelector('.sidebar').classList.toggle('open')"
+        aria-label="Toggle navigation"
+      >
+        ☰
+      </button>
+    </header>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-heading">Getting started</div>
+          <a href="#overview" class="sidebar-link">Overview</a>
+          <a href="#quick-start" class="sidebar-link">Quick start</a>
+          <a href="#what-you-get" class="sidebar-link">What you get</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-heading">Core concepts</div>
+          <a href="#how-it-works" class="sidebar-link">How it works</a>
+          <a href="#protocol-signals" class="sidebar-link">Protocol signals</a>
+          <a href="#agents" class="sidebar-link">Agents</a>
+          <a href="#model-profiles" class="sidebar-link">Model profiles</a>
+          <a href="#plugins" class="sidebar-link">Plugins</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-heading">Reference</div>
+          <a href="#install" class="sidebar-link">Install</a>
+          <a href="#customizing" class="sidebar-link">Customizing</a>
+          <a href="#faq" class="sidebar-link">Common issues</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-heading">Project</div>
+          <a href="#contributing" class="sidebar-link">Contributing</a>
+          <a
+            href="https://github.com/jimzandueta/oowl"
+            class="sidebar-link"
+            target="_blank"
+            >GitHub ↗</a
+          >
+          <a
+            href="https://www.npmjs.com/package/@jimzandueta/oowl"
+            class="sidebar-link"
+            target="_blank"
+            >npm ↗</a
+          >
+        </div>
+      </nav>
+
+      <!-- MAIN CONTENT -->
+      <main class="content">
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-owl-emoji">🦉</div>
+          <h1>oowl</h1>
+          <p class="hero-sub">
+            OpenCode Opinionated Workflow Layer.<br />Cheap models. Real
+            process. No magic.
+          </p>
+          <div class="hero-badges">
+            <img
+              src="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml/badge.svg"
+              alt="CI"
+            />
+            <a
+              href="https://www.npmjs.com/package/@jimzandueta/oowl"
+              target="_blank"
+              ><img
+                src="https://img.shields.io/npm/v/@jimzandueta/oowl?label=npm"
+                alt="npm"
+            /></a>
+            <img
+              src="https://img.shields.io/badge/License-MIT-yellow.svg"
+              alt="MIT"
+            />
+            <img
+              src="https://img.shields.io/badge/runtime-OpenCode-blue"
+              alt="OpenCode"
+            />
+          </div>
+          <a href="#quick-start" class="hero-cta">Get started →</a>
+        </div>
+
+        <!-- OVERVIEW -->
+        <section id="overview">
+          <h2>Overview</h2>
+
+          <div
+            class="card"
+            style="
+              margin-bottom: 20px;
+              border-color: var(--accent);
+              background: rgba(79, 142, 247, 0.06);
+            "
+          >
+            <h3 style="font-size: 18px">Right model for the job</h3>
+            <p style="font-size: 14px; margin-top: 6px">
+              Architecture on Opus. Routing on DeepSeek Flash. A README scaffold
+              on a free model. Most workflows use one model for everything. You
+              pay premium rates for autocomplete. oowl routes each task to the
+              cheapest model that can actually do the work. The savings fund the
+              runs that actually need a frontier model.
+            </p>
+          </div>
+
+          <div class="cards" style="margin-bottom: 40px">
+            <div class="card">
+              <h3>Docs before code</h3>
+              <p>
+                Architect writes <code>design.md</code>. Planner writes
+                <code>implementation.md</code>. Both live in
+                <code>docs/specs/</code> and need your sign-off before anything
+                gets built. Agents can't skip straight to editing files.
+              </p>
+            </div>
+            <div class="card">
+              <h3>You approve every gate</h3>
+              <p>
+                Two hard stops in every substantial workflow: design approval
+                and plan approval. Nothing moves to implementation without your
+                explicit sign-off. Trivial fixes skip the ceremony entirely.
+              </p>
+            </div>
+            <div class="card">
+              <h3>No faking done</h3>
+              <p>
+                Agents must return test output, lint results, or build logs
+                alongside <code>TASK_COMPLETE</code>. File paths are declared
+                upfront and locked. Protected spec files are tracked and must
+                remain intact.
+              </p>
+            </div>
+          </div>
+
+          <h3>The backstory</h3>
+          <p>
+            Claude Code and its proprietary models are great tools. They unblock
+            developers and accelerate real work. But they've become expensive
+            and increasingly restricted. Token limits. Session limits. Rate
+            limits.
+          </p>
+          <p>
+            I started looking for alternatives. A lot of open-weight models
+            match proprietary ones on SWE-Bench. DeepSeek Pro at 1M tokens costs
+            $0.10. GPT-4 costs $10. Two orders of magnitude.
+          </p>
+          <p>
+            Then I found
+            <a href="https://opencode.ai/" target="_blank">OpenCode</a>. It's
+            model-agnostic, connects to anything. OpenCode Go gives you roughly
+            16,000 requests/month for $5 on request-based pricing. GitHub
+            Copilot caps at 1,500 for more money. The math was obvious.
+          </p>
+          <p>
+            Once model-switching was available, the real problem came into
+            focus: <strong>same model for everything</strong>. You're paying
+            Opus rates to write a test scaffold or a routing comment. The
+            solution was to route different agents to different cost tiers:
+            cheap models for cheap work, stronger models only where the quality
+            delta matters.
+          </p>
+          <p>
+            oowl is the workflow layer that makes that practical. Role-specific
+            agents, cost-tiered profiles, a structured design → plan → review
+            process built on top of
+            <a href="https://github.com/obra/superpowers" target="_blank"
+              >Superpowers</a
+            >, with Caveman-Lite keeping inter-agent chatter token-efficient.
+          </p>
+        </section>
+
+        <!-- QUICK START -->
+        <section id="quick-start">
+          <h2>Quick start</h2>
+          <p>
+            <strong>Prerequisites:</strong>
+            <a href="https://opencode.ai/" target="_blank">OpenCode</a>
+            installed and configured, Node.js 18+.
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-body">
+                <h3>Install the framework</h3>
+                <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
+                <p>
+                  The wizard asks where to install (local project or global),
+                  whether you have an OpenCode Go subscription, and which models
+                  to use for each cost tier.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-body">
+                <h3>Open OpenCode</h3>
+                <pre><code class="language-bash">opencode</code></pre>
+                <p>
+                  Launch from your project root. OpenCode picks up
+                  <code>opencode.jsonc</code> and the agents in
+                  <code>.opencode/</code>.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-body">
+                <h3>Talk to dispatcher</h3>
+                <p>
+                  Type your request. The dispatcher routes it: trivial fixes go
+                  straight to one implementer, substantial work flows through
+                  design → plan → implementation → review with your approvals at
+                  each gate.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h3>The three commands</h3>
+          <pre><code class="language-bash">npx @jimzandueta/oowl init      # first-time setup wizard
+npx @jimzandueta/oowl profile   # switch model profiles interactively
+npx @jimzandueta/oowl update    # update framework files with conflict detection</code></pre>
+
+          <div class="callout info">
+            <span class="callout-icon">💡</span>
+            <p>
+              Install globally with
+              <code>npm install -g @jimzandueta/oowl</code> to drop the
+              <code>npx</code> prefix.
+            </p>
+          </div>
+        </section>
+
+        <!-- WHAT YOU GET -->
+        <section id="what-you-get">
+          <h2>What you get</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>23 role-specific agents</strong></td>
+                <td>
+                  Orchestration, design, implementation, review, escalation,
+                  low-tier bounded work
+                </td>
+              </tr>
+              <tr>
+                <td><strong>23 slash commands</strong></td>
+                <td>
+                  Workflow phases, domain specialists, escalation, low-tier
+                  workers
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Two approval gates</strong></td>
+                <td>
+                  Design approval and plan approval before any implementation
+                  begins
+                </td>
+              </tr>
+              <tr>
+                <td><strong>File locks</strong></td>
+                <td>
+                  Every implementation task declares exact paths; parallel tasks
+                  are collision-checked
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Protected artifacts</strong></td>
+                <td>
+                  <code>design.md</code>, <code>implementation.md</code>,
+                  <code>review.md</code> under <code>docs/specs/</code>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Verification evidence</strong></td>
+                <td>No proof, no <code>TASK_COMPLETE</code></td>
+              </tr>
+              <tr>
+                <td><strong>Sensitive-area safeguards</strong></td>
+                <td>
+                  Auth, IAM, payments, PII, secrets, production config require
+                  explicit approval
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Switchable profiles</strong></td>
+                <td>
+                  <code>low</code>, <code>balanced</code>, <code>high</code>,
+                  <code>custom</code> (from your connected models)
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Superpowers methodology</strong></td>
+                <td>
+                  TDD, brainstorming, writing plans, debugging, review
+                  discipline
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Caveman-Lite</strong></td>
+                <td>Terse, token-efficient agent handoffs</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works">
+          <h2>How it works</h2>
+
+          <div class="flow">
+            <span class="hl">your request</span> → dispatcher
+            <span class="dim">│</span>
+            <span class="dim">├─</span> trivial? →
+            <span class="grn">one implementer → done</span>
+            <span class="dim">│</span>
+            <span class="dim">└─</span> substantial?
+            <span class="dim">│</span>
+            <span class="dim">├─</span> architect writes
+            <span class="hl">design.md</span> <span class="dim">│ </span>+
+            designer writes <span class="hl">ui-spec.md</span> (if UI)
+            <span class="dim">│</span>
+            <span class="dim">├─</span> <span class="grn">[ you approve ]</span>
+            <span class="dim">│</span>
+            <span class="dim">├─</span> planner writes
+            <span class="hl">implementation.md</span>
+            <span class="dim">│</span>
+            <span class="dim">├─</span> plan-reviewer validates → PLAN_APPROVED
+            <span class="dim">│</span>
+            <span class="dim">├─</span> <span class="grn">[ you approve ]</span>
+            <span class="dim">│</span>
+            <span class="dim">├─</span> builder schedules implementation waves
+            <span class="dim">│</span>
+            <span class="dim">├─</span> dispatcher runs assigned agents
+            <span class="dim">│ </span>each with file locks + verification
+            requirements
+            <span class="dim">│</span>
+            <span class="dim">├─</span> reviewer writes
+            <span class="hl">review.md</span>
+            <span class="dim">│</span>
+            <span class="dim">└─</span> <span class="grn">done</span>
+          </div>
+
+          <h3>Why this instead of one big agent</h3>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>One mega-agent</th>
+                <th>oowl</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="vs-old">Edits unrelated files</td>
+                <td class="vs-new">File locks constrain every task</td>
+              </tr>
+              <tr>
+                <td class="vs-old">Design lives in chat history</td>
+                <td class="vs-new">
+                  design.md, plan, review live in <code>docs/specs/</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="vs-old">"Looks done" is enough</td>
+                <td class="vs-new">Verification evidence required</td>
+              </tr>
+              <tr>
+                <td class="vs-old">Model choice is manual</td>
+                <td class="vs-new">
+                  Profiles assign cheap/mid/premium by role
+                </td>
+              </tr>
+              <tr>
+                <td class="vs-old">Security review if remembered</td>
+                <td class="vs-new">
+                  Sensitive areas trigger approval + escalation
+                </td>
+              </tr>
+              <tr>
+                <td class="vs-old">Agent handoffs are verbose</td>
+                <td class="vs-new">
+                  Caveman-Lite keeps runtime summaries concise
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Trivial-fix fast path</h3>
+          <p>
+            A request skips the full workflow when <em>all</em> of these are
+            true:
+          </p>
+          <ul
+            style="
+              color: var(--text-muted);
+              padding-left: 20px;
+              margin-bottom: 16px;
+            "
+          >
+            <li>Under ~20 lines, under 3 files</li>
+            <li>
+              No auth, IAM, payments, PII, secrets, or production config touched
+            </li>
+            <li>No new dependency introduced</li>
+            <li>No architectural decision required</li>
+          </ul>
+          <p>
+            Trivial work goes directly to one implementation agent with a
+            complete task prompt and verification requirements. You can also
+            tell dispatcher explicitly:
+            <em>"this is a trivial fix, skip the design phase."</em>
+          </p>
+        </section>
+
+        <!-- PROTOCOL SIGNALS -->
+        <section id="protocol-signals">
+          <h2>Protocol signals</h2>
+          <p>
+            Agents don't pass work through freeform chat. Every handoff is a
+            named, structured block with required fields. That's what keeps the
+            workflow machine-readable and stops agents from going off-script.
+          </p>
+
+          <h3>How signals flow</h3>
+          <div class="flow">
+            <span class="hl">dispatcher</span> classify request │ ├─ trivial →
+            emits <span class="grn">TRIVIAL_FIX_DISPATCH</span> → implementer →
+            <span class="grn">TASK_COMPLETE</span> │ └─ substantial │ ├─
+            architect/designer → <span class="grn">PHASE_COMPLETE</span> (design
+            done) │ └─ if UI → designer →
+            <span class="grn">UI_SPEC_COMPLETE</span> │ ├─ [user approves
+            design] → <span class="hl">planner</span> │ ├─ plan-reviewer →
+            <span class="grn">PLAN_APPROVED</span> or
+            <span class="red">PLAN_REJECTED</span> → planner revises │ ├─ [user
+            approves plan] → <span class="hl">builder</span> │ ├─ builder →
+            <span class="grn">REQUEST_CONSULT</span> (single task) │ →
+            <span class="grn">REQUEST_CONSULT_BATCH</span> (parallel tasks,
+            atomic) │ ├─ dispatcher dispatches → implementers │ ├─ success →
+            <span class="grn">TASK_COMPLETE</span> │ ├─ blocked →
+            <span class="red">TASK_BLOCKED</span> → escalation or user │ ├─
+            sensitive area → <span class="yellow">NEEDS_USER_INPUT</span> │ └─
+            low-tier + sensitive →
+            <span class="yellow">ESCALATION_REQUEST</span> │ ├─ if parallel
+            dispatch fails → <span class="red">PARALLEL_DISPATCH_FAILED</span> │
+            ├─ if protected artifact missing →
+            <span class="red">PROTECTED_ARTIFACT_MISSING</span> → STOP │ ├─
+            reviewer → <span class="grn">REVIEW_COMPLETE</span> │ └─ escalation
+            agent → <span class="grn">ESCALATION_COMPLETE</span>
+          </div>
+
+          <h3>Signal reference</h3>
+
+          <details open>
+            <summary>
+              <code>TRIVIAL_FIX_DISPATCH</code> (dispatcher → implementer)
+            </summary>
+            <div class="faq-body">
+              <p>
+                <strong>dispatcher</strong> sends this when a request qualifies
+                for the fast path. Design, planning, and review are skipped. The
+                implementer gets a complete task prompt and must return
+                <code>TASK_COMPLETE</code>.
+              </p>
+              <pre><code class="language-text">TRIVIAL_FIX_DISPATCH
+Justification:
+- under ~20 lines and under 3 files
+- no sensitive area touched
+- no new dependencies
+- no architectural decision required
+Target agent: &lt;agent-name&gt;
+Task prompt: |
+  &lt;complete prompt&gt;
+Files: &lt;expected files&gt;
+Verification: &lt;required checks&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>PHASE_COMPLETE</code> (architect / designer / reviewer →
+              dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Marks a workflow phase as complete. Used after design, UI spec,
+                build, and review. Includes the artifact list and the next phase
+                for dispatcher to move to.
+              </p>
+              <pre><code class="language-text">PHASE_COMPLETE
+Phase: &lt;design | implementation-spec | build | review | ui-spec&gt;
+Summary: &lt;summary&gt;
+Artifacts:
+- &lt;file created or modified&gt;
+Next phase: &lt;user-design-approval | user-implementation-approval | plan-reviewer | build | review | done&gt;
+Risks: &lt;remaining risks&gt;
+Verification:
+- &lt;checks performed or required&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>PLAN_APPROVED</code> /
+              <code>PLAN_REJECTED</code> (plan-reviewer → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                <strong>plan-reviewer</strong> returns exactly one of these.
+                <code>PLAN_APPROVED</code> moves to the user approval gate.
+                <code>PLAN_REJECTED</code> sends the plan back to
+                <strong>planner</strong> with specific required changes. A new
+                version must be approved before the workflow continues.
+              </p>
+              <pre><code class="language-text">PLAN_APPROVED
+Summary: &lt;why this plan is executable&gt;
+Next phase: user-implementation-approval
+Risks: &lt;remaining risks&gt;
+Verification: &lt;expected verification&gt;</code></pre>
+              <pre><code class="language-text">PLAN_REJECTED
+Issues:
+- &lt;BLOCKER or WARNING&gt;: &lt;issue&gt;
+Required changes:
+- &lt;specific fix&gt;
+Return to: planner</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>REQUEST_CONSULT</code> (builder → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Builder sends this to hand a single task to dispatcher: full
+                prompt, file locks, and verification checks included. Dispatcher
+                forwards it unchanged.
+              </p>
+              <pre><code class="language-text">REQUEST_CONSULT
+Target agent: &lt;agent-name&gt;
+Task ID: &lt;task id, if any&gt;
+File locks:
+- &lt;path&gt;
+Task prompt: |
+  &lt;complete prompt dispatcher should send directly&gt;
+Expected output: &lt;expected result&gt;
+Verification requirements:
+- &lt;check&gt;
+Subagent summary: &lt;current state&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>REQUEST_CONSULT_BATCH</code> (builder → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Builder sends this to dispatch 2–3 agents
+                <strong>in the same assistant message</strong>. File locks must
+                not overlap across tasks. Issuing them one at a time when a
+                valid batch is possible is a protocol violation.
+              </p>
+              <pre><code class="language-text">REQUEST_CONSULT_BATCH
+Max parallel: 3
+Wave: &lt;wave id&gt;
+Parallel group: &lt;group id&gt;
+Atomic dispatch required: yes
+Tasks:
+- Target agent: &lt;agent-name&gt;
+  Task ID: &lt;task id&gt;
+  File locks:
+    - &lt;path&gt;
+  Task prompt: |
+    &lt;complete prompt&gt;
+  Expected output: &lt;expected result&gt;
+  Verification requirements:
+    - &lt;check&gt;
+  Reason parallel-safe: &lt;reason&gt;
+Subagent summary: &lt;why this batch is safe&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>TASK_COMPLETE</code> (implementer → builder / dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                An implementer's success signal. Must include verification
+                evidence (test output, lint result, build output) and confirm
+                protected artifacts under <code>docs/specs/**</code> are still
+                present. No evidence, no completion.
+              </p>
+              <pre><code class="language-text">TASK_COMPLETE
+Task ID: &lt;task id&gt;
+Files changed:
+- &lt;file&gt;
+Verification:
+- &lt;command/result&gt;
+Risks:
+- &lt;risk or none&gt;
+Notes:
+- &lt;brief note&gt;
+Protected artifacts:
+- confirmed docs/specs/** unchanged and present</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>NEEDS_USER_INPUT</code> (any agent → user via dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Any agent that hits a sensitive area, an ambiguity, or a
+                decision it can't make on its own sends this and stops. The
+                workflow waits. Includes a safe default so the user knows what
+                happens if they don't respond.
+              </p>
+              <pre><code class="language-text">NEEDS_USER_INPUT
+Question: &lt;one clear question&gt;
+Why needed: &lt;brief reason&gt;
+Default if unanswered: &lt;safe default&gt;
+Subagent summary: &lt;brief summary&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>ESCALATION_REQUEST</code> (low-tier agent → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Low-tier agents (<code>low-engineer</code>,
+                <code>low-task-worker</code>, <code>low-architect</code>,
+                <code>low-designer</code>) stop and send this when a task turns
+                out to need more than their tier allows: sensitive areas,
+                security implications, architectural decisions. They don't
+                attempt it. Dispatcher upgrades to the right agent.
+              </p>
+              <pre><code class="language-text">ESCALATION_REQUEST
+Target agent: &lt;high-engineer | high-architect | high-designer | security-auditor&gt;
+Why cheaper agents are insufficient: &lt;reason&gt;
+What was attempted: &lt;summary&gt;
+Specific output needed: &lt;decision or deliverable&gt;
+Risk if wrong: &lt;impact&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>ESCALATION_COMPLETE</code> (high-tier agent → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Sent by escalation agents (<code>high-engineer</code>,
+                <code>high-architect</code>, <code>high-designer</code>,
+                <code>security-auditor</code>) when escalated work is done.
+              </p>
+              <pre><code class="language-text">ESCALATION_COMPLETE
+Reason escalation was justified: &lt;reason&gt;
+Result: &lt;summary&gt;
+Files changed or decisions made:
+- &lt;item&gt;
+Verification:
+- &lt;command/result or recommended check&gt;
+Remaining risks:
+- &lt;risk or none&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>REVIEW_COMPLETE</code> (reviewer → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                End of review. Lists findings by severity, any blocking issues,
+                and gaps in verification coverage.
+              </p>
+              <pre><code class="language-text">REVIEW_COMPLETE
+Summary: &lt;summary&gt;
+Findings:
+- &lt;finding count by severity&gt;
+Blocking issues: &lt;yes/no&gt;
+Verification gaps:
+- &lt;gap or none&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>PARALLEL_DISPATCH_FAILED</code> (dispatcher → builder)
+            </summary>
+            <div class="faq-body">
+              <p>
+                Dispatcher couldn't send a <code>REQUEST_CONSULT_BATCH</code> as
+                one atomic message, usually context pressure. Builder responds
+                with a fallback: run serially, split the batch, or hand the
+                decision to the user.
+              </p>
+              <pre><code class="language-text">PARALLEL_DISPATCH_FAILED
+Reason: &lt;why concurrent dispatch was not possible&gt;
+Fallback proposed: &lt;serial execution | smaller batch | user decision&gt;</code></pre>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <code>PROTECTED_ARTIFACT_MISSING</code> (any agent → dispatcher)
+            </summary>
+            <div class="faq-body">
+              <p>
+                An agent found that a protected file under
+                <code>docs/specs/**</code> is gone.
+                <strong>Stop everything</strong> and restore it from Git before
+                continuing.
+              </p>
+              <pre><code class="language-text">PROTECTED_ARTIFACT_MISSING
+Missing:
+- &lt;path&gt;
+Last task or batch: &lt;summary&gt;
+Required action: restore from git or snapshot before continuing</code></pre>
+              <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
+            </div>
+          </details>
+        </section>
+
+        <!-- AGENTS -->
+        <section id="agents">
+          <h2>Agents</h2>
+          <p>
+            23 agents across 6 classes. All files live in
+            <code>framework/agents/</code> and are copied to
+            <code>.opencode/agents/</code> on install.
+          </p>
+
+          <h3>Orchestration</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-cheap">dispatcher</span>
+            <span class="agent-tag tier-cheap">builder</span>
+          </div>
+          <p>
+            <strong>dispatcher</strong> classifies requests and routes them.
+            Only dispatcher may invoke implementation agents via Task.
+            <strong>builder</strong> is scheduler-only: no file edits, no shell,
+            no Task calls.
+          </p>
+
+          <h3>Artifact owners</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-mid">architect</span>
+            <span class="agent-tag tier-mid">designer</span>
+            <span class="agent-tag tier-mid">planner</span>
+            <span class="agent-tag tier-mid">reviewer</span>
+          </div>
+
+          <h3>Implementation</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-mid">frontend-engineer</span>
+            <span class="agent-tag tier-mid">frontend-polisher</span>
+            <span class="agent-tag tier-mid">backend-engineer</span>
+            <span class="agent-tag tier-mid">database-engineer</span>
+            <span class="agent-tag tier-high">cloud-architect</span>
+            <span class="agent-tag tier-mid">test-engineer</span>
+          </div>
+
+          <h3>Review</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-mid">code-reviewer</span>
+            <span class="agent-tag tier-mid">plan-reviewer</span>
+            <span class="agent-tag tier-mid">security-reviewer</span>
+            <span class="agent-tag tier-high">security-auditor</span>
+          </div>
+
+          <h3>Escalation</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-high">high-engineer</span>
+            <span class="agent-tag tier-high">high-architect</span>
+            <span class="agent-tag tier-high">high-designer</span>
+          </div>
+
+          <h3>Low-tier bounded</h3>
+          <div class="agent-grid">
+            <span class="agent-tag tier-cheap">low-engineer</span>
+            <span class="agent-tag tier-cheap">low-task-worker</span>
+            <span class="agent-tag tier-cheap">low-architect</span>
+            <span class="agent-tag tier-cheap">low-designer</span>
+          </div>
+
+          <div
+            style="
+              margin-top: 8px;
+              display: flex;
+              gap: 16px;
+              font-size: 12px;
+              color: var(--text-dim);
+            "
+          >
+            <span><span style="color: #3fb950">■</span> cheap/fast tier</span>
+            <span><span style="color: #4f8ef7">■</span> mid/balanced tier</span>
+            <span><span style="color: #d29922">■</span> premium/deep tier</span>
+          </div>
+        </section>
+
+        <!-- MODEL PROFILES -->
+        <section id="model-profiles">
+          <h2>Model profiles</h2>
+          <p>
+            Profiles assign models to agent tiers. Switch anytime with
+            <code>oowl profile</code>.
+          </p>
+
+          <h3>Bundled profiles (OpenCode Go)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Profile</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>low</code></td>
+                <td>Cost-first for long sessions and routine development</td>
+              </tr>
+              <tr>
+                <td><code>balanced</code></td>
+                <td>
+                  Daily fullstack. Stronger models where quality pays off.
+                </td>
+              </tr>
+              <tr>
+                <td><code>high</code></td>
+                <td>Quality-first for higher-stakes or shorter sessions</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Custom profile (no OpenCode Go needed)</h3>
+          <p>
+            <code>oowl init</code> and <code>oowl profile → custom</code> scan
+            your connected OpenCode models and let you assign them to
+            cheap/mid/premium tiers. If fewer than 3 models are detected, you
+            can enter model IDs manually.
+          </p>
+
+          <h3>Balanced profile: current mapping</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Agents</th>
+                <th>Model</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>dispatcher</code>, <code>builder</code>,
+                  <code>low-engineer</code>, <code>low-task-worker</code>
+                </td>
+                <td><code>opencode-go/deepseek-v4-flash</code></td>
+              </tr>
+              <tr>
+                <td>
+                  <code>architect</code>, <code>planner</code>,
+                  <code>plan-reviewer</code>, <code>backend-engineer</code>,
+                  <code>database-engineer</code>, <code>code-reviewer</code>
+                </td>
+                <td><code>opencode-go/minimax-m2.5</code></td>
+              </tr>
+              <tr>
+                <td>
+                  <code>reviewer</code>, <code>designer</code>,
+                  <code>frontend-engineer</code>, <code>test-engineer</code>,
+                  <code>security-reviewer</code>, <code>low-architect</code>,
+                  <code>low-designer</code>
+                </td>
+                <td><code>opencode-go/qwen3.5-plus</code></td>
+              </tr>
+              <tr>
+                <td><code>frontend-polisher</code></td>
+                <td><code>opencode-go/kimi-k2.6</code></td>
+              </tr>
+              <tr>
+                <td><code>cloud-architect</code></td>
+                <td><code>opencode-go/deepseek-v4-pro</code></td>
+              </tr>
+              <tr>
+                <td><code>security-auditor</code></td>
+                <td><code>opencode-go/glm-5.1</code></td>
+              </tr>
+              <tr>
+                <td><code>high-engineer</code></td>
+                <td><code>github-copilot/gpt-5.5</code></td>
+              </tr>
+              <tr>
+                <td><code>high-architect</code></td>
+                <td><code>github-copilot/claude-sonnet-4.6</code></td>
+              </tr>
+              <tr>
+                <td><code>high-designer</code></td>
+                <td><code>github-copilot/claude-opus-4.7</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Model availability changes. Profiles are editable defaults, not
+            permanent benchmarks.
+          </p>
+        </section>
+
+        <!-- PLUGINS -->
+        <section id="plugins">
+          <h2>Plugins</h2>
+          <p><code>opencode.jsonc</code> loads two plugins out of the box:</p>
+
+          <pre><code class="language-jsonc">"plugin": [
+  "superpowers@git+https://github.com/obra/superpowers.git",
+  "caveman@git+https://github.com/juliusbrussee/caveman.git"
+]</code></pre>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Plugin</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="https://github.com/obra/superpowers" target="_blank"
+                    >obra/superpowers</a
+                  >
+                </td>
+                <td>
+                  Skills for TDD, brainstorming, planning, systematic debugging,
+                  and review discipline. Agents load them on demand.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a
+                    href="https://github.com/juliusbrussee/caveman"
+                    target="_blank"
+                    >juliusbrussee/caveman</a
+                  >
+                </td>
+                <td>
+                  Keeps agent handoffs short and signal-dense. Applied to
+                  routing summaries and completion signals , never to artifacts,
+                  code, or security findings.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- INSTALL -->
+        <section id="install">
+          <h2>Install</h2>
+
+          <h3>oowl init</h3>
+          <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
+          <p>
+            Prompts for install location, model setup, and conflict handling.
+            Local installs write <code>opencode.jsonc</code> and
+            <code>AGENTS.md</code> to your project root. Global installs use
+            <code>~/.config/opencode/</code>.
+          </p>
+
+          <h3>oowl profile</h3>
+          <pre><code class="language-bash">oowl profile</code></pre>
+          <p>
+            Updates model assignments across all 23 agent files,
+            <code>opencode.jsonc</code>, and <code>profile-models.json</code>.
+          </p>
+
+          <h3>oowl update</h3>
+          <pre><code class="language-bash">oowl update</code></pre>
+          <p>
+            Updates framework files to the latest package version. Files you
+            haven't modified update silently. Modified files show a unified
+            diff. Keep yours or accept the update, per file.
+          </p>
+
+          <h3>Uninstall</h3>
+          <pre><code class="language-bash"># local install
+rm -rf .opencode opencode.jsonc AGENTS.md .oowl.json
+
+# global install
+rm -rf ~/.config/opencode ~/.oowl.json</code></pre>
+        </section>
+
+        <!-- CUSTOMIZING -->
+        <section id="customizing">
+          <h2>Customizing</h2>
+
+          <h3>Edit an agent prompt</h3>
+          <p>
+            Agent files live in <code>.opencode/agents/</code> (local) or
+            <code>~/.config/opencode/agents/</code> (global). Edit directly for
+            immediate effect. When <code>oowl update</code> runs and detects the
+            change, choose "keep mine" to preserve it.
+          </p>
+
+          <h3>Add an agent</h3>
+          <ol
+            style="color: var(--text-muted); padding-left: 20px; line-height: 2"
+          >
+            <li>
+              Add a <code>.md</code> file under the right class in
+              <code>framework/agents/</code>
+            </li>
+            <li>
+              Add the agent to every profile JSON under
+              <code>agent_order</code> and <code>agents</code>
+            </li>
+            <li>Update <code>framework/agents/README.md</code></li>
+            <li>
+              Add a command file in <code>framework/commands/</code> if needed
+            </li>
+            <li>
+              Run <code>oowl profile</code> to verify it appears in the model
+              strategy
+            </li>
+          </ol>
+
+          <h3>Change workflow rules</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Controls</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>framework/prompts/shared/routing.md</code></td>
+                <td>Trivial vs substantial thresholds</td>
+              </tr>
+              <tr>
+                <td><code>framework/prompts/shared/protocols.md</code></td>
+                <td>Core protocol blocks and agent communication</td>
+              </tr>
+              <tr>
+                <td><code>framework/prompts/shared/sensitive-data.md</code></td>
+                <td>Sensitive-area triggers and escalation rules</td>
+              </tr>
+              <tr>
+                <td>
+                  <code>framework/prompts/shared/protected-artifacts.md</code>
+                </td>
+                <td>Artifact ownership and protection rules</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Add a custom profile</h3>
+          <pre><code class="language-bash">cp framework/model-profiles/balanced.json framework/model-profiles/my-profile.json
+# edit my-profile.json with your model assignments
+bash scripts/apply-profile-models.sh framework/model-profiles/my-profile.json</code></pre>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+          <h2>Common issues</h2>
+
+          <div class="faq">
+            <details>
+              <summary>Agents aren't showing up in OpenCode</summary>
+              <div class="faq-body">
+                <p>
+                  OpenCode must be launched from the directory containing
+                  <code>opencode.jsonc</code>. For a local install, that's your
+                  project root.
+                </p>
+                <pre><code class="language-bash">ls .opencode/agents   # should list agent subdirs
+ls opencode.jsonc     # should exist</code></pre>
+                <p>
+                  If either is missing, re-run <code>oowl init</code> from your
+                  project root.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>oowl command not found after npm install -g</summary>
+              <div class="faq-body">
+                <p>
+                  Your global npm bin directory may not be on <code>PATH</code>.
+                </p>
+                <pre><code class="language-bash">npm bin -g   # shows the path to add</code></pre>
+                <p>
+                  Alternatively, keep using <code>npx @jimzandueta/oowl</code>,
+                  which doesn't require a global install.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Wrong model after switching profiles</summary>
+              <div class="faq-body">
+                <p>
+                  Use <code>oowl profile</code>: it updates agent frontmatter,
+                  <code>opencode.jsonc</code>, and
+                  <code>profile-models.json</code> as one atomic operation. The
+                  legacy shell script doesn't update
+                  <code>opencode.jsonc</code> unless you pass the project root
+                  as a second argument.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Fewer than 3 models found during init</summary>
+              <div class="faq-body">
+                <p>
+                  oowl needs at least one model per tier (cheap, mid, premium).
+                  Connect more providers in OpenCode's settings, then run
+                  <code>oowl init</code> again, or choose "enter manually" to
+                  type model IDs directly.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>oowl update shows everything as modified</summary>
+              <div class="faq-body">
+                <p>
+                  <code>.oowl.json</code> is missing or predates checksum
+                  tracking. Run <code>oowl init</code> (choose "skip existing
+                  files") to regenerate it. Future updates will detect changes
+                  correctly.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>Protected artifact disappeared mid-workflow</summary>
+              <div class="faq-body">
+                <p>Restore from Git:</p>
+                <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
+                <p>
+                  To protect against this, commit approved specs before
+                  implementation starts:
+                </p>
+                <pre><code class="language-bash">git add docs/specs
+git commit -m "chore: preserve approved specs for &lt;feature&gt;"</code></pre>
+              </div>
+            </details>
+
+            <details>
+              <summary>Caveman-Lite not activating</summary>
+              <div class="faq-body">
+                <p>
+                  The Caveman plugin is loaded via <code>opencode.jsonc</code>.
+                  Make sure OpenCode is running from the correct directory so it
+                  picks up the config. Check that the plugin URL is reachable
+                  from your network.
+                </p>
+              </div>
+            </details>
+
+            <details>
+              <summary>The workflow feels like too much ceremony</summary>
+              <div class="faq-body">
+                <p>
+                  Tell dispatcher explicitly:
+                  <em>"this is a trivial fix, skip the design phase."</em>
+                </p>
+                <p>
+                  Or adjust the routing thresholds directly in
+                  <code>framework/prompts/shared/routing.md</code>. The rules
+                  are yours to tune.
+                </p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- CONTRIBUTING -->
+        <section id="contributing">
+          <h2>Contributing</h2>
+          <p>Before opening a PR, run:</p>
+          <pre><code class="language-bash"># Node tests
+npm test
+
+# CLI smoke tests
+node bin/oowl.js --help
+node bin/oowl.js foobar; echo "exit: $?"   # should exit 1
+
+# Profile JSON validation
+for f in framework/model-profiles/*.json framework/profile-models.json; do
+  node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" && echo "OK: $f"
+done
+
+# npm pack check
+npm pack --dry-run</code></pre>
+
+          <p>Keep these intact:</p>
+          <ul
+            style="
+              color: var(--text-muted);
+              padding-left: 20px;
+              line-height: 2.2;
+            "
+          >
+            <li><code>dispatcher</code> owns dispatch: only it invokes Task</li>
+            <li>
+              <code>builder</code> schedules only: no file edits, no shell, no
+              Task
+            </li>
+            <li>Protected artifacts remain owner-controlled</li>
+            <li>Implementation tasks require file locks</li>
+            <li>
+              Verification evidence required before <code>TASK_COMPLETE</code>
+            </li>
+            <li>
+              Sensitive flows require explicit approval and stricter routing
+            </li>
+            <li>
+              Caveman-Lite stays limited to runtime communication, not artifacts
+              or code
+            </li>
+          </ul>
+
+          <p>
+            See
+            <a
+              href="https://github.com/jimzandueta/oowl/blob/main/CONTRIBUTING.md"
+              target="_blank"
+              >CONTRIBUTING.md</a
+            >
+            for the full process.
+          </p>
+        </section>
+
+        <!-- FOOTER -->
+        <div class="footer">
+          <span>MIT License</span>
+          <a href="https://github.com/jimzandueta/oowl" target="_blank"
+            >GitHub</a
+          >
+          <a
+            href="https://www.npmjs.com/package/@jimzandueta/oowl"
+            target="_blank"
+            >npm</a
+          >
+          <a href="https://opencode.ai/" target="_blank">OpenCode</a>
+          <a href="https://github.com/obra/superpowers" target="_blank"
+            >superpowers</a
+          >
+          <a href="https://github.com/juliusbrussee/caveman" target="_blank"
+            >caveman</a
+          >
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+      // Active sidebar link tracking
+      const links = document.querySelectorAll('.sidebar-link[href^="#"]');
+      const sections = [...links]
+        .map((l) => document.querySelector(l.getAttribute("href")))
+        .filter(Boolean);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const active = document.querySelector(
+                `.sidebar-link[href="#${entry.target.id}"]`,
+              );
+              if (active) active.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -70% 0px" },
+      );
+
+      sections.forEach((s) => observer.observe(s));
+
+      // Close mobile sidebar on link click
+      document.querySelectorAll(".sidebar-link").forEach((l) => {
+        l.addEventListener("click", () =>
+          document.querySelector(".sidebar").classList.remove("open"),
+        );
+      });
+    </script>
+  </body>
+</html>

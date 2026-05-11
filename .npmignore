@@ -1,0 +1,26 @@
+# Development files
+src/
+tests/
+docs/
+scripts/
+.claude/
+
+# TypeScript config
+tsconfig.json
+
+# Shell scripts (not needed for npm package)
+install.sh
+uninstall.sh
+
+# Docs
+CONTRIBUTING.md
+CHANGELOG.md
+MODEL_PROFILES.md
+
+# Config files
+opencode.jsonc
+AGENTS.md
+.oowl.json
+
+# Node
+node_modules/
