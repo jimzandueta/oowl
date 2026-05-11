@@ -133,12 +133,16 @@ export async function install({
     copyFileSync(profileModelsJson, join(openCodeDir, "profile-models.json"));
   }
 
-  // Local install only: copy opencode.jsonc and AGENTS.md to project root
+  // Copy opencode.jsonc and AGENTS.md to the appropriate location
+  const jsonc = join(frameworkDir, "opencode.jsonc");
+  const agentsMd = join(frameworkDir, "AGENTS.md");
+
   if (location === "local") {
-    const jsonc = join(frameworkDir, "opencode.jsonc");
-    const agentsMd = join(frameworkDir, "AGENTS.md");
     if (existsSync(jsonc)) copyFileSync(jsonc, join(cwd, "opencode.jsonc"));
     if (existsSync(agentsMd)) copyFileSync(agentsMd, join(cwd, "AGENTS.md"));
+  } else if (location === "global") {
+    if (existsSync(jsonc))
+      copyFileSync(jsonc, join(openCodeDir, "opencode.jsonc"));
   }
 
   // Build checksums for conflict detection on future updates
@@ -147,7 +151,7 @@ export async function install({
     : {};
 
   const oowlData: OowlJson = {
-    version: "1.0.3",
+    version: "1.0.5",
     location,
     profile,
     opencodeGo,

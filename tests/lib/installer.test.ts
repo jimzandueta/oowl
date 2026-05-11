@@ -22,7 +22,7 @@ describe("readOowlJson / writeOowlJson", () => {
   it("round-trips data", () => {
     const dir = makeTempDir();
     const data = {
-      version: "1.0.3",
+      version: "1.0.5",
       location: "local" as const,
       profile: "low",
       opencodeGo: false,
@@ -107,7 +107,7 @@ describe("install", () => {
     rmSync(frameworkDir, { recursive: true });
   });
 
-  it("does NOT copy opencode.jsonc or AGENTS.md for global install", async () => {
+  it("copies opencode.jsonc but not AGENTS.md for global install", async () => {
     const globalDir = makeTempDir();
     const frameworkDir = makeTempDir();
     mkdirSync(join(frameworkDir, "agents"), { recursive: true });
@@ -123,7 +123,7 @@ describe("install", () => {
       globalDir,
     });
 
-    assert.ok(!existsSync(join(globalDir, "opencode.jsonc")));
+    assert.ok(existsSync(join(globalDir, "opencode.jsonc")));
     assert.ok(!existsSync(join(globalDir, "AGENTS.md")));
     rmSync(globalDir, { recursive: true });
     rmSync(frameworkDir, { recursive: true });

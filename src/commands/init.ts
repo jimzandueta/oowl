@@ -3,7 +3,7 @@ import kleur from "kleur";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { FRAMEWORK_DIR } from "../lib/paths.js";
+import { FRAMEWORK_DIR, GLOBAL_INSTALL_DIR } from "../lib/paths.js";
 import { install, readOowlJson } from "../lib/installer.js";
 import {
   scanOpenCodeModels,
@@ -306,10 +306,14 @@ export async function init(): Promise<void> {
   }
 
   // Update opencode.jsonc model settings to match the chosen profile
+  const cheapModel = profile === 'custom' && customProfileJson
+    ? customProfileJson.global?.model ?? 'opencode-go/deepseek-v4-flash'
+    : 'opencode-go/deepseek-v4-flash'
+
   if (location === 'local') {
-    applyProfileJsonToJsonc(join(cwd, 'opencode.jsonc'), profile === 'custom' && customProfileJson
-      ? customProfileJson.global?.model ?? 'opencode-go/deepseek-v4-flash'
-      : 'opencode-go/deepseek-v4-flash')
+    applyProfileJsonToJsonc(join(cwd, 'opencode.jsonc'), cheapModel)
+  } else if (location === 'global') {
+    applyProfileJsonToJsonc(join(GLOBAL_INSTALL_DIR, 'opencode.jsonc'), cheapModel)
   }
 
   console.log(kleur.green("\nOOWL installed successfully!"));
@@ -322,6 +326,9 @@ export async function init(): Promise<void> {
   } else {
     console.log(
       `  ~/.config/opencode/  ${kleur.dim("→ agents, prompts, model-profiles")}`,
+    );
+    console.log(
+      `  ~/.config/opencode/opencode.jsonc  ${kleur.dim("→ global model settings")}`,
     );
   }
   console.log(

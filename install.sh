@@ -112,22 +112,31 @@ else
   log "Copied $SOURCE_DIR -> $TARGET_BASE"
 fi
 
-# Project mode: also place opencode.jsonc and AGENTS.md when missing.
-if [[ "$MODE" == "project" && "$INSTALL_JSONC" -eq 1 ]]; then
-  PROJECT_ROOT="${TARGET_PROJECT:-$PWD}"
+# Place opencode.jsonc and AGENTS.md when missing (project mode only for AGENTS.md).
+if [[ "$INSTALL_JSONC" -eq 1 ]]; then
+  if [[ "$MODE" == "project" ]]; then
+    PROJECT_ROOT="${TARGET_PROJECT:-$PWD}"
 
-  if [[ -f "$SOURCE_JSONC" && ! -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
-    run cp "$SOURCE_JSONC" "$PROJECT_ROOT/opencode.jsonc"
-    log "Installed opencode.jsonc to $PROJECT_ROOT/"
-  elif [[ -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
-    log "Skipping opencode.jsonc (already present in $PROJECT_ROOT/)"
-  fi
+    if [[ -f "$SOURCE_JSONC" && ! -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
+      run cp "$SOURCE_JSONC" "$PROJECT_ROOT/opencode.jsonc"
+      log "Installed opencode.jsonc to $PROJECT_ROOT/"
+    elif [[ -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
+      log "Skipping opencode.jsonc (already present in $PROJECT_ROOT/)"
+    fi
 
-  if [[ -f "$SOURCE_AGENTS_MD" && ! -f "$PROJECT_ROOT/AGENTS.md" ]]; then
-    run cp "$SOURCE_AGENTS_MD" "$PROJECT_ROOT/AGENTS.md"
-    log "Installed AGENTS.md to $PROJECT_ROOT/"
-  elif [[ -f "$PROJECT_ROOT/AGENTS.md" ]]; then
-    log "Skipping AGENTS.md (already present in $PROJECT_ROOT/)"
+    if [[ -f "$SOURCE_AGENTS_MD" && ! -f "$PROJECT_ROOT/AGENTS.md" ]]; then
+      run cp "$SOURCE_AGENTS_MD" "$PROJECT_ROOT/AGENTS.md"
+      log "Installed AGENTS.md to $PROJECT_ROOT/"
+    elif [[ -f "$PROJECT_ROOT/AGENTS.md" ]]; then
+      log "Skipping AGENTS.md (already present in $PROJECT_ROOT/)"
+    fi
+  elif [[ "$MODE" == "global" ]]; then
+    if [[ -f "$SOURCE_JSONC" && ! -f "$TARGET_BASE/opencode.jsonc" ]]; then
+      run cp "$SOURCE_JSONC" "$TARGET_BASE/opencode.jsonc"
+      log "Installed opencode.jsonc to $TARGET_BASE/"
+    elif [[ -f "$TARGET_BASE/opencode.jsonc" ]]; then
+      log "Skipping opencode.jsonc (already present in $TARGET_BASE/)"
+    fi
   fi
 fi
 
