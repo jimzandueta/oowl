@@ -57,6 +57,20 @@ describe('detectModifiedFiles', () => {
     rmSync(dir, { recursive: true })
   })
 
+  it('ignores .oowl.json metadata regardless of changes', async () => {
+    const dir = makeTempDir()
+    writeFileSync(join(dir, '.oowl.json'), '{"updatedAt":"old"}')
+
+    const { buildChecksums } = await import('../../src/lib/checksum.js')
+    const originalChecksums = await buildChecksums(dir)
+
+    writeFileSync(join(dir, '.oowl.json'), '{"updatedAt":"new"}')
+
+    const modified = await detectModifiedFiles(dir, originalChecksums)
+    assert.deepEqual(modified, [])
+    rmSync(dir, { recursive: true })
+  })
+
   it('reports files added since install as untracked (not in original checksums)', async () => {
     const dir = makeTempDir()
     writeFileSync(join(dir, 'existing.md'), 'existing')

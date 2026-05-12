@@ -11,4 +11,4 @@ Agents are organized by class. The OpenCode runtime uses the file basename as th
 | `escalation/` | `high-engineer`, `high-architect`, `high-designer` |
 | `low-tier/` | `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` |
 
-See `.opencode/prompts/shared/cost-tiering.md` for the three-tier framework and `.opencode/prompts/shared/routing.md` for default flow and the trivial-fix path.
+See `.opencode/prompts/shared/cost-tiering.md` for the three-tier framework, `.opencode/prompts/shared/routing.md` for default flow and the trivial-fix path, and `.opencode/prompts/shared/implementation-safety.md` for test-first and low-tier routing rules.

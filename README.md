@@ -36,17 +36,26 @@ oowl installs a structured multi-agent workflow on top of [OpenCode](https://ope
 npx @jimzandueta/oowl init
 ```
 
-The wizard asks where to install (local project or global), whether you have an OpenCode Go subscription, and which models to use. Then open OpenCode in your project and talk to `dispatcher`.
+The terminal walkthrough asks where to install and which model profile to use, then copies the framework into `.opencode/`. Open OpenCode in your project and talk to `dispatcher`.
 
 - **Substantial request** (new feature, refactor, anything touching auth or data) → design → your approval → plan → your approval → implementation → review.
 - **Trivial fix** (under ~20 lines, under 3 files, nothing sensitive) → one implementer, done.
 
+For substantial work inside a Git repo, `dispatcher` first asks whether to create a feature branch or continue on the current branch. If it creates a branch, it asks after review whether to merge to `main`, leave the merge to you, or keep working on that branch.
+
 ### The three commands
 
 ```bash
-npx @jimzandueta/oowl init      # first-time setup wizard
+npx @jimzandueta/oowl init      # terminal walkthrough
 npx @jimzandueta/oowl profile   # switch model profiles
 npx @jimzandueta/oowl update    # update framework files with conflict detection
+```
+
+Need scripted install flags? Use the shell installer instead:
+
+```bash
+bash install.sh --global
+bash install.sh --project /path/to/project --force
 ```
 
 ---
@@ -56,8 +65,9 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
 - **23 role-specific agents** across orchestration, design, implementation, review, escalation, and low-tier bounded work
 - **23 slash commands** for workflow phases and domain specialists
 - **Two user approval gates** before substantial implementation begins
+- **Git branch gate** before design, plus branch handoff after review
 - **Workflow-level file locks** on every implementation task, with parallel collision checks
-- **Protected design artifacts**: `design.md`, `implementation.md`, `review.md` under `docs/specs/`
+- **Protected workflow artifacts**: `design.md`, `ui-spec.md`, `implementation.md`, `review.md` under `docs/specs/`
 - **Mandatory verification evidence** before any agent can return `TASK_COMPLETE`
 - **Sensitive-area safeguards** for auth, IAM, payments, PII, secrets, and production config
 - **Switchable model profiles**: `low`, `balanced`, `high`, and `custom` (built from your connected models)
@@ -74,6 +84,7 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
 your request → dispatcher
   trivial?  → one implementer → done
   substantial?
+    → optional Git feature branch
     → architect writes design.md
     → [you approve]
     → planner writes implementation.md
@@ -82,6 +93,7 @@ your request → dispatcher
     → builder schedules implementation waves
     → dispatcher runs assigned agents, each with file locks + verification
     → reviewer writes review.md
+    → optional branch merge handoff
     → done
 ```
 
@@ -90,7 +102,7 @@ your request → dispatcher
 | One mega-agent | oowl |
 | --- | --- |
 | Edits unrelated files | File locks constrain every task |
-| Design lives in chat history | Design, plan, review live in `docs/specs/<feature>/` |
+| Design lives in chat history | Design, UI spec, plan, review live in `docs/specs/<feature>/` |
 | "Looks done" is enough | Verification evidence required |
 | Model choice is manual | Profiles assign cheap/mid/premium by role |
 | Security review if remembered | Sensitive areas trigger approval + escalation |
@@ -106,9 +118,11 @@ Agents are grouped into three cost tiers:
 
 | Tier | Use for | Agents |
 | --- | --- | --- |
-| Cheap/fast | Routing, scheduling, bounded tasks | `dispatcher`, `builder`, `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` |
+| Cheap/fast | Routing, scheduling, bounded non-feature work | `dispatcher`, `builder`, `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` |
 | Mid/balanced | Design, planning, implementation, review | `architect`, `planner`, specialists, reviewers |
 | Premium/deep | Escalations, hard problems, deep security | `high-*`, `security-auditor` |
+
+New or changed behavior is planned with test-first coverage and assigned to a TDD-capable implementation agent. Low-tier agents are not used for feature behavior or test-writing work.
 
 ### Bundled profiles (OpenCode Go)
 
@@ -132,15 +146,29 @@ Full profile details → [MODEL_PROFILES.md](MODEL_PROFILES.md)
 
 ## Install
 
-All three commands are interactive. No flags needed.
+`oowl init`, `oowl profile`, and `oowl update` are interactive. Shell-installer-compatible flags live on `install.sh`.
 
 ### `oowl init`
 
-Prompts for install location (local `.opencode/` or global `~/.config/opencode/`), model setup, and conflict handling on existing files. Local installs also write `opencode.jsonc` and `AGENTS.md` to your project root.
+Starts the terminal walkthrough:
+
+```bash
+oowl init
+```
+
+The walkthrough asks for local vs global install, model setup, and overwrite confirmation when needed. Local installs write framework files and `opencode.jsonc` under `.opencode/`, plus `AGENTS.md` and `.oowl.json` to the project root.
+
+For scripted installs, use `install.sh`:
+
+```bash
+bash install.sh --global
+bash install.sh --project /path/to/project --force
+bash install.sh --project /path/to/project --dry-run
+```
 
 ### `oowl profile`
 
-Switches the active model profile. Updates agent frontmatter, `opencode.jsonc` global settings, and saves the active profile.
+Switches the active model profile. Updates agent frontmatter, `opencode.jsonc` global settings, and records the active profile.
 
 ### `oowl update`
 
@@ -153,34 +181,43 @@ npm install -g @jimzandueta/oowl
 oowl init
 ```
 
+Choose the global install option in the walkthrough.
+
 ### Uninstall
 
+Use the bundled uninstall script from the repo or package checkout:
+
 ```bash
-# local
-rm -rf .opencode opencode.jsonc AGENTS.md .oowl.json
+# local install in the current directory
+bash uninstall.sh --project
+
+# local install in another project
+bash uninstall.sh --project /path/to/project
 
 # global
-rm -rf ~/.config/opencode ~/.oowl.json
+bash uninstall.sh --global
 ```
+
+Add `--dry-run` to preview removals. Add `--keep-project-files` to remove `.opencode/` but keep project-root files such as `AGENTS.md`, `.oowl.json`, and legacy `opencode.jsonc`.
 
 ---
 
 ## Things that trip people up
 
 **Agents aren't showing up in OpenCode**
-OpenCode must be launched from the directory that contains `opencode.jsonc`. For a local install, that's your project root.
+OpenCode must be launched from the project that contains the installed `.opencode/` directory.
 
 **`oowl` not found after `npm install -g`**
 Your global npm bin directory may not be on `PATH`. Run `npm bin -g` to find it, or keep using `npx @jimzandueta/oowl`.
 
 **Wrong model after switching profiles**
-Use `oowl profile`: it updates agent frontmatter, `opencode.jsonc`, and `profile-models.json` as one operation. The legacy shell script doesn't update `opencode.jsonc` unless you pass the project root as a second argument.
+Use `oowl profile`: it updates agent frontmatter, `opencode.jsonc`, and the recorded active profile. Installs created by `install.sh` include the metadata needed for profile switching and updates.
 
-**Fewer than 3 models found during init**
-oowl needs at least one model per tier. Connect more providers in OpenCode settings, then run `oowl init` again, or choose "enter manually" to type model IDs directly.
+**Fewer than 3 models found during custom profile setup**
+oowl needs at least one model per tier. Connect more providers in OpenCode settings, then run `oowl init` or `oowl profile` again, or enter model IDs manually.
 
 **`oowl update` shows everything as modified**
-`.oowl.json` is missing or predates checksum tracking. Run `oowl init` (choose "skip existing files") to regenerate it. Future updates will detect changes correctly.
+`.oowl.json` is missing or predates checksum tracking. Reinstall with `oowl init` and confirm replacement when you are ready to replace the installed framework files. Future updates will detect changes correctly.
 
 **Protected artifact disappeared mid-workflow**
 Restore from Git:

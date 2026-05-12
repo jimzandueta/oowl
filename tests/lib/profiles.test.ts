@@ -58,6 +58,80 @@ describe('buildCustomProfile', () => {
   })
 })
 
+describe('agent permissions', () => {
+  it('does not put blanket edit or write denies on dispatcher', () => {
+    const dispatcher = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '01-orchestration', 'dispatcher.md'),
+      'utf8',
+    )
+
+    assert.ok(!dispatcher.includes('\n  edit: deny\n'))
+    assert.ok(!dispatcher.includes('\n  write: deny\n'))
+    assert.ok(dispatcher.includes('"docs/specs/**": deny'))
+    assert.ok(dispatcher.includes('"AGENTS.md": deny'))
+  })
+})
+
+describe('workflow routing policy', () => {
+  it('centralizes test-first behavior policy in implementation-safety', () => {
+    const implementationSafety = readFileSync(
+      join(process.cwd(), 'framework', 'prompts', 'shared', 'implementation-safety.md'),
+      'utf8',
+    )
+    const planner = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '02-artifact-owners', 'planner.md'),
+      'utf8',
+    )
+    const planReviewer = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '04-review', 'plan-reviewer.md'),
+      'utf8',
+    )
+
+    assert.ok(implementationSafety.includes('New or changed behavior must be planned with test-first coverage.'))
+    assert.ok(implementationSafety.includes('a test-first step that creates or updates a focused automated test'))
+    assert.ok(implementationSafety.includes('specific no-test rationale and manual verification plan'))
+    assert.ok(planner.includes('implementation-safety.md'))
+    assert.ok(planReviewer.includes('implementation-safety.md'))
+  })
+
+  it('centralizes low-tier edit limits in implementation-safety', () => {
+    const implementationSafety = readFileSync(
+      join(process.cwd(), 'framework', 'prompts', 'shared', 'implementation-safety.md'),
+      'utf8',
+    )
+    const costTiering = readFileSync(
+      join(process.cwd(), 'framework', 'prompts', 'shared', 'cost-tiering.md'),
+      'utf8',
+    )
+    const lowTaskWorker = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '06-low-tier', 'low-task-worker.md'),
+      'utf8',
+    )
+    const lowEngineer = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '06-low-tier', 'low-engineer.md'),
+      'utf8',
+    )
+    const builder = readFileSync(
+      join(process.cwd(), 'framework', 'agents', '01-orchestration', 'builder.md'),
+      'utf8',
+    )
+    const routing = readFileSync(
+      join(process.cwd(), 'framework', 'prompts', 'shared', 'routing.md'),
+      'utf8',
+    )
+
+    assert.ok(implementationSafety.includes('Low-tier agents do not load Superpowers and must not be used to bypass TDD.'))
+    assert.ok(implementationSafety.includes('`low-task-worker` may handle read-only checks, trivial file creation'))
+    assert.ok(implementationSafety.includes('`low-engineer` may handle only tiny mechanical edits'))
+    assert.ok(implementationSafety.includes('If a low-tier task would require creating or updating tests'))
+    assert.ok(costTiering.includes('implementation-safety.md'))
+    assert.ok(lowTaskWorker.includes('implementation-safety.md'))
+    assert.ok(lowEngineer.includes('implementation-safety.md'))
+    assert.ok(builder.includes('implementation-safety.md'))
+    assert.ok(routing.includes('implementation-safety.md'))
+  })
+})
+
 describe('applyProfile', () => {
   it('updates model lines in agent files', async () => {
     const dir = join(tmpdir(), `oowl-test-${Date.now()}`)

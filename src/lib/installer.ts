@@ -6,16 +6,18 @@ import {
   copyFileSync,
   readdirSync,
   statSync,
+  rmSync,
 } from "node:fs";
-import { join } from "node:path";
-import { GLOBAL_INSTALL_DIR } from "./paths.js";
+import { dirname, join } from "node:path";
+import { GLOBAL_INSTALL_DIR, getInstallRoot, getOpenCodeDir } from "./paths.js";
+import type { InstallLocation } from "./paths.js";
 import { buildChecksums } from "./checksum.js";
 
 const OOWL_JSON = ".oowl.json";
 
 export interface OowlJson {
   version: string;
-  location: "local" | "global";
+  location: InstallLocation;
   profile: string;
   opencodeGo: boolean;
   installedAt: string;
@@ -24,12 +26,22 @@ export interface OowlJson {
 }
 
 export interface InstallOptions {
-  location: "local" | "global";
+  location: InstallLocation;
   cwd: string;
   frameworkDir: string;
   profile: string;
   opencodeGo: boolean;
   globalDir?: string;
+  force?: boolean;
+  installJsonc?: boolean;
+  dryRun?: boolean;
+  logger?: (message: string) => void;
+}
+
+export interface OowlInstall {
+  oowl: OowlJson;
+  installRoot: string;
+  openCodeDir: string;
 }
 
 export function readOowlJson(root: string): OowlJson | null {
@@ -50,42 +62,105 @@ export function writeOowlJson(root: string, data: OowlJson): void {
   );
 }
 
-/** Strip leading NN- or NN_ numeric prefixes from directory names (e.g. "01-orchestration" → "orchestration"). */
-export function stripNumericPrefix(name: string): string {
-  return name.replace(/^\d+[_-]/, "");
+export function findOowlInstall(
+  cwd: string = process.cwd(),
+  globalDir: string = GLOBAL_INSTALL_DIR,
+): OowlInstall | null {
+  const local = readOowlJson(cwd);
+  if (local) {
+    return {
+      oowl: local,
+      installRoot: getInstallRoot(local.location, cwd, globalDir),
+      openCodeDir: getOpenCodeDir(local.location, cwd, globalDir),
+    };
+  }
+
+  const global = readOowlJson(globalDir);
+  if (global) {
+    return {
+      oowl: global,
+      installRoot: getInstallRoot(global.location, cwd, globalDir),
+      openCodeDir: getOpenCodeDir(global.location, cwd, globalDir),
+    };
+  }
+
+  return null;
 }
 
-/**
- * Recursively copy src → dest, stripping numeric prefixes from directory names.
- * Files keep their original names; only directories are renamed.
- */
-function copyStripped(src: string, dest: string): void {
-  mkdirSync(dest, { recursive: true });
+function validateFramework(frameworkDir: string): void {
+  for (const dir of ["agents", "commands", "prompts", "model-profiles"]) {
+    const full = join(frameworkDir, dir);
+    if (!existsSync(full) || !statSync(full).isDirectory()) {
+      throw new Error(`Required source directory not found: ${full}`);
+    }
+  }
+
+  const agentsMd = join(frameworkDir, "AGENTS.md");
+  if (!existsSync(agentsMd) || !statSync(agentsMd).isFile()) {
+    throw new Error(`Required file not found: ${agentsMd}`);
+  }
+}
+
+function run(
+  dryRun: boolean,
+  logger: ((message: string) => void) | undefined,
+  description: string,
+  action: () => void,
+): void {
+  if (dryRun) {
+    logger?.(`[dry-run] ${description}`);
+    return;
+  }
+  action();
+}
+
+/** Recursively copy src → dest preserving directory names. */
+function copyRecursive(
+  src: string,
+  dest: string,
+  dryRun: boolean,
+  logger?: (message: string) => void,
+): void {
+  run(dryRun, logger, `mkdir -p ${dest}`, () =>
+    mkdirSync(dest, { recursive: true }),
+  );
   for (const entry of readdirSync(src)) {
     const srcFull = join(src, entry);
+    const destFull = join(dest, entry);
     const isDir = statSync(srcFull).isDirectory();
-    const destName = isDir ? stripNumericPrefix(entry) : entry;
-    const destFull = join(dest, destName);
     if (isDir) {
-      copyStripped(srcFull, destFull);
+      copyRecursive(srcFull, destFull, dryRun, logger);
     } else {
-      copyFileSync(srcFull, destFull);
+      run(dryRun, logger, `cp ${srcFull} ${destFull}`, () =>
+        copyFileSync(srcFull, destFull),
+      );
     }
   }
 }
 
 /** Recursively collect all files from subdirectories into a single flat directory. */
-function copyFlat(src: string, dest: string): void {
-  mkdirSync(dest, { recursive: true });
+function copyFlat(
+  src: string,
+  dest: string,
+  dryRun: boolean,
+  logger?: (message: string) => void,
+  ensureDest = true,
+): void {
+  if (ensureDest) {
+    run(dryRun, logger, `mkdir -p ${dest}`, () =>
+      mkdirSync(dest, { recursive: true }),
+    );
+  }
   for (const entry of readdirSync(src)) {
     const srcFull = join(src, entry);
     if (statSync(srcFull).isDirectory()) {
-      copyFlat(srcFull, dest);
+      copyFlat(srcFull, dest, dryRun, logger, false);
     } else if (statSync(srcFull).isFile()) {
+      if (entry === "README.md") continue;
       const destFull = join(dest, entry);
-      if (!existsSync(destFull)) {
-        copyFileSync(srcFull, destFull);
-      }
+      run(dryRun, logger, `cp ${srcFull} ${destFull}`, () =>
+        copyFileSync(srcFull, destFull),
+      );
     }
   }
 }
@@ -97,61 +172,129 @@ export async function install({
   profile,
   opencodeGo,
   globalDir,
+  force = false,
+  installJsonc = true,
+  dryRun = false,
+  logger,
 }: InstallOptions): Promise<void> {
-  const installRoot =
-    location === "global" ? (globalDir ?? GLOBAL_INSTALL_DIR) : cwd;
-  const openCodeDir =
-    location === "global"
-      ? (globalDir ?? GLOBAL_INSTALL_DIR)
-      : join(cwd, ".opencode");
+  validateFramework(frameworkDir);
 
-  // Copy agents — strip numeric prefixes from category directories
-  const agentsSrc = join(frameworkDir, "agents");
-  if (existsSync(agentsSrc)) {
-    copyStripped(agentsSrc, join(openCodeDir, "agents"));
-  }
+  const effectiveGlobalDir = globalDir ?? GLOBAL_INSTALL_DIR;
+  const installRoot = getInstallRoot(location, cwd, effectiveGlobalDir);
+  const openCodeDir = getOpenCodeDir(location, cwd, effectiveGlobalDir);
 
-  // Copy prompts and model-profiles (keep directory names, strip numeric prefixes)
-  for (const sub of ["prompts", "model-profiles"]) {
-    const src = join(frameworkDir, sub);
-    if (existsSync(src)) {
-      copyStripped(src, join(openCodeDir, sub));
+  if (existsSync(openCodeDir)) {
+    if (!force) {
+      throw new Error(
+        `Target already exists: ${openCodeDir}. Re-run with --force to overwrite.`,
+      );
     }
+    logger?.(`Removing existing install at ${openCodeDir}`);
+    run(dryRun, logger, `rm -rf ${openCodeDir}`, () =>
+      rmSync(openCodeDir, { recursive: true, force: true }),
+    );
   }
 
-  // Copy commands — flatten: OpenCode expects commands directly in the commands/
-  // directory (e.g. .opencode/commands/build.md), not nested in subdirectories.
-  const commandsSrc = join(frameworkDir, "commands");
-  if (existsSync(commandsSrc)) {
-    copyFlat(commandsSrc, join(openCodeDir, "commands"));
-  }
+  run(dryRun, logger, `mkdir -p ${dirname(openCodeDir)}`, () =>
+    mkdirSync(dirname(openCodeDir), { recursive: true }),
+  );
 
-  // Copy profile-models.json
+  copyFlat(
+    join(frameworkDir, "agents"),
+    join(openCodeDir, "agents"),
+    dryRun,
+    logger,
+  );
+  logger?.(
+    `Flat copied agents: ${join(frameworkDir, "agents")} -> ${join(openCodeDir, "agents")}`,
+  );
+
+  copyFlat(
+    join(frameworkDir, "commands"),
+    join(openCodeDir, "commands"),
+    dryRun,
+    logger,
+  );
+  logger?.(
+    `Flat copied commands: ${join(frameworkDir, "commands")} -> ${join(openCodeDir, "commands")}`,
+  );
+
+  copyRecursive(
+    join(frameworkDir, "prompts"),
+    join(openCodeDir, "prompts"),
+    dryRun,
+    logger,
+  );
+  logger?.(
+    `Copied prompts: ${join(frameworkDir, "prompts")} -> ${join(openCodeDir, "prompts")}`,
+  );
+
+  copyRecursive(
+    join(frameworkDir, "model-profiles"),
+    join(openCodeDir, "model-profiles"),
+    dryRun,
+    logger,
+  );
+  logger?.(
+    `Copied model-profiles: ${join(frameworkDir, "model-profiles")} -> ${join(openCodeDir, "model-profiles")}`,
+  );
+
   const profileModelsJson = join(frameworkDir, "profile-models.json");
   if (existsSync(profileModelsJson)) {
-    mkdirSync(openCodeDir, { recursive: true });
-    copyFileSync(profileModelsJson, join(openCodeDir, "profile-models.json"));
+    run(dryRun, logger, `mkdir -p ${openCodeDir}`, () =>
+      mkdirSync(openCodeDir, { recursive: true }),
+    );
+    run(
+      dryRun,
+      logger,
+      `cp ${profileModelsJson} ${join(openCodeDir, "profile-models.json")}`,
+      () =>
+        copyFileSync(
+          profileModelsJson,
+          join(openCodeDir, "profile-models.json"),
+        ),
+    );
+    logger?.("Copied profile-models.json");
   }
 
-  // Copy opencode.jsonc and AGENTS.md to the appropriate location
   const jsonc = join(frameworkDir, "opencode.jsonc");
   const agentsMd = join(frameworkDir, "AGENTS.md");
 
-  if (location === "local") {
-    if (existsSync(jsonc)) copyFileSync(jsonc, join(cwd, "opencode.jsonc"));
-    if (existsSync(agentsMd)) copyFileSync(agentsMd, join(cwd, "AGENTS.md"));
-  } else if (location === "global") {
-    if (existsSync(jsonc))
-      copyFileSync(jsonc, join(openCodeDir, "opencode.jsonc"));
+  if (installJsonc && existsSync(jsonc)) {
+    run(
+      dryRun,
+      logger,
+      `cp ${jsonc} ${join(openCodeDir, "opencode.jsonc")}`,
+      () => copyFileSync(jsonc, join(openCodeDir, "opencode.jsonc")),
+    );
+    logger?.("Copied opencode.jsonc");
   }
 
-  // Build checksums for conflict detection on future updates
+  if (location === "local") {
+    run(dryRun, logger, `cp ${agentsMd} ${join(cwd, "AGENTS.md")}`, () =>
+      copyFileSync(agentsMd, join(cwd, "AGENTS.md")),
+    );
+    logger?.(`Installed AGENTS.md to ${cwd}/`);
+  } else if (location === "global") {
+    run(
+      dryRun,
+      logger,
+      `cp ${agentsMd} ${join(openCodeDir, "AGENTS.md")}`,
+      () => copyFileSync(agentsMd, join(openCodeDir, "AGENTS.md")),
+    );
+    logger?.(`Installed AGENTS.md to ${openCodeDir}/`);
+  }
+
+  if (dryRun) {
+    return;
+  }
+
   const checksums = existsSync(openCodeDir)
     ? await buildChecksums(openCodeDir)
     : {};
 
   const oowlData: OowlJson = {
-    version: "1.0.7",
+    version: "1.1.0",
     location,
     profile,
     opencodeGo,

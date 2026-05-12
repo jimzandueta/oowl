@@ -1,7 +1,7 @@
 import kleur from 'kleur'
 
-const COMMANDS: Record<string, () => Promise<void>> = {
-  init: () => import('./commands/init.js').then(m => m.init()),
+const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
+  init: args => import('./commands/init.js').then(m => m.init(args)),
   profile: () => import('./commands/profile.js').then(m => m.profile()),
   update: () => import('./commands/update.js').then(m => m.update()),
 }
@@ -14,7 +14,7 @@ ${kleur.bold('Usage:')}
   oowl <command>
 
 ${kleur.bold('Commands:')}
-  ${kleur.cyan('init')}     Install the OOWL multi-agent framework (first-time setup)
+  ${kleur.cyan('init')}     Install the OOWL multi-agent framework
   ${kleur.cyan('profile')}  Switch to a different model cost profile
   ${kleur.cyan('update')}   Update framework files to the latest version
 
@@ -41,7 +41,7 @@ export async function run(args: string[]): Promise<void> {
   }
 
   try {
-    await COMMANDS[cmd]()
+    await COMMANDS[cmd](args.slice(1))
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error(kleur.red(`Error: ${message}`))

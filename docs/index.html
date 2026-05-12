@@ -651,7 +651,7 @@
       </a>
       <span class="topbar-tagline">OpenCode Opinionated Workflow Layer</span>
       <nav class="topbar-links">
-        <span class="badge">v1.0.7</span>
+        <span class="badge">v1.1.0</span>
         <a href="https://github.com/jimzandueta/oowl" target="_blank">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -859,9 +859,10 @@
                 <h3>Install the framework</h3>
                 <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
                 <p>
-                  The wizard asks where to install (local project or global),
-                  whether you have an OpenCode Go subscription, and which models
-                  to use for each cost tier.
+                  The terminal walkthrough asks where to install and which model
+                  profile to use, then copies the framework into
+                  <code>.opencode/</code>. Choose the global option in the
+                  walkthrough to install into <code>~/.config/opencode/</code>.
                 </p>
               </div>
             </div>
@@ -870,9 +871,8 @@
                 <h3>Open OpenCode</h3>
                 <pre><code class="language-bash">opencode</code></pre>
                 <p>
-                  Launch from your project root. OpenCode picks up
-                  <code>opencode.jsonc</code> and the agents in
-                  <code>.opencode/</code>.
+                  Launch from your project root. OpenCode picks up the config
+                  and agents from <code>.opencode/</code>.
                 </p>
               </div>
             </div>
@@ -890,9 +890,15 @@
           </div>
 
           <h3>The three commands</h3>
-          <pre><code class="language-bash">npx @jimzandueta/oowl init      # first-time setup wizard
+          <pre><code class="language-bash">npx @jimzandueta/oowl init      # terminal walkthrough
 npx @jimzandueta/oowl profile   # switch model profiles interactively
 npx @jimzandueta/oowl update    # update framework files with conflict detection</code></pre>
+
+          <p>
+            Need scripted install flags? Use <code>install.sh</code> instead:
+            <code>bash install.sh --global</code> or
+            <code>bash install.sh --project /path/to/project --force</code>.
+          </p>
 
           <div class="callout info">
             <span class="callout-icon">💡</span>
@@ -937,6 +943,13 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
                 </td>
               </tr>
               <tr>
+                <td><strong>Git branch gate</strong></td>
+                <td>
+                  Dispatcher can create an approved feature branch before design
+                  and handle the branch after review
+                </td>
+              </tr>
+              <tr>
                 <td><strong>File locks</strong></td>
                 <td>
                   Every implementation task declares exact paths; parallel tasks
@@ -946,8 +959,9 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
               <tr>
                 <td><strong>Protected artifacts</strong></td>
                 <td>
-                  <code>design.md</code>, <code>implementation.md</code>,
-                  <code>review.md</code> under <code>docs/specs/</code>
+                  <code>design.md</code>, <code>ui-spec.md</code>,
+                  <code>implementation.md</code>, <code>review.md</code> under
+                  <code>docs/specs/</code>
                 </td>
               </tr>
               <tr>
@@ -997,6 +1011,8 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
             <span class="dim"> │</span>
             <span class="dim"> └─</span> <span class="hl">substantial</span>
             <span class="dim"> │</span>
+            <span class="dim"> ├─</span> optional Git feature branch
+            <span class="dim"> │</span>
             <span class="dim"> ├─</span> architect writes
             <span class="hl">design.md</span> <span class="dim"> │ </span> +
             designer writes <span class="hl">ui-spec.md</span> (if UI)
@@ -1021,6 +1037,8 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
             <span class="dim"> ├─</span> reviewer writes
             <span class="hl">review.md</span>
             <span class="dim"> │</span>
+            <span class="dim"> ├─</span> optional branch merge handoff
+            <span class="dim"> │</span>
             <span class="dim"> └─</span> <span class="grn">done</span>
           </div>
 
@@ -1040,7 +1058,8 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
               <tr>
                 <td class="vs-old">Design lives in chat history</td>
                 <td class="vs-new">
-                  design.md, plan, review live in <code>docs/specs/</code>
+                  design.md, ui-spec.md, plan, review live in
+                  <code>docs/specs/</code>
                 </td>
               </tr>
               <tr>
@@ -1086,6 +1105,7 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
             </li>
             <li>No new dependency introduced</li>
             <li>No architectural decision required</li>
+            <li>No new feature behavior or test-writing work required</li>
           </ul>
           <p>
             Trivial work goes directly to one implementation agent with a
@@ -1115,6 +1135,8 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
             <span class="grn">TASK_COMPLETE</span>
             <span class="dim">│</span>
             <span class="dim">└─</span> substantial
+            <span class="dim"> │</span>
+            <span class="dim"> ├─</span> dispatcher runs Git branch gate
             <span class="dim"> │</span>
             <span class="dim"> ├─</span> architect →
             <span class="grn">PHASE_COMPLETE</span> (phase: design)
@@ -1161,6 +1183,9 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
             <span class="dim"> │</span>
             <span class="dim"> ├─</span> reviewer →
             <span class="grn">REVIEW_COMPLETE</span>
+            <span class="dim"> │</span>
+            <span class="dim"> ├─</span> dispatcher runs branch handoff if it
+            created a feature branch
             <span class="dim"> │</span>
             <span class="dim"> └─</span> escalation agent →
             <span class="dim"> </span>
@@ -1354,8 +1379,9 @@ Subagent summary: &lt;brief summary&gt;</code></pre>
                 <code>low-task-worker</code>, <code>low-architect</code>,
                 <code>low-designer</code>) stop and send this when a task turns
                 out to need more than their tier allows: sensitive areas,
-                security implications, architectural decisions. They don't
-                attempt it. Dispatcher upgrades to the right agent.
+                security implications, architectural decisions, feature
+                behavior, or test creation/update work. They don't attempt it.
+                Dispatcher upgrades to the right agent.
               </p>
               <pre><code class="language-text">ESCALATION_REQUEST
 Target agent: &lt;high-engineer | high-architect | high-designer | security-auditor&gt;
@@ -1460,10 +1486,36 @@ Required action: restore from git or snapshot before continuing</code></pre>
             <span class="agent-tag tier-cheap">builder</span>
           </div>
           <p>
-            <strong>dispatcher</strong> classifies requests and routes them.
-            Only dispatcher may invoke implementation agents via Task.
+            <strong>dispatcher</strong> classifies requests and routes them. It
+            also owns substantial-work Git branch setup and final branch
+            handoff. Only dispatcher may invoke implementation agents via Task.
             <strong>builder</strong> is scheduler-only: no file edits, no shell,
             no Task calls.
+          </p>
+
+          <h3>Permission boundaries</h3>
+          <p>
+            All agents can read, list, and search files for context. Artifact
+            owners can write only their owned files under
+            <code>docs/specs/</code>: <code>design.md</code>,
+            <code>ui-spec.md</code>, <code>implementation.md</code>, or
+            <code>review.md</code>. Implementation and escalation agents can ask
+            to edit scoped work files, but cannot modify
+            <code>docs/specs/**</code> or <code>AGENTS.md</code>. Review and
+            read-only agents cannot edit or write files. Dispatcher must not
+            edit during workflow routing; its protected-file denies stay narrow
+            so implementation agents launched through Task keep their own edit
+            tools.
+          </p>
+          <p>
+            Safe exploration shell commands such as <code>ls</code>,
+            <code>find</code>, <code>grep</code>, <code>rg</code>,
+            <code>cat</code>, and <code>git diff</code> are allowed where the
+            agent role permits shell use. <strong>dispatcher</strong> may also
+            inspect Git branch state, create an approved feature branch, and run
+            an approved post-review branch handoff.
+            <strong>builder</strong> remains shell-denied because it is
+            scheduler-only.
           </p>
 
           <h3>Artifact owners</h3>
@@ -1506,6 +1558,14 @@ Required action: restore from git or snapshot before continuing</code></pre>
             <span class="agent-tag tier-cheap">low-architect</span>
             <span class="agent-tag tier-cheap">low-designer</span>
           </div>
+          <p>
+            Low-tier agents are not a TDD bypass. <code>low-task-worker</code>
+            may handle read-only checks, trivial file creation with exact
+            content, and tiny mechanical edits to explicitly named files.
+            <code>low-engineer</code> is limited to tiny mechanical edits with
+            existing local verification. New or changed behavior goes to a
+            TDD-capable implementation agent.
+          </p>
 
           <div
             style="
@@ -1683,17 +1743,23 @@ Required action: restore from git or snapshot before continuing</code></pre>
           <h3>oowl init</h3>
           <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
           <p>
-            Prompts for install location, model setup, and conflict handling.
-            Local installs write <code>opencode.jsonc</code> and
-            <code>AGENTS.md</code> to your project root. Global installs use
-            <code>~/.config/opencode/</code>.
+            Starts the terminal walkthrough. It asks for local vs global
+            install, model setup, and overwrite confirmation when needed. Local
+            installs write framework files and <code>opencode.jsonc</code> under
+            <code>.opencode/</code>, plus <code>AGENTS.md</code> and
+            <code>.oowl.json</code> to your project root.
+          </p>
+          <p>
+            For automation, use <code>install.sh</code>. Its flags include
+            <code>--global</code>, <code>--project</code>, <code>--force</code>,
+            <code>--no-jsonc</code>, and <code>--dry-run</code>.
           </p>
 
           <h3>oowl profile</h3>
           <pre><code class="language-bash">oowl profile</code></pre>
           <p>
             Updates model assignments across all 23 agent files,
-            <code>opencode.jsonc</code>, and <code>profile-models.json</code>.
+            <code>opencode.jsonc</code>, and the recorded active profile.
           </p>
 
           <h3>oowl update</h3>
@@ -1705,11 +1771,24 @@ Required action: restore from git or snapshot before continuing</code></pre>
           </p>
 
           <h3>Uninstall</h3>
-          <pre><code class="language-bash"># local install
-rm -rf .opencode opencode.jsonc AGENTS.md .oowl.json
+          <p>
+            Use the bundled uninstall script from the repo or package checkout:
+          </p>
+          <pre><code class="language-bash"># local install in the current directory
+bash uninstall.sh --project
+
+# local install in another project
+bash uninstall.sh --project /path/to/project
 
 # global install
-rm -rf ~/.config/opencode ~/.oowl.json</code></pre>
+bash uninstall.sh --global</code></pre>
+          <p>
+            Add <code>--dry-run</code> to preview removals. Add
+            <code>--keep-project-files</code> to remove
+            <code>.opencode/</code> but keep project-root files such as
+            <code>AGENTS.md</code>, <code>.oowl.json</code>, and legacy
+            <code>opencode.jsonc</code>.
+          </p>
         </section>
 
         <!-- CUSTOMIZING -->
@@ -1769,6 +1848,12 @@ rm -rf ~/.config/opencode ~/.oowl.json</code></pre>
               </tr>
               <tr>
                 <td>
+                  <code>framework/prompts/shared/implementation-safety.md</code>
+                </td>
+                <td>Test-first coverage and low-tier routing safety</td>
+              </tr>
+              <tr>
+                <td>
                   <code>framework/prompts/shared/protected-artifacts.md</code>
                 </td>
                 <td>Artifact ownership and protection rules</td>
@@ -1791,12 +1876,11 @@ bash scripts/apply-profile-models.sh framework/model-profiles/my-profile.json</c
               <summary>Agents aren't showing up in OpenCode</summary>
               <div class="faq-body">
                 <p>
-                  OpenCode must be launched from the directory containing
-                  <code>opencode.jsonc</code>. For a local install, that's your
-                  project root.
+                  OpenCode must be launched from the project that contains the
+                  installed <code>.opencode/</code> directory.
                 </p>
-                <pre><code class="language-bash">ls .opencode/agents   # should list agent subdirs
-ls opencode.jsonc     # should exist</code></pre>
+                <pre><code class="language-bash">ls .opencode/agents      # should list agent files
+ls .opencode/opencode.jsonc  # should exist</code></pre>
                 <p>
                   If either is missing, re-run <code>oowl init</code> from your
                   project root.
@@ -1823,23 +1907,23 @@ ls opencode.jsonc     # should exist</code></pre>
               <div class="faq-body">
                 <p>
                   Use <code>oowl profile</code>: it updates agent frontmatter,
-                  <code>opencode.jsonc</code>, and
-                  <code>profile-models.json</code> as one atomic operation. The
-                  legacy shell script doesn't update
-                  <code>opencode.jsonc</code> unless you pass the project root
-                  as a second argument.
+                  <code>opencode.jsonc</code>, and the recorded active profile.
+                  Installs created by <code>install.sh</code> include the
+                  metadata needed for profile switching and updates.
                 </p>
               </div>
             </details>
 
             <details>
-              <summary>Fewer than 3 models found during init</summary>
+              <summary>
+                Fewer than 3 models found during custom profile setup
+              </summary>
               <div class="faq-body">
                 <p>
                   oowl needs at least one model per tier (cheap, mid, premium).
                   Connect more providers in OpenCode's settings, then run
-                  <code>oowl init</code> again, or choose "enter manually" to
-                  type model IDs directly.
+                  <code>oowl init</code> or <code>oowl profile</code> again, or
+                  enter model IDs manually.
                 </p>
               </div>
             </details>
@@ -1849,9 +1933,9 @@ ls opencode.jsonc     # should exist</code></pre>
               <div class="faq-body">
                 <p>
                   <code>.oowl.json</code> is missing or predates checksum
-                  tracking. Run <code>oowl init</code> (choose "skip existing
-                  files") to regenerate it. Future updates will detect changes
-                  correctly.
+                  tracking. Reinstall with <code>oowl init</code> and confirm
+                  replacement when you are ready to replace the installed
+                  framework files. Future updates will detect changes correctly.
                 </p>
               </div>
             </details>

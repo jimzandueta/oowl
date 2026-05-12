@@ -18,13 +18,15 @@ To change the bundled default for all future installs, edit `framework/agents/<c
 
 ## Add a slash command
 
-Add a `.md` file directly in `framework/commands/` (commands are flat — no subdirectories).
+Add a `.md` file under the appropriate class in `framework/commands/`. Installed commands are flattened into `.opencode/commands/`.
 
 ## Change workflow rules
 
 ```text
 framework/prompts/shared/protocols.md          — core protocol blocks
 framework/prompts/shared/routing.md            — trivial vs substantial thresholds
+framework/prompts/shared/git-workflow.md       — dispatcher branch gate and final branch handoff
+framework/prompts/shared/implementation-safety.md — test-first coverage and low-tier routing safety
 framework/prompts/shared/protected-artifacts.md — artifact ownership rules
 ```
 
@@ -63,10 +65,13 @@ To use a shorthand name, add it to the `case` statement in `scripts/apply-profil
 bin/
   oowl.js                       CLI entry point
 
+install.sh                      shell installer for scripted installs
+uninstall.sh                    shell uninstaller
+
 src/
   cli.js                        command router
   commands/
-    init.js                     oowl init wizard
+    init.js                     oowl init walkthrough
     profile.js                  oowl profile wizard
     update.js                   oowl update with checksum diffing
   lib/
@@ -82,7 +87,7 @@ framework/                      bundled files shipped with the package
   commands/                     23 slash commands
   prompts/shared/               shared workflow rules and policies
   model-profiles/               low.json, balanced.json, high.json
-  profile-models.json           active profile (updated by oowl profile)
+  profile-models.json           bundled default active profile
   AGENTS.md                     workflow definition template
   opencode.jsonc                runtime config template
 

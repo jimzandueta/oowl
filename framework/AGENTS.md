@@ -63,6 +63,12 @@ Only `dispatcher` may invoke the Task tool.
 
 OpenCode built-in `general` and `explore` subagents are not used.
 
+## Test-First Implementation Policy
+
+The source of truth is `.opencode/prompts/shared/implementation-safety.md`.
+
+New or changed behavior must be planned with test-first coverage or a specific no-test rationale. Low-tier agents must not be used to bypass TDD.
+
 ## Protected Artifacts
 
 `docs/specs/**` contains workflow approval artifacts and is protected.

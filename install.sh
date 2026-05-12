@@ -18,6 +18,8 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$REPO_DIR/framework"
 SOURCE_JSONC="$REPO_DIR/framework/opencode.jsonc"
 SOURCE_AGENTS_MD="$REPO_DIR/framework/AGENTS.md"
+PACKAGE_VERSION="$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' "$REPO_DIR/package.json" | head -n 1)"
+PACKAGE_VERSION="${PACKAGE_VERSION:-1.1.0}"
 
 MODE=""
 TARGET_PROJECT=""
@@ -89,9 +91,13 @@ fi
 case "$MODE" in
   global)
     TARGET_BASE="$HOME/.config/opencode"
+    INSTALL_ROOT="$TARGET_BASE"
+    PROJECT_ROOT=""
     ;;
   project)
-    TARGET_BASE="${TARGET_PROJECT:-$PWD}/.opencode"
+    PROJECT_ROOT="${TARGET_PROJECT:-$PWD}"
+    TARGET_BASE="$PROJECT_ROOT/.opencode"
+    INSTALL_ROOT="$PROJECT_ROOT"
     ;;
 esac
 
@@ -153,13 +159,59 @@ fi
 # Copy AGENTS.md from framework/AGENTS.md
 if [[ -f "$SOURCE_AGENTS_MD" ]]; then
   if [[ "$MODE" == "project" ]]; then
-    PROJECT_ROOT="${TARGET_PROJECT:-$PWD}"
     run cp "$SOURCE_AGENTS_MD" "$PROJECT_ROOT/AGENTS.md"
     log "Installed AGENTS.md to $PROJECT_ROOT/"
   elif [[ "$MODE" == "global" ]]; then
     run cp "$SOURCE_AGENTS_MD" "$TARGET_BASE/AGENTS.md"
     log "Installed AGENTS.md to $TARGET_BASE/"
   fi
+fi
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  printf '[dry-run] write %s\n' "$INSTALL_ROOT/.oowl.json"
+else
+  node --input-type=commonjs - "$TARGET_BASE" "$INSTALL_ROOT" "$MODE" "$PACKAGE_VERSION" <<'NODE'
+const crypto = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const [, , openCodeDir, installRoot, mode, version] = process.argv;
+
+function collectChecksums(dir, base = dir, result = {}) {
+  for (const entry of fs.readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    const stat = fs.statSync(full);
+    if (stat.isDirectory()) {
+      collectChecksums(full, base, result);
+    } else if (stat.isFile()) {
+      const rel = path.relative(base, full).split(path.sep).join("/");
+      result[rel] = crypto
+        .createHash("sha256")
+        .update(fs.readFileSync(full))
+        .digest("hex");
+    }
+  }
+  return result;
+}
+
+const now = new Date().toISOString();
+const data = {
+  version,
+  location: mode === "global" ? "global" : "local",
+  profile: "balanced",
+  opencodeGo: true,
+  installedAt: now,
+  updatedAt: now,
+  checksums: collectChecksums(openCodeDir),
+};
+
+fs.writeFileSync(
+  path.join(installRoot, ".oowl.json"),
+  JSON.stringify(data, null, 2) + "\n",
+  "utf8",
+);
+NODE
+  log "Wrote metadata: $INSTALL_ROOT/.oowl.json"
 fi
 
 log "Done."
