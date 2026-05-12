@@ -5,11 +5,8 @@
 #   --global         Install to ~/.config/opencode/ (available in every project)
 #   --project [DIR]  Install to <DIR>/.opencode/ (defaults to current directory)
 #
-# Methods:
+# Options:
 #   --copy           Copy files (default; safe, isolated)
-#   --symlink        Symlink the source repo (live updates as you `git pull`)
-#
-# Other:
 #   --force          Overwrite existing install without prompting
 #   --no-jsonc       Do not install opencode.jsonc (project mode only)
 #   --dry-run        Print actions without making changes
@@ -18,19 +15,18 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_DIR="$REPO_DIR/opencode"
-SOURCE_JSONC="$REPO_DIR/opencode.jsonc"
-SOURCE_AGENTS_MD="$REPO_DIR/AGENTS.md"
+SOURCE_DIR="$REPO_DIR/framework"
+SOURCE_JSONC="$REPO_DIR/framework/opencode.jsonc"
+SOURCE_AGENTS_MD="$REPO_DIR/framework/AGENTS.md"
 
 MODE=""
 TARGET_PROJECT=""
-METHOD="copy"
 FORCE=0
 INSTALL_JSONC=1
 DRY_RUN=0
 
 usage() {
-  sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 
@@ -54,8 +50,7 @@ while [[ $# -gt 0 ]]; do
         TARGET_PROJECT="$1"; shift
       fi
       ;;
-    --copy)     METHOD="copy"; shift ;;
-    --symlink)  METHOD="symlink"; shift ;;
+    --copy)     shift ;;  # No-op, copy is the only mode
     --force)    FORCE=1; shift ;;
     --no-jsonc) INSTALL_JSONC=0; shift ;;
     --dry-run)  DRY_RUN=1; shift ;;
@@ -77,6 +72,19 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
   exit 1
 fi
 
+for dir in agents commands prompts model-profiles; do
+  if [[ ! -d "$SOURCE_DIR/$dir" ]]; then
+    echo "Required source directory not found: $SOURCE_DIR/$dir" >&2
+    exit 1
+  fi
+done
+
+# Validate framework/AGENTS.md exists
+if [[ ! -f "$SOURCE_AGENTS_MD" ]]; then
+  echo "Required file not found: $SOURCE_AGENTS_MD" >&2
+  exit 1
+fi
+
 # Resolve target.
 case "$MODE" in
   global)
@@ -88,7 +96,6 @@ case "$MODE" in
 esac
 
 log "Mode: $MODE"
-log "Method: $METHOD"
 log "Target: $TARGET_BASE"
 
 if [[ -e "$TARGET_BASE" || -L "$TARGET_BASE" ]]; then
@@ -104,39 +111,50 @@ fi
 
 run mkdir -p "$(dirname "$TARGET_BASE")"
 
-if [[ "$METHOD" == "symlink" ]]; then
-  run ln -s "$SOURCE_DIR" "$TARGET_BASE"
-  log "Symlinked $SOURCE_DIR -> $TARGET_BASE"
-else
-  run cp -R "$SOURCE_DIR/" "$TARGET_BASE"
-  log "Copied $SOURCE_DIR -> $TARGET_BASE"
+# Flat copy agents (skip README.md)
+run mkdir -p "$TARGET_BASE/agents"
+find "$SOURCE_DIR/agents" -type f -name "*.md" ! -name "README.md" | while read -r file; do
+  run cp "$file" "$TARGET_BASE/agents/"
+done
+log "Flat copied agents: $SOURCE_DIR/agents -> $TARGET_BASE/agents"
+
+# Flat copy commands (skip README.md)
+run mkdir -p "$TARGET_BASE/commands"
+find "$SOURCE_DIR/commands" -type f -name "*.md" ! -name "README.md" | while read -r file; do
+  run cp "$file" "$TARGET_BASE/commands/"
+done
+log "Flat copied commands: $SOURCE_DIR/commands -> $TARGET_BASE/commands"
+
+# Recursive copy for prompts (preserve shared/ subfolder)
+run mkdir -p "$TARGET_BASE/prompts"
+run cp -R "$SOURCE_DIR/prompts/" "$TARGET_BASE/prompts/"
+log "Copied prompts: $SOURCE_DIR/prompts -> $TARGET_BASE/prompts"
+
+# Recursive copy for model-profiles
+run mkdir -p "$TARGET_BASE/model-profiles"
+run cp -R "$SOURCE_DIR/model-profiles/" "$TARGET_BASE/model-profiles/"
+log "Copied model-profiles: $SOURCE_DIR/model-profiles -> $TARGET_BASE/model-profiles"
+
+# Copy JSON config files
+if [[ -f "$SOURCE_JSONC" ]]; then
+  run cp "$SOURCE_JSONC" "$TARGET_BASE/opencode.jsonc"
+  log "Copied opencode.jsonc"
 fi
 
-# Place opencode.jsonc and AGENTS.md when missing (project mode only for AGENTS.md).
-if [[ "$INSTALL_JSONC" -eq 1 ]]; then
+if [[ -f "$SOURCE_DIR/profile-models.json" ]]; then
+  run cp "$SOURCE_DIR/profile-models.json" "$TARGET_BASE/profile-models.json"
+  log "Copied profile-models.json"
+fi
+
+# Copy AGENTS.md from framework/AGENTS.md
+if [[ -f "$SOURCE_AGENTS_MD" ]]; then
   if [[ "$MODE" == "project" ]]; then
     PROJECT_ROOT="${TARGET_PROJECT:-$PWD}"
-
-    if [[ -f "$SOURCE_JSONC" && ! -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
-      run cp "$SOURCE_JSONC" "$PROJECT_ROOT/opencode.jsonc"
-      log "Installed opencode.jsonc to $PROJECT_ROOT/"
-    elif [[ -f "$PROJECT_ROOT/opencode.jsonc" ]]; then
-      log "Skipping opencode.jsonc (already present in $PROJECT_ROOT/)"
-    fi
-
-    if [[ -f "$SOURCE_AGENTS_MD" && ! -f "$PROJECT_ROOT/AGENTS.md" ]]; then
-      run cp "$SOURCE_AGENTS_MD" "$PROJECT_ROOT/AGENTS.md"
-      log "Installed AGENTS.md to $PROJECT_ROOT/"
-    elif [[ -f "$PROJECT_ROOT/AGENTS.md" ]]; then
-      log "Skipping AGENTS.md (already present in $PROJECT_ROOT/)"
-    fi
+    run cp "$SOURCE_AGENTS_MD" "$PROJECT_ROOT/AGENTS.md"
+    log "Installed AGENTS.md to $PROJECT_ROOT/"
   elif [[ "$MODE" == "global" ]]; then
-    if [[ -f "$SOURCE_JSONC" && ! -f "$TARGET_BASE/opencode.jsonc" ]]; then
-      run cp "$SOURCE_JSONC" "$TARGET_BASE/opencode.jsonc"
-      log "Installed opencode.jsonc to $TARGET_BASE/"
-    elif [[ -f "$TARGET_BASE/opencode.jsonc" ]]; then
-      log "Skipping opencode.jsonc (already present in $TARGET_BASE/)"
-    fi
+    run cp "$SOURCE_AGENTS_MD" "$TARGET_BASE/AGENTS.md"
+    log "Installed AGENTS.md to $TARGET_BASE/"
   fi
 fi
 

@@ -22,7 +22,7 @@ describe("readOowlJson / writeOowlJson", () => {
   it("round-trips data", () => {
     const dir = makeTempDir();
     const data = {
-      version: "1.0.5",
+      version: "1.0.6",
       location: "local" as const,
       profile: "low",
       opencodeGo: false,
