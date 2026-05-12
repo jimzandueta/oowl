@@ -151,7 +151,7 @@ export async function install({
     : {};
 
   const oowlData: OowlJson = {
-    version: "1.0.6",
+    version: "1.0.7",
     location,
     profile,
     opencodeGo,

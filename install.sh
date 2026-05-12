@@ -8,7 +8,7 @@
 # Options:
 #   --copy           Copy files (default; safe, isolated)
 #   --force          Overwrite existing install without prompting
-#   --no-jsonc       Do not install opencode.jsonc (project mode only)
+#   --no-jsonc       Do not install opencode.jsonc
 #   --dry-run        Print actions without making changes
 #   -h, --help       Show this help
 
@@ -136,9 +136,13 @@ run cp -R "$SOURCE_DIR/model-profiles/" "$TARGET_BASE/model-profiles/"
 log "Copied model-profiles: $SOURCE_DIR/model-profiles -> $TARGET_BASE/model-profiles"
 
 # Copy JSON config files
-if [[ -f "$SOURCE_JSONC" ]]; then
-  run cp "$SOURCE_JSONC" "$TARGET_BASE/opencode.jsonc"
-  log "Copied opencode.jsonc"
+if [[ "$INSTALL_JSONC" -eq 1 ]]; then
+  if [[ -f "$SOURCE_JSONC" && ! -f "$TARGET_BASE/opencode.jsonc" ]]; then
+    run cp "$SOURCE_JSONC" "$TARGET_BASE/opencode.jsonc"
+    log "Copied opencode.jsonc"
+  elif [[ -f "$TARGET_BASE/opencode.jsonc" ]]; then
+    log "Skipping opencode.jsonc (already present in $TARGET_BASE/)"
+  fi
 fi
 
 if [[ -f "$SOURCE_DIR/profile-models.json" ]]; then
