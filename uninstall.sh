@@ -3,10 +3,12 @@
 #
 # Modes:
 #   --global         Remove ~/.config/opencode/
-#   --project [DIR]  Remove <DIR>/.opencode/ (defaults to current directory)
+#   --project [DIR]  Remove <DIR>/.opencode/ and project metadata
 #
 # Other:
-#   --keep-jsonc     Do not remove opencode.jsonc / AGENTS.md (project mode)
+#   --keep-project-files
+#                   Do not remove AGENTS.md, .oowl.json, or legacy opencode.jsonc
+#   --keep-jsonc     Legacy alias for --keep-project-files
 #   --dry-run        Print actions without making changes
 #   -h, --help       Show this help
 
@@ -14,11 +16,16 @@ set -euo pipefail
 
 MODE=""
 TARGET_PROJECT=""
-KEEP_JSONC=0
+KEEP_PROJECT_FILES=0
 DRY_RUN=0
 
 usage() {
-  sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+  awk '
+    NR == 1 { next }
+    /^#$/ { print ""; next }
+    /^# / { sub(/^# ?/, ""); print; next }
+    { exit }
+  ' "$0"
   exit "${1:-0}"
 }
 
@@ -41,7 +48,7 @@ while [[ $# -gt 0 ]]; do
         TARGET_PROJECT="$1"; shift
       fi
       ;;
-    --keep-jsonc) KEEP_JSONC=1; shift ;;
+    --keep-project-files|--keep-jsonc) KEEP_PROJECT_FILES=1; shift ;;
     --dry-run)    DRY_RUN=1; shift ;;
     -h|--help)    usage 0 ;;
     *)            echo "Unknown argument: $1" >&2; usage 1 ;;
@@ -51,7 +58,7 @@ done
 if [[ -z "$MODE" ]]; then
   echo "Choose an uninstall mode:" >&2
   echo "  --global         Remove ~/.config/opencode/" >&2
-  echo "  --project [DIR]  Remove <DIR>/.opencode/" >&2
+  echo "  --project [DIR]  Remove <DIR>/.opencode/ and project metadata" >&2
   exit 1
 fi
 
@@ -66,21 +73,36 @@ case "$MODE" in
     ;;
 esac
 
-if [[ ! -e "$TARGET_BASE" && ! -L "$TARGET_BASE" ]]; then
-  log "Nothing to remove at $TARGET_BASE"
-  exit 0
+REMOVED=0
+
+remove_dir() {
+  local path="$1"
+  if [[ -e "$path" || -L "$path" ]]; then
+    log "Removing $path"
+    run rm -rf "$path"
+    REMOVED=1
+  fi
+}
+
+remove_file() {
+  local path="$1"
+  if [[ -e "$path" || -L "$path" ]]; then
+    log "Removing $path"
+    run rm -f "$path"
+    REMOVED=1
+  fi
+}
+
+remove_dir "$TARGET_BASE"
+
+if [[ "$MODE" == "project" && "$KEEP_PROJECT_FILES" -eq 0 ]]; then
+  for f in AGENTS.md .oowl.json opencode.jsonc; do
+    remove_file "$PROJECT_ROOT/$f"
+  done
 fi
 
-log "Removing $TARGET_BASE"
-run rm -rf "$TARGET_BASE"
-
-if [[ "$MODE" == "project" && "$KEEP_JSONC" -eq 0 ]]; then
-  for f in opencode.jsonc AGENTS.md; do
-    if [[ -f "$PROJECT_ROOT/$f" ]]; then
-      log "Removing $PROJECT_ROOT/$f"
-      run rm -f "$PROJECT_ROOT/$f"
-    fi
-  done
+if [[ "$REMOVED" -eq 0 ]]; then
+  log "Nothing to remove."
 fi
 
 log "Done."

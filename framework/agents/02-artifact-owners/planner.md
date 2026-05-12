@@ -10,20 +10,32 @@ permission:
   grep: allow
   list: allow
   edit:
-    "docs/specs/**": ask
-    "*": ask
+    "*": deny
+    "docs/specs/**/implementation.md": ask
+    "AGENTS.md": deny
   write:
-    "docs/specs/**": ask
-    "*": ask
+    "*": deny
+    "docs/specs/**/implementation.md": ask
+    "AGENTS.md": deny
   bash:
     "*": ask
     "pwd": allow
+    "ls": allow
     "ls *": allow
     "mkdir -p docs/specs*": allow
-    "git status*": allow
-    "git diff*": allow
+    "find *": allow
     "grep *": allow
     "rg *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "git status": allow
+    "git status *": allow
+    "git diff": allow
+    "git diff *": allow
+    "git log": allow
+    "git log *": allow
     "rm docs*": deny
     "rm -r docs*": deny
     "rm -rf docs*": deny
@@ -36,6 +48,7 @@ permission:
     "rm -fr ./*": deny
     "git clean*": deny
     "find * -delete*": deny
+    "find * -exec*": deny
   skill:
     "*": allow
   task:
@@ -74,6 +87,7 @@ You own `docs/specs/<feature>/implementation.md`.
 - `parallel-build.md` — wave modes, parallel groups, max 3 concurrent tasks
 - `protected-artifacts.md` — own `implementation.md`; never assign implementation agents to touch `docs/specs/**`; never modify `AGENTS.md`
 - `cost-tiering.md` — assign each task to the cheapest tier that can do it safely
+- `implementation-safety.md` — include test-first coverage for behavior changes; do not use low-tier agents to bypass TDD
 - `sensitive-data.md` — do not assign sensitive work to low-tier agents
 - `verification.md` — verify artifact exists before returning completion
 
@@ -88,6 +102,10 @@ Every task in `implementation.md` must include:
 - assigned agent
 - complete task prompt
 - exact files and action
+- test plan:
+  - for new or changed behavior, include a test-first step that creates or updates a focused test before implementation
+  - name the expected test file path or existing test file to update
+  - if no automated test is appropriate, provide a specific no-test rationale and manual verification plan
 - verification commands and done criteria
 - risk notes
 

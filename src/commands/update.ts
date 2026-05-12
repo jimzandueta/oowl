@@ -1,19 +1,37 @@
 import { select, confirm } from '@inquirer/prompts'
 import kleur from 'kleur'
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+} from 'node:fs'
 import { join, relative } from 'node:path'
-import { homedir } from 'node:os'
 import { createPatch } from 'diff'
 import { FRAMEWORK_DIR } from '../lib/paths.js'
-import { readOowlJson, writeOowlJson, stripNumericPrefix } from '../lib/installer.js'
+import { findOowlInstall, writeOowlJson } from '../lib/installer.js'
 import { hashFile, buildChecksums } from '../lib/checksum.js'
 
-const EXEMPT_FILES = ['prompts/shared/model-strategy.md']
+const EXEMPT_FILES = ['.oowl.json', 'prompts/shared/model-strategy.md']
 
-export async function detectModifiedFiles(openCodeDir: string, originalChecksums: Record<string, string>): Promise<string[]> {
+function normalizePath(filePath: string): string {
+  return filePath.replace(/\\/g, '/')
+}
+
+function isExemptFile(relPath: string): boolean {
+  const normalized = normalizePath(relPath)
+  return EXEMPT_FILES.some(exempt => normalized.endsWith(exempt))
+}
+
+export async function detectModifiedFiles(
+  openCodeDir: string,
+  originalChecksums: Record<string, string>,
+): Promise<string[]> {
   const modified: string[] = []
   for (const [relPath, originalHash] of Object.entries(originalChecksums)) {
-    if (EXEMPT_FILES.some(ex => relPath.replace(/\\/g, '/').endsWith(ex))) continue
+    if (isExemptFile(relPath)) continue
     const full = join(openCodeDir, relPath)
     if (!existsSync(full)) continue
     const currentHash = await hashFile(full)
@@ -24,35 +42,41 @@ export async function detectModifiedFiles(openCodeDir: string, originalChecksums
   return modified
 }
 
+function findByBasename(dir: string, basename: string): string | null {
+  try {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) {
+        const found = findByBasename(full, basename)
+        if (found) return found
+      } else if (entry === basename) {
+        return full
+      }
+    }
+  } catch {
+    // Source class directories are optional during partial/package tests.
+  }
+  return null
+}
+
 /**
- * Resolve a relative installed path (which may use stripped dir names) back to its
- * absolute framework source path (which may have numeric-prefixed directories).
- * e.g. 'agents/orchestration/builder.md' → '/…/framework/agents/01-orchestration/builder.md'
+ * Resolve a relative installed path back to its absolute framework source path.
+ * Agents and commands are installed flat, so those are found by basename.
  */
 function resolveFrameworkPath(frameworkDir: string, installedRelPath: string): string {
-  const parts = installedRelPath.split('/')
-  let current = frameworkDir
+  const normalized = normalizePath(installedRelPath)
+  const direct = join(frameworkDir, normalized)
+  if (existsSync(direct)) return direct
 
-  for (const part of parts) {
-    const direct = join(current, part)
-    if (existsSync(direct)) {
-      current = direct
-    } else {
-      // Look for a numbered variant (e.g. "01-orchestration" for "orchestration")
-      let matched = false
-      try {
-        for (const entry of readdirSync(current)) {
-          if (stripNumericPrefix(entry) === part) {
-            current = join(current, entry)
-            matched = true
-            break
-          }
-        }
-      } catch { /* dir doesn't exist */ }
-      if (!matched) current = direct // will fail existsSync — handled by caller
-    }
+  if (normalized.startsWith('agents/')) {
+    return findByBasename(join(frameworkDir, 'agents'), normalized.split('/').at(-1) ?? '') ?? direct
   }
-  return current
+
+  if (normalized.startsWith('commands/')) {
+    return findByBasename(join(frameworkDir, 'commands'), normalized.split('/').at(-1) ?? '') ?? direct
+  }
+
+  return direct
 }
 
 function showDiff(relPath: string, installedContent: string, newContent: string): void {
@@ -96,43 +120,66 @@ async function resolveConflict(relPath: string, openCodeDir: string, frameworkDi
   })
 }
 
-/**
- * Recursively copy src → dest, stripping numeric directory prefixes so the
- * installed layout matches what oowl init produces.
- */
-async function copyDirSelective(src: string, dest: string, openCodeBase: string, skipFiles: Set<string>): Promise<void> {
+async function copyRecursiveSelective(
+  src: string,
+  dest: string,
+  openCodeBase: string,
+  skipFiles: Set<string>,
+): Promise<void> {
   for (const entry of readdirSync(src)) {
     const srcFull = join(src, entry)
     const isDir = statSync(srcFull).isDirectory()
-    const destEntry = isDir ? stripNumericPrefix(entry) : entry
-    const destFull = join(dest, destEntry)
+    const destFull = join(dest, entry)
     const relToOpenCode = relative(openCodeBase, destFull)
 
     if (isDir) {
       mkdirSync(destFull, { recursive: true })
-      await copyDirSelective(srcFull, destFull, openCodeBase, skipFiles)
+      await copyRecursiveSelective(srcFull, destFull, openCodeBase, skipFiles)
     } else {
       if (skipFiles.has(relToOpenCode)) {
         console.log(kleur.dim(`  skipped: ${relToOpenCode}`))
         continue
       }
-      writeFileSync(destFull, readFileSync(srcFull))
+      copyFileSync(srcFull, destFull)
+    }
+  }
+}
+
+async function copyFlatSelective(
+  src: string,
+  dest: string,
+  openCodeBase: string,
+  skipFiles: Set<string>,
+): Promise<void> {
+  mkdirSync(dest, { recursive: true })
+  for (const entry of readdirSync(src)) {
+    const srcFull = join(src, entry)
+    if (statSync(srcFull).isDirectory()) {
+      await copyFlatSelective(srcFull, dest, openCodeBase, skipFiles)
+    } else if (statSync(srcFull).isFile()) {
+      if (entry === 'README.md') continue
+      const destFull = join(dest, entry)
+      const relToOpenCode = relative(openCodeBase, destFull)
+      if (skipFiles.has(relToOpenCode)) {
+        console.log(kleur.dim(`  skipped: ${relToOpenCode}`))
+        continue
+      }
+      copyFileSync(srcFull, destFull)
     }
   }
 }
 
 export async function update(): Promise<void> {
   const cwd = process.cwd()
-  const oowl = readOowlJson(cwd)
+  const install = findOowlInstall(cwd)
 
-  if (!oowl) {
+  if (!install) {
     console.error(kleur.red('OOWL is not installed in this directory. Run `oowl init` first.'))
     process.exitCode = 1
     return
   }
 
-  const openCodeDir = oowl.location === 'local' ? join(cwd, '.opencode') : join(homedir(), '.config', 'opencode')
-  const installRoot = oowl.location === 'local' ? cwd : openCodeDir
+  const { oowl, openCodeDir, installRoot } = install
 
   console.log(kleur.bold('\nOOWL Updater\n'))
 
@@ -169,21 +216,25 @@ export async function update(): Promise<void> {
       .map(([f]) => f)
   )
 
-  for (const sub of ['agents', 'commands', 'prompts', 'model-profiles']) {
+  for (const sub of ['agents', 'commands']) {
+    const src = join(FRAMEWORK_DIR, sub)
+    if (!existsSync(src)) continue
+    await copyFlatSelective(src, join(openCodeDir, sub), openCodeDir, skipFiles)
+  }
+
+  for (const sub of ['prompts', 'model-profiles']) {
     const src = join(FRAMEWORK_DIR, sub)
     if (!existsSync(src)) continue
     const dest = join(openCodeDir, sub)
     mkdirSync(dest, { recursive: true })
-    await copyDirSelective(src, dest, openCodeDir, skipFiles)
+    await copyRecursiveSelective(src, dest, openCodeDir, skipFiles)
   }
 
-  // Update opencode.jsonc for local if not skipped
-  if (oowl.location === 'local') {
-    const jsoncSrc = join(FRAMEWORK_DIR, 'opencode.jsonc')
-    const jsoncDest = join(cwd, 'opencode.jsonc')
-    const jsoncRel = 'opencode.jsonc'
-    if (existsSync(jsoncSrc) && !skipFiles.has(jsoncRel)) {
-      writeFileSync(jsoncDest, readFileSync(jsoncSrc, 'utf8'), 'utf8')
+  for (const file of ['profile-models.json', 'opencode.jsonc']) {
+    const src = join(FRAMEWORK_DIR, file)
+    const dest = join(openCodeDir, file)
+    if (existsSync(src) && !skipFiles.has(file)) {
+      copyFileSync(src, dest)
     }
   }
 

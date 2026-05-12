@@ -19,6 +19,9 @@ DISPATCHER
   '-- substantial task
         |
         v
+  GIT BRANCH GATE (when inside a Git worktree)
+        |
+        v
   ARCHITECT  +  DESIGNER when UI is involved
         |          |
         '----.-----'
@@ -61,6 +64,9 @@ DISPATCHER
           may consult code-reviewer, security-reviewer, or security-auditor
                     |
                     v
+          BRANCH HANDOFF (if dispatcher created a feature branch)
+                    |
+                    v
                   DONE
 ```
 
@@ -80,7 +86,13 @@ Trivial work emits `TRIVIAL_FIX_DISPATCH` and routes to one implementer. No `des
 
 Substantial work routes to `architect`, and to `designer` if UI is involved.
 
-### 2. Design
+### 2. Git branch gate
+
+Before substantial work reaches `architect`, `dispatcher` checks whether the session is inside a Git worktree.
+
+If Git is active, it asks whether to create a new feature branch or continue on the current branch. If the user chooses a new branch, `dispatcher` creates and switches to it before design starts. If no Git worktree is active, it skips this gate and continues normally.
+
+### 3. Design
 
 `architect` writes `docs/specs/<feature>/design.md` — solution approach, tradeoffs, risks, boundaries.
 
@@ -88,24 +100,29 @@ If UI is involved, `designer` writes `docs/specs/<feature>/ui-spec.md`.
 
 Dispatcher asks the user to approve. Planning does not start without approval.
 
-### 3. Plan
+### 4. Plan
 
 `planner` writes `docs/specs/<feature>/implementation.md`. Every task declares:
 
 - the assigned agent
 - exact file locks
 - the full task prompt
+- a test-first step for new or changed behavior, including the test file to create or update
 - required verification
 - whether it can run in parallel
 
 `planner` uses Superpowers `writing-plans` so the plan is mechanical and executable.
 
-### 4. Plan review
+If automated tests are not appropriate for a behavior change, `implementation.md` must include a specific no-test rationale and manual verification plan.
+
+### 5. Plan review
 
 `plan-reviewer` audits `implementation.md` and returns `PLAN_APPROVED` or `PLAN_REJECTED`.
 
 Checks:
 - every task has a complete prompt, file locks, and verification
+- new or changed behavior includes test-first work or a no-test rationale
+- low-tier agents are not assigned feature behavior or test-writing work
 - parallel tasks do not collide on file locks
 - sensitive work is not assigned to low-tier agents
 - protected artifacts are not implementation targets
@@ -113,7 +130,7 @@ Checks:
 
 After `PLAN_APPROVED`, dispatcher asks the user to approve the plan. Implementation does not start without approval.
 
-### 5. Build
+### 6. Build
 
 `builder` is scheduler-only. It emits `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` and does nothing else — no file edits, no shell commands, no Task invocations.
 
@@ -123,9 +140,9 @@ Each implementation agent must:
 - edit only files inside its lock
 - avoid `docs/specs/**`
 - run the required verification
-- return `TASK_COMPLETE` with evidence or `TASK_BLOCKED` with a reason
+- return `TASK_COMPLETE` with evidence or `NEEDS_USER_INPUT` with a reason
 
-### 6. Review
+### 7. Review
 
 `reviewer` writes `docs/specs/<feature>/review.md`:
 - summary of what shipped
@@ -137,7 +154,11 @@ Each implementation agent must:
 
 `security-auditor` is reserved for deep escalation — threat modeling, IAM, PII, compliance, auth flows, secrets, production risk.
 
-### 7. Done
+### 8. Branch handoff and done
+
+After reviewer approval, `dispatcher` says that the feature was created. If it created a feature branch at the start, it asks whether to merge the branch to `main`, leave it for the user to merge manually, or continue working on the same branch.
+
+Automatic merge only proceeds after explicit user approval and a clean worktree. If there are uncommitted changes, `dispatcher` leaves the user on the feature branch and reports that the merge must be handled after committing or otherwise managing those changes.
 
 Durable record in `docs/specs/<feature>/`:
 - `design.md`

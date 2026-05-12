@@ -1,6 +1,6 @@
 {
   "name": "@jimzandueta/oowl",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "OpenCode Opinionated Workflow Layer — install and manage the OOWL multi-agent framework",
   "license": "ISC",
   "author": "",
@@ -16,11 +16,14 @@
   "files": [
     "bin/",
     "dist/",
-    "framework/"
+    "framework/",
+    "install.sh",
+    "uninstall.sh",
+    "scripts/"
   ],
   "scripts": {
     "build": "tsc",
-    "test": "node --import tsx/esm --test tests/lib/checksum.test.ts tests/lib/frontmatter.test.ts tests/lib/profiles.test.ts tests/lib/installer.test.ts tests/lib/opencode-scanner.test.ts tests/commands/update.test.ts",
+    "test": "node --import tsx/esm --test tests/lib/checksum.test.ts tests/lib/frontmatter.test.ts tests/lib/profiles.test.ts tests/lib/installer.test.ts tests/lib/opencode-scanner.test.ts tests/commands/init.test.ts tests/commands/update.test.ts",
     "pretest": "tsc"
   },
   "dependencies": {

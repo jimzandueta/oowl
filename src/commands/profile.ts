@@ -2,10 +2,8 @@ import { select, confirm, input } from "@inquirer/prompts";
 import kleur from "kleur";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { homedir } from "node:os";
 import { FRAMEWORK_DIR } from "../lib/paths.js";
-import { readOowlJson, writeOowlJson } from "../lib/installer.js";
-import type { OowlJson } from "../lib/installer.js";
+import { findOowlInstall, writeOowlJson } from "../lib/installer.js";
 import { applyProfile, buildCustomProfile } from "../lib/profiles.js";
 import type { Profile } from "../lib/profiles.js";
 import {
@@ -14,21 +12,9 @@ import {
 } from "../lib/opencode-scanner.js";
 import type { Model, ScanResult } from "../lib/opencode-scanner.js";
 
-const BUILT_IN_PROFILES = ["low", "balanced", "high"];
+export const BUILT_IN_PROFILES = ["low", "balanced", "high"];
 
 type TierKey = "cheap/fast" | "mid/balanced" | "premium/deep";
-
-function getOpenCodeDir(oowl: OowlJson, cwd: string): string {
-  return oowl.location === "global"
-    ? join(homedir(), ".config", "opencode")
-    : join(cwd, ".opencode");
-}
-
-function getInstallRoot(oowl: OowlJson, cwd: string): string {
-  return oowl.location === "global"
-    ? join(homedir(), ".config", "opencode")
-    : cwd;
-}
 
 /**
  * Show a tier picker with remaining unassigned connected models
@@ -177,7 +163,7 @@ async function confirmAssignments(
   return confirm({ message: "Does this look right?", default: true });
 }
 
-async function resolveCustomProfile(): Promise<Profile> {
+export async function resolveCustomProfile(): Promise<Profile> {
   process.stdout.write(kleur.dim("Checking connected models… "));
   const scan = await scanOpenCodeModels();
 
@@ -227,7 +213,7 @@ async function resolveCustomProfile(): Promise<Profile> {
   }
 }
 
-function applyProfileJsonToJsonc(
+export function applyProfileJsonToJsonc(
   jsoncPath: string,
   profileJson: Profile,
 ): void {
@@ -253,9 +239,9 @@ function applyProfileJsonToJsonc(
 
 export async function profile(): Promise<void> {
   const cwd = process.cwd();
-  const oowl = readOowlJson(cwd);
+  const install = findOowlInstall(cwd);
 
-  if (!oowl) {
+  if (!install) {
     console.error(
       kleur.red(
         "OOWL is not installed in this directory. Run `oowl init` first.",
@@ -264,6 +250,8 @@ export async function profile(): Promise<void> {
     process.exitCode = 1;
     return;
   }
+
+  const { oowl, openCodeDir, installRoot } = install;
 
   console.log(kleur.bold("\nOOWL Profile Switcher\n"));
   console.log(`Current profile: ${kleur.cyan(oowl.profile)}`);
@@ -281,9 +269,6 @@ export async function profile(): Promise<void> {
     choices,
   });
 
-  const openCodeDir = getOpenCodeDir(oowl, cwd);
-  const installRoot = getInstallRoot(oowl, cwd);
-
   let profileJson: Profile;
   if (chosen === "custom") {
     profileJson = await resolveCustomProfile();
@@ -300,10 +285,7 @@ export async function profile(): Promise<void> {
   console.log(kleur.dim(`\nApplying profile: ${chosen}…`));
   await applyProfile(profileJson, openCodeDir);
 
-  if (oowl.location === "local") {
-    const jsoncPath = join(cwd, "opencode.jsonc");
-    applyProfileJsonToJsonc(jsoncPath, profileJson);
-  }
+  applyProfileJsonToJsonc(join(openCodeDir, "opencode.jsonc"), profileJson);
 
   oowl.profile = chosen;
   oowl.updatedAt = new Date().toISOString();

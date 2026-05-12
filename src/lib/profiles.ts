@@ -101,7 +101,14 @@ function findAgentFile(agentsDir: string, name: string): string | null {
   return null
 }
 
-export async function applyProfile(profile: { agents: Record<string, { model: string }> }, openCodeDir: string): Promise<void> {
+interface ApplicableProfile {
+  agents: Record<string, { model: string }>
+}
+
+export async function applyProfile(
+  profile: ApplicableProfile,
+  openCodeDir: string,
+): Promise<void> {
   const agentsDir = join(openCodeDir, 'agents')
   for (const [agent, cfg] of Object.entries(profile.agents)) {
     const file = findAgentFile(agentsDir, agent)

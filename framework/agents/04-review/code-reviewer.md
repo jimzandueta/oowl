@@ -14,11 +14,34 @@ permission:
   bash:
     "*": ask
     "pwd": allow
+    "ls": allow
     "ls *": allow
-    "git status*": allow
-    "git diff*": allow
+    "find *": allow
     "grep *": allow
     "rg *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "git status": allow
+    "git status *": allow
+    "git diff": allow
+    "git diff *": allow
+    "git log": allow
+    "git log *": allow
+    "rm docs*": deny
+    "rm -r docs*": deny
+    "rm -rf docs*": deny
+    "rm -fr docs*": deny
+    "rm -rf *": deny
+    "rm -fr *": deny
+    "rm -rf .": deny
+    "rm -fr .": deny
+    "rm -rf ./*": deny
+    "rm -fr ./*": deny
+    "git clean*": deny
+    "find * -delete*": deny
+    "find * -exec*": deny
   skill:
     "*": allow
   task:

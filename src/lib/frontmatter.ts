@@ -20,8 +20,17 @@ export function updateModelLine(content: string, newModel: string): string {
   const result: string[] = []
 
   for (let i = 0; i < lines.length; i++) {
-    if (i === 0) { result.push(lines[i]); continue }
-    if (inFrontmatter && lines[i] === '---') { inFrontmatter = false; result.push(lines[i]); continue }
+    if (i === 0) {
+      result.push(lines[i])
+      continue
+    }
+
+    if (inFrontmatter && lines[i] === '---') {
+      inFrontmatter = false
+      result.push(lines[i])
+      continue
+    }
+
     if (inFrontmatter && !replaced && /^model:/.test(lines[i])) {
       result.push(`model: ${newModel}`)
       replaced = true

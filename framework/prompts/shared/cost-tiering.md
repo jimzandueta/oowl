@@ -6,7 +6,7 @@ This framework runs three cost tiers. Use the cheapest tier that can do the work
 
 | Tier | Agents | Use for |
 |---|---|---|
-| Low | `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` | small, bounded, well-specified work with clear scope |
+| Low | `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` | small, bounded, well-specified work with clear scope and no new feature behavior |
 | Mid | `architect`, `planner`, `reviewer`, `designer`, `frontend-engineer`, `frontend-polisher`, `backend-engineer`, `database-engineer`, `cloud-architect`, `test-engineer`, `code-reviewer`, `security-reviewer`, `plan-reviewer` | the default workflow path; substantial features and reviews |
 | High | `high-engineer`, `high-architect`, `high-designer`, `security-auditor` | escalations only \u2014 hard problems where mid-tier capability is insufficient |
 
@@ -34,6 +34,12 @@ A subagent must return `ESCALATION_REQUEST` when one or more of the following is
 - no architectural decision is required
 
 The trivial-fix fast-path in `routing.md` formalizes this for the most common case.
+
+## Low-Tier Limits
+
+Low-tier edit limits and test-first routing rules are defined in `implementation-safety.md`.
+
+Low-tier agents must not be used as a TDD bypass. If the work exceeds that shared policy, escalate instead of implementing.
 
 ## Escalation Targets
 
