@@ -28,6 +28,8 @@ Subagent summary: <brief summary>
 
 `builder` and other phase agents use this to ask `dispatcher` to dispatch a named agent.
 
+This is a text protocol, not a Task invocation. Non-dispatcher agents must return this block to `dispatcher`; they must not call Task themselves.
+
 ```text
 REQUEST_CONSULT
 Target agent: <agent-name>
@@ -47,6 +49,8 @@ Subagent summary: <current state>
 `REQUEST_CONSULT_BATCH` is atomic.
 
 When `dispatcher` receives a valid batch with 2-3 eligible tasks, it must issue all Task calls in the same assistant message before waiting for any result.
+
+This is a text protocol, not a Task invocation. Non-dispatcher agents must return this block to `dispatcher`; they must not call Task themselves.
 
 ```text
 REQUEST_CONSULT_BATCH

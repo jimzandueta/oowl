@@ -1,9 +1,28 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { TIER_AGENTS, buildCustomProfile, applyProfile } from '../../src/lib/profiles.js'
-import { writeFileSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+
+function findAgentFile(name: string, dir = join(process.cwd(), 'framework', 'agents')): string | null {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (statSync(full).isDirectory()) {
+      const found = findAgentFile(name, full)
+      if (found) return found
+    } else if (entry === `${name}.md`) {
+      return full
+    }
+  }
+  return null
+}
+
+function readAgent(name: string): string {
+  const file = findAgentFile(name)
+  assert.ok(file, `agent file should exist for ${name}`)
+  return readFileSync(file, 'utf8')
+}
 
 describe('TIER_AGENTS', () => {
   it('has cheap-fast, mid-balanced, premium-deep tiers', () => {
@@ -60,15 +79,89 @@ describe('buildCustomProfile', () => {
 
 describe('agent permissions', () => {
   it('does not put blanket edit or write denies on dispatcher', () => {
-    const dispatcher = readFileSync(
-      join(process.cwd(), 'framework', 'agents', '01-orchestration', 'dispatcher.md'),
-      'utf8',
-    )
+    const dispatcher = readAgent('dispatcher')
 
     assert.ok(!dispatcher.includes('\n  edit: deny\n'))
     assert.ok(!dispatcher.includes('\n  write: deny\n'))
     assert.ok(dispatcher.includes('"docs/specs/**": deny'))
     assert.ok(dispatcher.includes('"AGENTS.md": deny'))
+  })
+
+  it('avoids blanket inherited denies on dispatcher child capabilities', () => {
+    const dispatcher = readAgent('dispatcher')
+
+    assert.ok(!dispatcher.includes('\n  skill:\n    "*": deny\n'))
+    assert.ok(!dispatcher.includes('\n  lsp: deny\n'))
+    assert.match(dispatcher, /\n  skill:\n    "\*": ask\n/)
+    assert.match(dispatcher, /\n  lsp: ask\n/)
+    assert.ok(dispatcher.includes('You must not load or use Superpowers skills'))
+    assert.ok(dispatcher.includes('Do not conduct requirements discovery, brainstorming, design exploration, or implementation yourself.'))
+  })
+
+  it('denies Task for every subagent', () => {
+    const subagents = [
+      'architect',
+      'designer',
+      'planner',
+      'reviewer',
+      'builder',
+      'frontend-engineer',
+      'frontend-polisher',
+      'backend-engineer',
+      'database-engineer',
+      'cloud-architect',
+      'test-engineer',
+      'code-reviewer',
+      'plan-reviewer',
+      'security-reviewer',
+      'security-auditor',
+      'high-engineer',
+      'high-architect',
+      'high-designer',
+      'low-engineer',
+      'low-task-worker',
+      'low-architect',
+      'low-designer',
+    ]
+
+    for (const agent of subagents) {
+      const content = readAgent(agent)
+      assert.ok(content.includes('mode: subagent'), `${agent} should be a subagent`)
+      assert.match(content, /\n  task:\n    "\*": deny\n/, `${agent} should not invoke Task`)
+    }
+  })
+
+  it('keeps non-methodology agents from loading skills', () => {
+    const skillDenied = [
+      'builder',
+      'plan-reviewer',
+      'low-engineer',
+      'low-task-worker',
+      'low-architect',
+      'low-designer',
+    ]
+
+    for (const agent of skillDenied) {
+      assert.match(readAgent(agent), /\n  skill:\n    "\*": deny\n/, `${agent} should deny skills`)
+    }
+  })
+
+  it('keeps read-only agents read-only in frontmatter', () => {
+    const readOnly = [
+      'builder',
+      'plan-reviewer',
+      'code-reviewer',
+      'security-reviewer',
+      'security-auditor',
+      'low-architect',
+      'low-designer',
+    ]
+
+    for (const agent of readOnly) {
+      const content = readAgent(agent)
+      assert.match(content, /\n  edit: deny\n/, `${agent} should deny edits`)
+      assert.match(content, /\n  write: deny\n/, `${agent} should deny writes`)
+    }
   })
 })
 
@@ -129,6 +222,22 @@ describe('workflow routing policy', () => {
     assert.ok(lowEngineer.includes('implementation-safety.md'))
     assert.ok(builder.includes('implementation-safety.md'))
     assert.ok(routing.includes('implementation-safety.md'))
+  })
+
+  it('defines REQUEST_CONSULT as dispatcher-mediated, not subagent Task use', () => {
+    const protocols = readFileSync(
+      join(process.cwd(), 'framework', 'prompts', 'shared', 'protocols.md'),
+      'utf8',
+    )
+    const architect = readAgent('architect')
+    const reviewer = readAgent('reviewer')
+    const dispatcher = readAgent('dispatcher')
+
+    assert.ok(protocols.includes('This is a text protocol, not a Task invocation.'))
+    assert.ok(architect.includes('return `REQUEST_CONSULT` to `dispatcher` for `designer`'))
+    assert.ok(reviewer.includes('return `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` to `dispatcher` for specialist reviewers'))
+    assert.ok(dispatcher.includes('If `architect` returns `REQUEST_CONSULT` for `designer`'))
+    assert.ok(dispatcher.includes('If `reviewer` returns `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` for `code-reviewer`, `security-reviewer`, or `security-auditor`'))
   })
 })
 

@@ -85,7 +85,7 @@ Note: `code-reviewer`, `security-reviewer`, and `security-auditor` return findin
 ## Shared Rules
 
 - `superpowers.md` — must use `verification-before-completion`
-- `protocols.md` — use exact protocol names; issue `REQUEST_CONSULT` for specialist reviewers
+- `protocols.md` — use exact protocol names; return `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` to `dispatcher` for specialist reviewers
 - `protected-artifacts.md` — own `review.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
 - `verification.md` — verify protected artifacts still exist after implementation; verify before claiming completion
 
@@ -93,7 +93,7 @@ Note: `code-reviewer`, `security-reviewer`, and `security-auditor` return findin
 
 1. Read build results and approved artifacts.
 2. Use `verification-before-completion`.
-3. Issue `REQUEST_CONSULT` for `code-reviewer` and `security-reviewer` (or `security-auditor`) as needed.
+3. Return `REQUEST_CONSULT_BATCH` to `dispatcher` when multiple read-only specialist reviews can run in parallel, or `REQUEST_CONSULT` for one specialist reviewer when serial review is safer.
 4. Collect all findings and verification evidence.
 5. Create `docs/specs/<feature>/` if it does not exist.
 6. Write `docs/specs/<feature>/review.md` — include changed files, tests, checks, findings, risks, and readiness recommendation.
