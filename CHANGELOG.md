@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-05-21
+
+### Fixed
+
+- Aligned package metadata with the MIT license used by the repository.
+- Added `oowl --version` and `oowl -v` support.
+- Added local validation scripts for CLI smoke checks and package dry-run checks.
+- Moved `security-auditor` into the premium/deep custom-profile tier.
+- Hardened OpenCode model scanning by trying direct process execution before shell fallback.
+- Made dispatcher delegation-first behavior explicit in dispatcher and shared routing prompts.
+- Added framework invariant tests for delegation ownership, scheduler boundaries, approval gates, and protected artifacts.
+
 ## [1.1.0] - 2026-05-12
 
 ### Added
@@ -73,7 +85,8 @@ Initial npm release.
 - GitHub Pages documentation site.
 - MIT license.
 
-[Unreleased]: https://github.com/jimzandueta/oowl/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/jimzandueta/oowl/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/jimzandueta/oowl/compare/v1.1.0...v1.1.2
 [1.1.0]: https://github.com/jimzandueta/oowl/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/jimzandueta/oowl/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/jimzandueta/oowl/compare/v1.0.5...v1.0.6
