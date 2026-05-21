@@ -199,14 +199,21 @@ export function classifyModels(models: Model[]): ClassifiedModels {
   return { cheap, mid, premium, unclassified };
 }
 
-export async function scanOpenCodeModels(): Promise<ScanResult> {
-  // shell: true ensures the child process inherits the full login-shell PATH,
-  // so `opencode` is found even when Node was launched without a shell profile.
-  const result = spawnSync("opencode", ["models"], {
+function runOpenCodeModels(shell: boolean) {
+  return spawnSync("opencode", ["models"], {
     encoding: "utf8",
     timeout: 10000,
-    shell: true,
+    shell,
   });
+}
+
+export async function scanOpenCodeModels(): Promise<ScanResult> {
+  let result = runOpenCodeModels(false);
+
+  // Fallback for environments where Node was launched without a login-shell PATH.
+  if (result.error || result.status !== 0) {
+    result = runOpenCodeModels(true);
+  }
 
   if (result.error || result.status !== 0) {
     return {

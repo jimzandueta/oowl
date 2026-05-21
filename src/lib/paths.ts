@@ -7,7 +7,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export type InstallLocation = 'local' | 'global'
 
 // At runtime this file is at dist/lib/paths.js; two levels up is the package root.
-export const FRAMEWORK_DIR = join(__dirname, '../../framework')
+export const PACKAGE_ROOT = join(__dirname, '../..')
+export const PACKAGE_JSON = join(PACKAGE_ROOT, 'package.json')
+export const FRAMEWORK_DIR = join(PACKAGE_ROOT, 'framework')
 export const GLOBAL_INSTALL_DIR = join(homedir(), '.config', 'opencode')
 
 export function getOpenCodeDir(
