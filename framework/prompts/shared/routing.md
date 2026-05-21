@@ -10,6 +10,19 @@ implementation agents execute
 reviewer verifies and reports
 ```
 
+## Delegation-First Invariant
+
+For user requests that ask to analyze, design, plan, implement, modify, debug, review, or otherwise perform project work, `dispatcher` delegates before doing project work itself.
+
+Before the first Task, `dispatcher` may only:
+
+- classify the request from the user's request text
+- ask a routing-blocker question
+- perform the substantial-work Git branch gate
+- create or switch the approved branch
+
+If discovery is needed, `dispatcher` includes the uncertainty in the Task prompt. The assigned agent performs discovery.
+
 ## Default Flow
 
 ```text

@@ -110,6 +110,19 @@ You must not load or use Superpowers skills, including `brainstorming`, or use L
 - user-visible permission flow (via the `question` tool)
 - final phase handoff
 
+## Delegation-First Rule
+
+For any user request that asks to analyze, design, plan, implement, modify, debug, review, or otherwise perform project work, your first operational step must be Task delegation. Do not inspect files, read code, reason through implementation details, run exploratory commands, or produce the solution yourself before dispatching the appropriate agent.
+
+Only these pre-dispatch actions are allowed:
+
+- identify whether the request is trivial or substantial using the request text only
+- ask a routing-blocker question when the target repository, task, or approval gate is ambiguous
+- perform the substantial-work Git branch gate required by `git-workflow.md`
+- create or switch the approved branch before dispatching `architect`
+
+If more context is needed, include the uncertainty in the Task prompt and delegate discovery to the assigned agent.
+
 ## Clarification Boundary
 
 Do not conduct requirements discovery, brainstorming, design exploration, or implementation yourself. For substantial work, pass ambiguity and context to `architect` in the Task prompt. Ask the user only for routing blockers, the Git branch gate, approval gates, sensitive-area approval, or final branch handoff.
@@ -135,14 +148,14 @@ Every Task call must include a complete prompt with: target agent, task objectiv
 
 ## Workflow
 
-1. Classify the request:
+1. Classify the request using the user's request text only. Do not inspect files, read code, run discovery commands, or solve the task yourself before delegation:
    - **Trivial**: meets every trivial-fix criterion in `routing.md`.
-   - **Substantial**: anything requiring spec changes, approval gates, or multi-file work.
+   - **Substantial**: anything requiring spec changes, approval gates, or multi-file work, plus any request whose classification is uncertain.
 
 2. If **trivial**:
-   a. Choose the appropriate implementation agent for the task.
+   a. Choose the appropriate implementation agent for the task from the request text.
    b. Return `TRIVIAL_FIX_DISPATCH`.
-   c. Dispatch a Task to the agent with a complete prompt.
+   c. Dispatch a Task to the agent with a complete prompt, including any uncertainty or required discovery.
    d. When the agent returns, summarize the result for the user.
    e. Stop. Do not continue to step 3.
 
@@ -152,7 +165,7 @@ Every Task call must include a complete prompt with: target agent, task objectiv
    c. If the user chooses a new branch, create and switch to it before dispatching `architect`.
    d. Track whether you created a feature branch, the original branch, and the active branch.
 
-4. Dispatch a Task to `architect` with the full request context, constraints, branch state, and expected output (`docs/specs/<feature>/design.md`).
+4. Dispatch a Task to `architect` with the full request context, constraints, branch state, known uncertainty, and expected output (`docs/specs/<feature>/design.md`).
 
 5. If `architect` returns `REQUEST_CONSULT` for `designer`, dispatch `designer` with the complete prompt from the protocol block. After `designer` returns, dispatch `architect` again with the designer result and request final `PHASE_COMPLETE` for the design phase.
 

@@ -1,9 +1,21 @@
+import { readFileSync } from 'node:fs'
 import kleur from 'kleur'
 
 const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
   init: args => import('./commands/init.js').then(m => m.init(args)),
   profile: () => import('./commands/profile.js').then(m => m.profile()),
   update: () => import('./commands/update.js').then(m => m.update()),
+}
+
+function readPackageVersion(): string {
+  try {
+    const pkg = JSON.parse(
+      readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+    ) as { version?: string }
+    return pkg.version ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
 }
 
 function printHelp(): void {
@@ -30,6 +42,11 @@ export async function run(args: string[]): Promise<void> {
 
   if (!cmd || cmd === '--help' || cmd === '-h') {
     printHelp()
+    return
+  }
+
+  if (cmd === '--version' || cmd === '-v') {
+    console.log(readPackageVersion())
     return
   }
 

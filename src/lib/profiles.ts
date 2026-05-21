@@ -24,11 +24,11 @@ export const TIER_AGENTS: Record<TierKey, string[]> = {
     'test-engineer',
     'code-reviewer',
     'security-reviewer',
-    'security-auditor',
     'low-architect',
     'low-designer',
   ],
   'premium-deep': [
+    'security-auditor',
     'cloud-architect',
     'high-engineer',
     'high-architect',
