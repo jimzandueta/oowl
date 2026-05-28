@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2026-05-29
+
+### Fixed
+
+- Tightened agent permission boundaries across all agent types. Agent frontmatter now consistently declares permission scope with proper rule ordering so protected-file denies take precedence over wildcard allows.
+- Updated framework invariant tests to enforce the new permission boundary rules.
+
 ## [1.1.2] - 2026-05-21
 
 ### Fixed
@@ -85,7 +92,8 @@ Initial npm release.
 - GitHub Pages documentation site.
 - MIT license.
 
-[Unreleased]: https://github.com/jimzandueta/oowl/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/jimzandueta/oowl/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/jimzandueta/oowl/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/jimzandueta/oowl/compare/v1.1.0...v1.1.2
 [1.1.0]: https://github.com/jimzandueta/oowl/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/jimzandueta/oowl/compare/v1.0.6...v1.0.7
