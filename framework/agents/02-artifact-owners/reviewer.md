@@ -10,13 +10,13 @@ permission:
   grep: allow
   list: allow
   edit:
-    "*": deny
-    "docs/specs/**/review.md": ask
+    "docs/specs/**/review.md": allow
     "AGENTS.md": deny
+    "*": deny
   write:
-    "*": deny
-    "docs/specs/**/review.md": ask
+    "docs/specs/**/review.md": allow
     "AGENTS.md": deny
+    "*": deny
   bash:
     "*": ask
     "pwd": allow
