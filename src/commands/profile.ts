@@ -4,7 +4,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { FRAMEWORK_DIR } from "../lib/paths.js";
 import { findOowlInstall, writeOowlJson } from "../lib/installer.js";
-import { applyProfile, buildCustomProfile } from "../lib/profiles.js";
+import { buildChecksums } from "../lib/checksum.js";
+import { applyProfile, buildCustomProfile, writeProfileArtifacts } from "../lib/profiles.js";
 import type { Profile } from "../lib/profiles.js";
 import {
   scanOpenCodeModels,
@@ -12,9 +13,49 @@ import {
 } from "../lib/opencode-scanner.js";
 import type { Model, ScanResult } from "../lib/opencode-scanner.js";
 
-export const BUILT_IN_PROFILES = ["low", "balanced", "high"];
+export const FREE_PROFILE = "free";
+export const FREE_PROFILE_WARNING =
+  "free-data will be used in training. Do not use this profile for private, proprietary, regulated, customer, or confidential data.";
+export const BUILT_IN_PROFILES = ["low", "balanced", "high", FREE_PROFILE];
+
+export function profileRequiresOpenCodeGo(profile: string): boolean {
+  return profile !== FREE_PROFILE;
+}
+
+export function profileChoiceName(profile: string, opencodeGo: boolean): string {
+  const warning =
+    profile === FREE_PROFILE ? ` - ${FREE_PROFILE_WARNING}` : "";
+  const requirement =
+    profileRequiresOpenCodeGo(profile) && !opencodeGo
+      ? kleur.dim(" (requires OpenCode Go)")
+      : "";
+  return `${profile}${warning}${requirement}`;
+}
+
+export function printFreeProfileWarning(profile: string): void {
+  if (profile === FREE_PROFILE) {
+    console.log(kleur.yellow(`\n${FREE_PROFILE_WARNING}`));
+  }
+}
 
 type TierKey = "cheap/fast" | "mid/balanced" | "premium/deep";
+
+function printHelp(): void {
+  console.log(`
+${kleur.bold("Usage:")} oowl profile [free|low|balanced|high|custom]
+
+Switch the installed OOWL model cost profile.
+
+${kleur.bold("Options:")}
+  --help, -h  Show this help message
+
+${kleur.bold("Examples:")}
+  oowl profile
+  oowl profile free
+  oowl profile low
+  oowl profile balanced
+`);
+}
 
 /**
  * Show a tier picker with remaining unassigned connected models
@@ -237,14 +278,37 @@ export function applyProfileJsonToJsonc(
   writeFileSync(jsoncPath, content, "utf8");
 }
 
-export async function profile(): Promise<void> {
+export async function profile(args: string[] = []): Promise<void> {
+  if (args.includes("--help") || args.includes("-h")) {
+    printHelp();
+    return;
+  }
+
+  if (args.length > 1) {
+    console.error(kleur.red(`Unexpected argument: ${args[1]}`));
+    printHelp();
+    process.exitCode = 1;
+    return;
+  }
+
+  const requestedProfile = args[0];
+  if (
+    requestedProfile &&
+    ![...BUILT_IN_PROFILES, "custom"].includes(requestedProfile)
+  ) {
+    console.error(kleur.red(`Unknown profile: ${requestedProfile}`));
+    printHelp();
+    process.exitCode = 1;
+    return;
+  }
+
   const cwd = process.cwd();
   const install = findOowlInstall(cwd);
 
   if (!install) {
     console.error(
       kleur.red(
-        "OOWL is not installed in this directory. Run `oowl init` first.",
+        "OOWL is not installed in this directory. Run `oowl install` first.",
       ),
     );
     process.exitCode = 1;
@@ -256,23 +320,24 @@ export async function profile(): Promise<void> {
   console.log(kleur.bold("\nOOWL Profile Switcher\n"));
   console.log(`Current profile: ${kleur.cyan(oowl.profile)}`);
 
-  const choices = [
-    ...BUILT_IN_PROFILES.map((p) => ({
-      name: `${p}${oowl.opencodeGo ? "" : kleur.dim(" (requires OpenCode Go)")}`,
-      value: p,
-    })),
-    { name: "custom — choose models by tier", value: "custom" },
-  ];
-
-  const chosen = await select({
-    message: "Switch to profile:",
-    choices,
-  });
+  const chosen =
+    requestedProfile ??
+    (await select({
+      message: "Switch to profile:",
+      choices: [
+        ...BUILT_IN_PROFILES.map((p) => ({
+          name: profileChoiceName(p, oowl.opencodeGo),
+          value: p,
+        })),
+        { name: "custom — choose models by tier", value: "custom" },
+      ],
+    }));
 
   let profileJson: Profile;
   if (chosen === "custom") {
     profileJson = await resolveCustomProfile();
   } else {
+    printFreeProfileWarning(chosen);
     const profilePath = join(FRAMEWORK_DIR, "model-profiles", `${chosen}.json`);
     if (!existsSync(profilePath)) {
       console.error(kleur.red(`Profile file not found: ${profilePath}`));
@@ -284,11 +349,17 @@ export async function profile(): Promise<void> {
 
   console.log(kleur.dim(`\nApplying profile: ${chosen}…`));
   await applyProfile(profileJson, openCodeDir);
+  writeProfileArtifacts(
+    profileJson,
+    openCodeDir,
+    chosen === "custom" ? "profile-models.json" : `model-profiles/${chosen}.json`,
+  );
 
   applyProfileJsonToJsonc(join(openCodeDir, "opencode.jsonc"), profileJson);
 
   oowl.profile = chosen;
   oowl.updatedAt = new Date().toISOString();
+  oowl.checksums = await buildChecksums(openCodeDir);
   writeOowlJson(installRoot, oowl);
 
   console.log(kleur.green(`\nProfile switched to: ${chosen}`));

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { TIER_AGENTS, buildCustomProfile, applyProfile } from '../../src/lib/profiles.js'
+import { TIER_AGENTS, buildCustomProfile, applyProfile, writeProfileArtifacts } from '../../src/lib/profiles.js'
 import { writeFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -74,6 +74,72 @@ describe('buildCustomProfile', () => {
   it('includes global model set to cheap model', () => {
     const profile = buildCustomProfile('cheap', 'mid', 'premium')
     assert.equal(profile.global.model, 'cheap')
+  })
+
+  it('writes active profile json and regenerated model strategy', () => {
+    const dir = join(tmpdir(), `oowl-profile-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+    mkdirSync(dir, { recursive: true })
+
+    const profile = buildCustomProfile('cheap-model', 'mid-model', 'premium-model')
+    writeProfileArtifacts(profile, dir, 'profile-models.json')
+
+    const active = JSON.parse(readFileSync(join(dir, 'profile-models.json'), 'utf8'))
+    assert.equal(active.profile, 'custom')
+
+    const strategy = readFileSync(
+      join(dir, 'prompts', 'runtime', 'model-strategy.md'),
+      'utf8',
+    )
+    assert.match(strategy, /Profile: `custom`/)
+    assert.match(strategy, /cheap-model/)
+    assert.match(strategy, /oowl profile <free\|low\|balanced\|high>/)
+
+    rmSync(dir, { recursive: true })
+  })
+})
+
+describe('built-in profile JSON', () => {
+  it('ships a free profile with the training-data warning and supplied models', () => {
+    const profile = JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'framework', 'model-profiles', 'free.json'),
+        'utf8',
+      ),
+    )
+
+    assert.equal(profile.profile, 'free')
+    assert.match(profile.description, /free-data will be used in training/)
+
+    const models = new Set<string>([
+      profile.global.model,
+      profile.global.small_model,
+      ...Object.values(profile.agents).map((cfg: any) => cfg.model),
+    ])
+    for (const model of [
+      'opencode/minimax-m3-free',
+      'opencode/deepseek-v4-flash-free',
+      'opencode/big-pickle',
+      'opencode/mimo-v2.5-free',
+      'opencode/nemotron-3-super-free',
+    ]) {
+      assert.ok(models.has(model), `free profile should use ${model}`)
+    }
+  })
+
+  it('keeps every built-in profile mapped for every ordered agent', () => {
+    for (const name of ['free', 'low', 'balanced', 'high']) {
+      const profile = JSON.parse(
+        readFileSync(
+          join(process.cwd(), 'framework', 'model-profiles', `${name}.json`),
+          'utf8',
+        ),
+      )
+
+      for (const agent of profile.agent_order) {
+        assert.ok(profile.agents[agent], `${name} should map ${agent}`)
+        assert.ok(profile.agents[agent].model, `${name}.${agent} should have a model`)
+      }
+    }
   })
 })
 
@@ -152,7 +218,7 @@ describe('agent permissions', () => {
       'plan-reviewer',
       'code-reviewer',
       'security-reviewer',
-      'security-auditor',
+      // security-auditor intentionally has granular write access to docs/specs/**/security-audit.md
       'low-architect',
       'low-designer',
     ]
@@ -168,7 +234,7 @@ describe('agent permissions', () => {
 describe('workflow routing policy', () => {
   it('centralizes test-first behavior policy in implementation-safety', () => {
     const implementationSafety = readFileSync(
-      join(process.cwd(), 'framework', 'prompts', 'shared', 'implementation-safety.md'),
+      join(process.cwd(), 'framework', 'prompts', 'execution', 'implementation-safety.md'),
       'utf8',
     )
     const planner = readFileSync(
@@ -183,17 +249,17 @@ describe('workflow routing policy', () => {
     assert.ok(implementationSafety.includes('New or changed behavior must be planned with test-first coverage.'))
     assert.ok(implementationSafety.includes('a test-first step that creates or updates a focused automated test'))
     assert.ok(implementationSafety.includes('specific no-test rationale and manual verification plan'))
-    assert.ok(planner.includes('implementation-safety.md'))
-    assert.ok(planReviewer.includes('implementation-safety.md'))
+    assert.ok(planner.includes('execution/implementation-safety.md'))
+    assert.ok(planReviewer.includes('execution/implementation-safety.md'))
   })
 
   it('centralizes low-tier edit limits in implementation-safety', () => {
     const implementationSafety = readFileSync(
-      join(process.cwd(), 'framework', 'prompts', 'shared', 'implementation-safety.md'),
+      join(process.cwd(), 'framework', 'prompts', 'execution', 'implementation-safety.md'),
       'utf8',
     )
     const costTiering = readFileSync(
-      join(process.cwd(), 'framework', 'prompts', 'shared', 'cost-tiering.md'),
+      join(process.cwd(), 'framework', 'prompts', 'execution', 'cost-tiering.md'),
       'utf8',
     )
     const lowTaskWorker = readFileSync(
@@ -209,7 +275,7 @@ describe('workflow routing policy', () => {
       'utf8',
     )
     const routing = readFileSync(
-      join(process.cwd(), 'framework', 'prompts', 'shared', 'routing.md'),
+      join(process.cwd(), 'framework', 'prompts', 'workflow', 'routing.md'),
       'utf8',
     )
 
@@ -217,16 +283,16 @@ describe('workflow routing policy', () => {
     assert.ok(implementationSafety.includes('`low-task-worker` may handle read-only checks, trivial file creation'))
     assert.ok(implementationSafety.includes('`low-engineer` may handle only tiny mechanical edits'))
     assert.ok(implementationSafety.includes('If a low-tier task would require creating or updating tests'))
-    assert.ok(costTiering.includes('implementation-safety.md'))
-    assert.ok(lowTaskWorker.includes('implementation-safety.md'))
-    assert.ok(lowEngineer.includes('implementation-safety.md'))
-    assert.ok(builder.includes('implementation-safety.md'))
-    assert.ok(routing.includes('implementation-safety.md'))
+    assert.ok(costTiering.includes('execution/implementation-safety.md'))
+    assert.ok(lowTaskWorker.includes('execution/implementation-safety.md'))
+    assert.ok(lowEngineer.includes('execution/implementation-safety.md'))
+    assert.ok(builder.includes('execution/implementation-safety.md'))
+    assert.ok(routing.includes('execution/implementation-safety.md'))
   })
 
   it('defines REQUEST_CONSULT as dispatcher-mediated, not subagent Task use', () => {
     const protocols = readFileSync(
-      join(process.cwd(), 'framework', 'prompts', 'shared', 'protocols.md'),
+      join(process.cwd(), 'framework', 'prompts', 'workflow', 'protocols.md'),
       'utf8',
     )
     const architect = readAgent('architect')

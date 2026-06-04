@@ -1,0 +1,128 @@
+{
+  "profile": "free",
+  "description": "free-data will be used in training. Do not use this profile for private, proprietary, regulated, customer, or confidential data. Uses only free OpenCode models for lowest-cost experimentation.",
+  "global": {
+    "model": "opencode/deepseek-v4-flash-free",
+    "small_model": "opencode/nemotron-3-super-free",
+    "default_agent": "dispatcher"
+  },
+  "agent_order": [
+    "dispatcher",
+    "architect",
+    "planner",
+    "plan-reviewer",
+    "builder",
+    "reviewer",
+    "designer",
+    "frontend-engineer",
+    "frontend-polisher",
+    "backend-engineer",
+    "database-engineer",
+    "cloud-architect",
+    "test-engineer",
+    "code-reviewer",
+    "security-reviewer",
+    "security-auditor",
+    "low-engineer",
+    "low-task-worker",
+    "low-architect",
+    "low-designer",
+    "high-engineer",
+    "high-architect",
+    "high-designer"
+  ],
+  "agents": {
+    "dispatcher": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "reason": "Free fast routing model for dispatch decisions."
+    },
+    "architect": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for design and tradeoffs."
+    },
+    "planner": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for implementation planning."
+    },
+    "plan-reviewer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for plan validation."
+    },
+    "builder": {
+      "model": "opencode/big-pickle",
+      "reason": "Free model for scheduler-only coordination."
+    },
+    "reviewer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for verification summary."
+    },
+    "designer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for UI and product design."
+    },
+    "frontend-engineer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for frontend implementation."
+    },
+    "frontend-polisher": {
+      "model": "opencode/mimo-v2.5-free",
+      "reason": "Free fast option for visual and interaction polish."
+    },
+    "backend-engineer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for APIs and domain logic."
+    },
+    "database-engineer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for schema and data integrity work."
+    },
+    "cloud-architect": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for infrastructure design."
+    },
+    "test-engineer": {
+      "model": "opencode/mimo-v2.5-free",
+      "reason": "Free fast option for tests and coverage analysis."
+    },
+    "code-reviewer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for code review."
+    },
+    "security-reviewer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for first-pass security review."
+    },
+    "security-auditor": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option available for security audit."
+    },
+    "low-engineer": {
+      "model": "opencode/deepseek-v4-flash-free",
+      "reason": "Free fast option for tiny mechanical edits."
+    },
+    "low-task-worker": {
+      "model": "opencode/nemotron-3-super-free",
+      "reason": "Free small option for read-only checks and summaries."
+    },
+    "low-architect": {
+      "model": "opencode/mimo-v2.5-free",
+      "reason": "Free fast option for bounded architecture notes."
+    },
+    "low-designer": {
+      "model": "opencode/mimo-v2.5-free",
+      "reason": "Free fast option for bounded design notes."
+    },
+    "high-engineer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for escalation coding."
+    },
+    "high-architect": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for escalation architecture."
+    },
+    "high-designer": {
+      "model": "opencode/minimax-m3-free",
+      "reason": "Free strongest reasoning option for escalation design."
+    }
+  }
+}

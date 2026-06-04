@@ -3,14 +3,14 @@
 Maximum parallel build tasks:
 
 ```text
-MAX_PARALLEL_BUILD_TASKS = 3
+MAX_PARALLEL_BUILD_TASKS = 20
 ```
 
 ## Execution Model
 
-`builder` schedules parallel work by returning `REQUEST_CONSULT_BATCH`.
+`builder` schedules parallel work by returning `REQUEST_CONSULT_BATCH`. It does not dispatch agents itself.
 
-`dispatcher` performs the actual parallel dispatch by issuing all eligible Task calls in the same assistant message.
+`dispatcher` performs the actual parallel dispatch by issuing all eligible Task calls in the same assistant message, up to `MAX_PARALLEL_BUILD_TASKS`.
 
 Implementation agents execute the assigned tasks.
 
@@ -38,14 +38,12 @@ Each task in a parallel group must include:
 
 ## Atomic Batch Rule
 
-`REQUEST_CONSULT_BATCH` means same-turn multi-agent dispatch.
+`REQUEST_CONSULT_BATCH` means same-turn multi-agent dispatch. If the batch is valid, `dispatcher` must dispatch every eligible task in the batch before waiting for results.
 
 Correct behavior:
 
 ```text
-dispatcher issues Task call 1
-dispatcher issues Task call 2
-dispatcher issues Task call 3
+dispatcher issues all Task calls (up to 20)
 all in the same assistant message
 ```
 
@@ -59,7 +57,7 @@ waits
 dispatcher issues Task call 3
 ```
 
-That is serial execution and violates the batch protocol.
+That is serial execution and violates the batch protocol. If the full batch is not safe, return `PARALLEL_DISPATCH_FAILED` or dispatch a smaller valid batch.
 
 ## Protected Artifacts
 

@@ -77,10 +77,11 @@ DISPATCHER
 `dispatcher` classifies the request and routes it. It does not implement.
 
 Trivial-fix criteria — all must be true:
-- under ~20 lines, under 3 files
-- no schema, auth, security, payment, IAM, secrets, PII, or production config touched
-- no new dependency introduced
-- no architectural decision required
+- Under ~20 lines, under 3 files
+- No auth, IAM, payments, PII, secrets, or production config touched
+- No new dependency introduced
+- No architectural decision required
+- No new feature behavior or test-writing work required
 
 Trivial work emits `TRIVIAL_FIX_DISPATCH` and routes to one implementer. No `design.md`, `implementation.md`, or `review.md` is created.
 

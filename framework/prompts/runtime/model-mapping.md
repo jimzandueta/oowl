@@ -60,7 +60,7 @@ These are starting points. Pick the variant that matches your account access and
 scripts/apply-profile-models.sh provider-agnostic
 ```
 
-If your environment cannot resolve the placeholder strings as real models, edit the agent frontmatter files to substitute concrete model identifiers, or apply one of the included concrete profiles (`low`, `balanced`, `high`).
+If your environment cannot resolve the placeholder strings as real models, edit the agent frontmatter files to substitute concrete model identifiers, or apply one of the included concrete profiles (`free`, `low`, `balanced`, `high`).
 
 ## Mixed Mappings
 

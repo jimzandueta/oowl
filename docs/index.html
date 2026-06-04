@@ -4,34 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>oowl — OpenCode Opinionated Workflow Layer</title>
+    <meta name="description" content="oowl is a structured multi-agent workflow layer for OpenCode. File locks, approval gates, persistent design artifacts, 23 agents across 6 classes." />
+    <meta property="og:title" content="oowl — OpenCode Opinionated Workflow Layer" />
+    <meta property="og:description" content="Structured multi-agent workflow for OpenCode. Cheap models route, mid models build, premium models review." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://github.com/jimzandueta/oowl" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0a0e1a" />
+    <meta property="og:image" content="assets/oowl-logo-256.png" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
     />
     <style>
-      :root {
-        --bg: #0f1117;
-        --bg-sidebar: #161b27;
-        --bg-card: #1a2035;
-        --bg-code: #0d1117;
-        --border: #2a3045;
-        --accent: #4f8ef7;
-        --accent-dim: #2d5bb5;
-        --green: #3fb950;
-        --yellow: #d29922;
-        --red: #f85149;
-        --text: #e6edf3;
-        --text-muted: #8b949e;
-        --text-dim: #6e7681;
-        --sidebar-width: 260px;
-        --topbar-height: 56px;
-        --font:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-          sans-serif;
-        --font-mono:
-          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      }
-
       *,
       *::before,
       *::after {
@@ -39,306 +34,914 @@
         margin: 0;
         padding: 0;
       }
-
+      :root {
+        --bg: #0a0e1a;
+        --surface: #0f1422;
+        --surface-2: #0a0e1a;
+        --border: #1f2942;
+        /* Brand palette (from oowl logo) */
+        --navy: #013492;
+        --blue: #1f4ad3;
+        --electric: #008ffe;
+        --indigo: #5646e4;
+        --accent: #1f6dff;
+        --accent-light: #5ea8ff;
+        --accent-glow: rgba(0, 143, 254, 0.35);
+        --brand-gradient: linear-gradient(
+          135deg,
+          var(--navy) 0%,
+          var(--blue) 50%,
+          var(--electric) 100%
+        );
+        --progress-gradient: linear-gradient(
+          90deg,
+          var(--navy) 0%,
+          var(--blue) 35%,
+          var(--electric) 70%,
+          var(--indigo) 100%
+        );
+        --green: #3fb950;
+        --yellow: #d29922;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --code-bg: #0f1422;
+        --formula-bg: #0c1426;
+        --example-bg: #0d1424;
+        --sky: #58a6ff;
+        --danger: #f85149;
+        --font-sans:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-mono:
+          "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      }
       html {
         scroll-behavior: smooth;
       }
-
       body {
-        font-family: var(--font);
         background: var(--bg);
         color: var(--text);
-        font-size: 15px;
+        font-family: var(--font-sans);
+        font-size: 15.5px;
         line-height: 1.7;
+        letter-spacing: -0.005em;
+        font-feature-settings: "ss01", "cv11", "calt";
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
-
-      /* ── TOPBAR ── */
-      .topbar {
+      /* Reading progress bar — fixed at top, fills as you scroll */
+      .reading-progress {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        height: var(--topbar-height);
-        background: var(--bg-sidebar);
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        padding: 0 24px;
-        gap: 16px;
+        height: 2px;
+        background: var(--progress-gradient);
+        transform-origin: left;
+        transform: scaleX(0);
         z-index: 100;
+        pointer-events: none;
+        transition: transform 0.05s linear;
+        box-shadow: 0 0 12px rgba(40, 97, 248, 0.6);
       }
 
-      .topbar-logo {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--text);
+      /* Skip-to-content — accessibility */
+      .skip-link {
+        position: fixed;
+        top: -100px;
+        left: 1rem;
+        background: var(--accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
         text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .topbar-logo .owl-icon {
-        font-size: 22px;
-      }
-
-      .topbar-tagline {
-        color: var(--text-muted);
-        font-size: 13px;
-        display: none;
-      }
-
-      @media (min-width: 700px) {
-        .topbar-tagline {
-          display: block;
-        }
-      }
-
-      .topbar-links {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-
-      .topbar-links a {
-        color: var(--text-muted);
-        text-decoration: none;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.15s;
-      }
-
-      .topbar-links a:hover {
-        color: var(--text);
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 11px;
         font-weight: 600;
-        background: var(--accent-dim);
-        color: #fff;
+        z-index: 200;
+        transition: top 0.2s ease;
+      }
+      .skip-link:focus {
+        top: 0.5rem;
       }
 
-      /* ── LAYOUT ── */
+      /* Custom focus ring — visible for keyboard nav */
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 3px;
+      }
+
+      /* Subtle grain overlay — breaks flat digital feel */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+        opacity: 0.025;
+        pointer-events: none;
+        z-index: 50;
+        mix-blend-mode: overlay;
+      }
       .layout {
         display: flex;
-        padding-top: var(--topbar-height);
         min-height: 100vh;
+        background: var(--bg);
       }
-
-      /* ── SIDEBAR ── */
-      .sidebar {
-        width: var(--sidebar-width);
+      nav {
+        width: 270px;
         flex-shrink: 0;
-        position: fixed;
-        top: var(--topbar-height);
-        left: 0;
-        bottom: 0;
-        background: var(--bg-sidebar);
-        border-right: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        height: 100vh;
         overflow-y: auto;
-        padding: 24px 0 40px;
-        display: none;
+        background: rgba(13, 17, 23, 0.85);
+        backdrop-filter: blur(12px) saturate(140%);
+        -webkit-backdrop-filter: blur(12px) saturate(140%);
+        border-right: 1px solid var(--border);
+        padding: 1rem 0;
       }
-
-      @media (min-width: 900px) {
-        .sidebar {
-          display: block;
-        }
+      nav .logo {
+        padding: 0 1.1rem 1rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0.75rem;
       }
-
-      .sidebar-section {
-        margin-bottom: 8px;
+      .brand-lockup {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
       }
-
-      .sidebar-heading {
-        padding: 6px 20px;
-        font-size: 11px;
-        font-weight: 600;
+      nav .logo h1 {
+        font-size: 1.15rem;
+        color: var(--text);
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      nav .logo span {
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-family: var(--font-mono);
+      }
+      nav ul {
+        list-style: none;
+      }
+      nav ul li a {
+        display: block;
+        padding: 0.34rem 1.1rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.83rem;
+        transition: color 0.15s ease, border-color 0.15s ease;
+        border-left: 2px solid transparent;
+        font-weight: 500;
+      }
+      nav ul li a:hover,
+      nav ul li a.active {
+        background: transparent;
+        color: var(--text);
+        border-left-color: var(--accent);
+        text-decoration: none;
+      }
+      nav .nav-section {
+        padding: 0.9rem 1.1rem 0.25rem;
+        font-size: 0.68rem;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--text-dim);
+        color: #6e7681;
+      }
+      nav ul li a.nav-sub {
+        padding: 0.25rem 1.1rem 0.25rem 1.8rem;
+        font-size: 0.76rem;
+        font-weight: 400;
+        border-left: none;
+        color: #6e7681;
+      }
+      nav ul li a.nav-sub:hover {
+        color: var(--muted);
+        border-left: none;
+      }
+      nav ul li a.nav-sub.active {
+        color: var(--accent-light);
+        border-left: none;
+        background: transparent;
       }
 
-      .sidebar-link {
+      /* ── Collapsible nav groups ── */
+      .nav-group > ul {
+        display: none;
+      }
+      .nav-group.open > ul {
         display: block;
-        padding: 5px 20px;
-        font-size: 13px;
-        color: var(--text-muted);
-        text-decoration: none;
-        border-left: 2px solid transparent;
-        transition: all 0.15s;
       }
-
-      .sidebar-link:hover {
+      nav ul li a.nav-h2 {
+        cursor: pointer;
+      }
+      nav ul li a.nav-h2::after {
+        content: "▶";
+        display: inline-block;
+        font-size: 0.55rem;
+        opacity: 0.45;
+        margin-left: 0.4rem;
+        transition: transform 0.2s ease;
+      }
+      .nav-group.open a.nav-h2::after {
+        transform: rotate(90deg);
+      }
+      .nav-group.open a.nav-h2 {
         color: var(--text);
-        background: rgba(255, 255, 255, 0.04);
       }
-
-      .sidebar-link.active {
-        color: var(--accent);
+      nav ul li a.nav-h2.active {
+        color: var(--text);
         border-left-color: var(--accent);
-        background: rgba(79, 142, 247, 0.08);
+      }
+      nav ul li a.nav-h2:hover {
+        color: var(--text);
       }
 
-      /* ── CONTENT ── */
-      .content {
+      /* Nested sub-nav inside groups */
+      .nav-group ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .nav-group ul li a.nav-sub {
+        padding: 0.25rem 1.1rem 0.25rem 1.8rem;
+        font-size: 0.76rem;
+        font-weight: 400;
+        border-left: none;
+        color: #6e7681;
+      }
+      .nav-group ul li a.nav-sub:hover {
+        color: var(--muted);
+        border-left: none;
+      }
+      .nav-group ul li a.nav-sub.active {
+        color: var(--accent-light);
+        border-left: none;
+        background: transparent;
+      }
+      /* Clean up the flat nav-sub rules since they're now inside groups */
+      nav ul > li > a.nav-sub,
+      nav ul > li > a.nav-sub:hover,
+      nav ul > li > a.nav-sub.active {
+        /* These are now handled by .nav-group ul li a.nav-sub rules */
+      }
+
+      main {
         flex: 1;
+        max-width: 920px;
+        padding: 2.5rem 3rem 4rem;
         min-width: 0;
-        padding: 48px 32px 80px;
-        max-width: 860px;
+      }
+      .doc-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      .doc-icon {
+        width: 88px;
+        height: 88px;
+        padding: 8px;
+        border-radius: 18px;
+        background:
+          linear-gradient(135deg, rgba(40, 97, 248, 0.20) 0%, rgba(5, 52, 142, 0.10) 100%),
+          var(--surface);
+        border: 1px solid rgba(40, 97, 248, 0.45);
+        box-shadow:
+          0 0 24px rgba(40, 97, 248, 0.18),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+      }
+      .doc-icon img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .doc-icon:hover {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow:
+          0 0 36px rgba(40, 97, 248, 0.30),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      h1 {
+        color: var(--text);
+        font-size: 2.25rem;
+        line-height: 1.05;
+        margin: 0;
+        letter-spacing: -0.04em;
+        font-weight: 700;
+        text-wrap: balance;
+      }
+      .subtitle {
+        color: var(--muted);
+        margin: 0.35rem 0 0;
+        font-size: 1.02rem;
+        line-height: 1.4;
+        letter-spacing: -0.005em;
+      }
+      h2 {
+        color: var(--text);
+        font-size: 1.7rem;
+        margin: 2.8rem 0 0.85rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        text-wrap: balance;
+      }
+      h3 {
+        color: var(--text);
+        font-size: 0.78rem;
+        font-family: var(--font-mono);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin: 2rem 0 0.65rem;
+        text-wrap: balance;
+      }
+      p {
+        text-wrap: pretty;
+        max-width: 70ch;
+        line-height: 1.7;
+      }
+      /* Tabular figures for any data with numbers */
+      code, kbd, table, .badge, .agent-tag, .code-lang {
+        font-variant-numeric: tabular-nums;
+      }
+      h3 {
+        color: var(--accent-light);
+        font-size: 0.98rem;
+        font-family: var(--font-mono);
+        margin: 1.6rem 0 0.5rem;
+      }
+      p {
+        color: var(--text);
+        margin-bottom: 1rem;
+      }
+      a {
+        color: var(--sky);
+        text-decoration: none;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .badges {
+        display: flex;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+        margin: 0.8rem 0 1.25rem;
+      }
+      .badges a {
+        line-height: 0;
+        display: inline-flex;
+      }
+      .badges img {
+        height: 20px;
+        display: block;
+      }
+      .badge {
+        border-radius: 999px;
+        padding: 0.24rem 0.6rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+      }
+      .badge.green {
+        color: var(--green);
+        border-color: rgba(63, 185, 80, 0.45);
+        background: rgba(63, 185, 80, 0.06);
+      }
+      .badge.purple {
+        color: var(--accent-light);
+        border-color: rgba(40, 97, 248, 0.45);
+        background: rgba(40, 97, 248, 0.06);
+      }
+      code {
+        font-family: var(--font-mono);
+        background: rgba(40, 97, 248, 0.08);
+        border: 1px solid rgba(40, 97, 248, 0.18);
+        color: var(--accent-light);
+        border-radius: 5px;
+        padding: 0.14em 0.4em;
+        font-size: 0.86em;
+        font-weight: 500;
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.1rem 1.2rem;
+        margin: 0.85rem 0 1.2rem;
+        overflow-x: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        line-height: 1.6;
+      }
+      pre code {
+        background: transparent;
+        border: 0;
+        color: var(--text);
+        padding: 0;
+        font-size: 0.92em;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.85rem 0 1.2rem;
+        font-size: 0.92rem;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      th {
+        background: rgba(40, 97, 248, 0.06);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 0.65rem 0.85rem;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 0.86rem;
+        font-weight: 600;
+        text-align: left;
+      }
+      td {
+        border: 1px solid var(--border);
+        padding: 0.6rem 0.85rem;
+        color: var(--text);
+        vertical-align: top;
+      }
+      tr:hover td {
+        background: rgba(40, 97, 248, 0.04);
+      }
+      .callout {
+        background: rgba(40, 97, 248, 0.05);
+        border-left: 3px solid var(--accent);
+        border-radius: 0 10px 10px 0;
+        padding: 0.95rem 1.2rem;
+        margin: 1.2rem 0;
+        max-width: 70ch;
+        line-height: 1.65;
+      }
+      .callout strong {
+        color: var(--accent-light);
+      }
+      .callout.warning {
+        background: rgba(210, 153, 34, 0.06);
+        border-left-color: var(--yellow);
+      }
+      .callout.warning strong {
+        color: var(--yellow);
+      }
+      .callout.success {
+        background: rgba(63, 185, 80, 0.05);
+        border-left-color: var(--green);
+      }
+      .callout.success strong {
+        color: var(--green);
+      }
+      .callout.danger {
+        background: rgba(248, 81, 73, 0.05);
+        border-left-color: var(--danger);
+      }
+      .callout.danger strong {
+        color: var(--danger);
+      }
+      section {
+        margin-bottom: 1rem;
+      }
+      section[id] {
+        scroll-margin-top: 1.5rem;
+      }
+      /* Section intro — 1-2 line summary that sets context before the body */
+      .section-intro {
+        color: var(--muted);
+        font-size: 1.02rem;
+        margin: -0.5rem 0 1.5rem;
+        max-width: 70ch;
+        line-height: 1.55;
+        font-weight: 400;
+      }
+      /* "On this page" mini-TOC for long sections */
+      .page-toc {
+        background: rgba(40, 97, 248, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem 1rem 0.75rem 1.5rem;
+        margin: 0.5rem 0 1.6rem;
+        font-size: 0.88rem;
+      }
+      .page-toc-label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.3rem;
+      }
+      .page-toc ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem 1rem;
+      }
+      .page-toc li::before {
+        content: "→ ";
+        color: var(--accent);
       }
 
-      @media (min-width: 900px) {
-        .content {
-          margin-left: var(--sidebar-width);
+      /* ── Section icons ── */
+      h2 > .section-icon {
+        display: inline-block;
+        margin-right: 0.5rem;
+        width: 1.15em;
+        height: 1.15em;
+        vertical-align: -0.18em;
+        color: var(--accent);
+        filter: saturate(0.95) brightness(1.05);
+      }
+      h2 > .section-icon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* ── Scroll reveal ── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal,
+        .reveal.visible {
+          opacity: 1;
+          transform: none;
+          transition: none;
         }
       }
 
-      /* ── HERO ── */
-      .hero {
-        text-align: center;
-        padding: 32px 0 56px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 56px;
-      }
-
-      .hero-owl-emoji {
-        font-size: 56px;
-        line-height: 1;
-        margin-bottom: 12px;
-      }
-
-      .hero h1 {
-        font-size: 48px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        margin-bottom: 12px;
-        background: linear-gradient(135deg, #e6edf3 0%, #4f8ef7 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .hero-sub {
-        font-size: 18px;
-        color: var(--text-muted);
-        margin-bottom: 24px;
-      }
-
-      .hero-badges {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 32px;
-      }
-
-      .hero-badges img {
-        height: 20px;
-      }
-
-      .hero-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: var(--accent);
-        color: #fff !important;
-        padding: 10px 24px;
+      /* ── Code blocks with language label + copy button ── */
+      .code-block {
+        position: relative;
+        margin: 1rem 0;
         border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        text-decoration: none;
-        transition: background 0.15s;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: var(--code-bg);
       }
-
-      .hero-cta:hover {
-        background: var(--accent-dim);
-      }
-
-      /* ── TYPOGRAPHY ── */
-      .content section {
-        margin-bottom: 64px;
-        scroll-margin-top: calc(var(--topbar-height) + 24px);
-      }
-
-      .content h2 {
-        font-size: 26px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: var(--text);
-        padding-bottom: 12px;
+      .code-block-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.45rem 0.85rem;
+        background: rgba(40, 97, 248, 0.06);
         border-bottom: 1px solid var(--border);
+        font-size: 0.75rem;
       }
-
-      .content h3 {
-        font-size: 18px;
+      .code-lang {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-family: var(--font-mono);
         font-weight: 600;
-        margin: 28px 0 12px;
-        color: var(--text);
+      }
+      .code-copy {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 0.18rem 0.55rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-family: var(--font-mono);
+        transition: background 0.15s ease, color 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .code-copy:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .code-block pre {
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        background: var(--code-bg);
+      }
+      .code-block pre code {
+        display: block;
+        padding: 1rem 1.1rem;
       }
 
-      .content p {
-        color: var(--text);
-        margin-bottom: 16px;
+      /* ── Hero treatment ── */
+      .doc-header {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        padding: 1.5rem 1.5rem 1.35rem;
+        margin: 0 0 1.4rem;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 0% 0%,
+            rgba(5, 52, 142, 0.32) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 60% 50% at 100% 100%,
+            rgba(86, 70, 228, 0.18) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 50% 0%,
+            rgba(40, 97, 248, 0.08) 0%,
+            transparent 70%
+          ),
+          var(--surface);
+        border: 1px solid var(--border);
+      }
+      .doc-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          rgba(255, 255, 255, 0.025) 1px,
+          transparent 0
+        );
+        background-size: 18px 18px;
+        pointer-events: none;
       }
 
-      .content strong {
-        color: var(--text);
-      }
-
-      .content a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .content a:hover {
-        text-decoration: underline;
-      }
-
-      /* ── CODE ── */
-      .content pre {
-        background: var(--bg-code) !important;
+      /* Flow diagram */
+      .flow {
+        background: var(--code-bg);
         border: 1px solid var(--border);
         border-radius: 8px;
-        padding: 18px 20px;
-        overflow-x: auto;
+        padding: 20px 24px;
         margin: 16px 0 20px;
-        font-size: 13px;
-        line-height: 1.6;
-      }
-
-      code:not(pre code) {
         font-family: var(--font-mono);
         font-size: 13px;
-        background: var(--bg-card);
-        color: #e6b87a;
-        padding: 2px 6px;
-        border-radius: 4px;
+        color: #8b949e;
+        overflow-x: auto;
+        white-space: pre;
+        line-height: 1.5;
+      }
+      .flow .hl { color: var(--accent); }
+      .flow .dim { color: #4d5566; }
+      .flow .grn { color: var(--green); }
+      .flow .red { color: var(--danger); }
+      .flow .yellow { color: var(--yellow); }
+
+      /* Agent badges */
+      .agent-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 20px;
+      }
+      .agent-tag {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 6px;
         border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+      }
+      .agent-tag.tier-cheap { border-color: var(--green); color: var(--green); }
+      .agent-tag.tier-mid { border-color: var(--accent); color: var(--accent); }
+      .agent-tag.tier-high { border-color: var(--yellow); color: var(--yellow); }
+
+      /* Cards */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        margin: 1.5rem 0;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+        transition: transform 0.18s ease, border-color 0.18s ease,
+          box-shadow 0.18s ease, background 0.18s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(40, 97, 248, 0.10) 0%,
+          transparent 60%
+        );
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(40, 97, 248, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(40, 97, 248, 0.15);
+        background: linear-gradient(180deg, #1a2436 0%, var(--surface) 100%);
+      }
+      .card:hover::before {
+        opacity: 1;
+      }
+      .card h3 {
+        font-size: 15px;
+        margin: 0 0 8px;
+        color: var(--text);
+        font-family: var(--font-sans);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        position: relative;
+        text-transform: none;
+      }
+      .card p {
+        font-size: 13.5px;
+        line-height: 1.55;
+        margin: 0;
+        color: var(--muted);
+        position: relative;
       }
 
-      /* ── STEPS ── */
+      /* ── VS cards (overview comparison) ── */
+      .vs-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px 18px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.18s ease, border-color 0.18s ease,
+          box-shadow 0.18s ease, background 0.18s ease;
+      }
+      .vs-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(40, 97, 248, 0.10) 0%,
+          transparent 60%
+        );
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+      .vs-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(40, 97, 248, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(40, 97, 248, 0.15);
+      }
+      .vs-card:hover::before {
+        opacity: 1;
+      }
+      .vs-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-bottom: 0.9rem;
+        position: relative;
+      }
+      .vs-card-head svg {
+        width: 18px;
+        height: 18px;
+        color: var(--accent);
+        flex-shrink: 0;
+        display: block;
+      }
+      .vs-card-head h3 {
+        font-size: 14.5px;
+        margin: 0;
+        color: var(--text);
+        font-family: var(--font-sans);
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        text-transform: none;
+      }
+      .vs-line {
+        font-size: 13.5px;
+        line-height: 1.6;
+        margin: 0.35rem 0;
+        display: flex;
+        gap: 0.55rem;
+        align-items: baseline;
+        position: relative;
+      }
+      .vs-line .mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        border-radius: 50%;
+      }
+      .vs-line .mark svg {
+        width: 10px;
+        height: 10px;
+        stroke-width: 2.5;
+        display: block;
+      }
+      .vs-old {
+        color: #8a7575;
+        text-decoration: line-through;
+        text-decoration-color: rgba(248, 81, 73, 0.45);
+        text-decoration-thickness: 1px;
+      }
+      .vs-old .mark {
+        background: rgba(248, 81, 73, 0.14);
+        color: var(--danger);
+        text-decoration: none;
+      }
+      .vs-new {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .vs-new .mark {
+        background: rgba(63, 185, 80, 0.16);
+        color: var(--green);
+      }
+      .vs-line code {
+        font-size: 0.86em;
+      }
+
+      /* Agent tiers legend */
+      .tier-legend {
+        margin-top: 8px;
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: var(--text-dim);
+        color: var(--muted);
+      }
+
+      /* Lists */
+      main ul, main ol {
+        margin: 0.6rem 0 1.2rem 1.5rem;
+        padding-left: 0.25rem;
+        color: var(--text);
+      }
+
+      /* Overview CTA — closing links on the landing section */
+      .overview-cta {
+        margin-top: 2rem;
+        padding: 1rem 1.2rem;
+        background: rgba(40, 97, 248, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        max-width: 70ch;
+      }
+      .overview-cta a {
+        font-weight: 600;
+      }
+      main ul li, main ol li {
+        margin: 0.45rem 0;
+        line-height: 1.65;
+      }
+      main ul { list-style: disc; }
+      main ul li::marker { color: var(--accent); }
+
+      /* Steps (for Quick Start) */
       .steps {
         counter-reset: step;
         display: flex;
         flex-direction: column;
         gap: 0;
       }
-
       .step {
         display: flex;
         gap: 20px;
         position: relative;
       }
-
       .step::before {
         counter-increment: step;
         content: counter(step);
@@ -357,7 +960,6 @@
         position: relative;
         z-index: 1;
       }
-
       .step:not(:last-child)::after {
         content: "";
         position: absolute;
@@ -367,502 +969,447 @@
         width: 2px;
         background: var(--border);
       }
-
       .step-body {
         padding-bottom: 28px;
       }
-
       .step-body h3 {
         margin-top: 4px;
-      }
-
-      /* ── TABLES ── */
-      .content table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 16px 0 20px;
-        font-size: 14px;
-      }
-
-      .content th {
-        text-align: left;
-        padding: 10px 14px;
-        background: var(--bg-card);
-        color: var(--text-muted);
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .content td {
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border);
-        color: var(--text-muted);
-        vertical-align: top;
-      }
-
-      .content tr:last-child td {
-        border-bottom: none;
-      }
-      .content tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
-      }
-
-      /* ── CARDS ── */
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin: 20px 0;
-      }
-
-      .card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 20px;
-      }
-
-      .card-icon {
-        font-size: 22px;
-        margin-bottom: 10px;
-      }
-
-      .card h3 {
-        font-size: 15px;
-        margin: 0 0 6px;
+        font-family: var(--font-sans);
         color: var(--text);
-      }
-
-      .card p {
-        font-size: 13px;
-        margin: 0;
-        color: var(--text-muted);
-      }
-
-      /* ── CALLOUTS ── */
-      .callout {
-        display: flex;
-        gap: 14px;
-        border-radius: 8px;
-        padding: 16px 18px;
-        margin: 20px 0;
-        border: 1px solid;
-      }
-
-      .callout-icon {
-        font-size: 18px;
-        flex-shrink: 0;
-        margin-top: 1px;
-      }
-
-      .callout.info {
-        background: rgba(79, 142, 247, 0.08);
-        border-color: rgba(79, 142, 247, 0.3);
-      }
-
-      .callout.warn {
-        background: rgba(210, 153, 34, 0.08);
-        border-color: rgba(210, 153, 34, 0.3);
-      }
-
-      .callout p {
-        margin: 0;
-        font-size: 14px;
-      }
-
-      /* ── FLOW DIAGRAM ── */
-      .flow {
-        background: var(--bg-code);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 20px 24px;
-        margin: 16px 0 20px;
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: #8b949e;
-        overflow-x: auto;
-        white-space: pre;
-        line-height: 1.5;
-      }
-
-      .flow .hl {
-        color: #4f8ef7;
-      }
-      .flow .dim {
-        color: #4d5566;
-      }
-      .flow .grn {
-        color: #3fb950;
-      }
-      .flow .red {
-        color: var(--red);
-      }
-      .flow .yellow {
-        color: var(--yellow);
-      }
-
-      /* ── COMPARE TABLE ── */
-      .compare th:first-child {
-        width: 40%;
-      }
-      .compare .vs-old {
-        color: var(--red);
-      }
-      .compare .vs-new {
-        color: var(--green);
-      }
-
-      /* ── AGENT BADGES ── */
-      .agent-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 12px 0 20px;
-      }
-
-      .agent-tag {
-        font-family: var(--font-mono);
-        font-size: 12px;
-        padding: 3px 10px;
-        border-radius: 6px;
-        border: 1px solid var(--border);
-        background: var(--bg-card);
-        color: var(--text-muted);
-      }
-
-      .agent-tag.tier-cheap {
-        border-color: #3fb950;
-        color: #3fb950;
-      }
-      .agent-tag.tier-mid {
-        border-color: #4f8ef7;
-        color: #4f8ef7;
-      }
-      .agent-tag.tier-high {
-        border-color: #d29922;
-        color: #d29922;
-      }
-
-      /* ── FAQ ── */
-      .faq {
-        margin: 0;
-      }
-
-      details {
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-bottom: 10px;
-        overflow: hidden;
-      }
-
-      summary {
-        padding: 14px 18px;
-        cursor: pointer;
-        font-weight: 500;
-        color: var(--text);
-        list-style: none;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        user-select: none;
-      }
-
-      summary::before {
-        content: "›";
-        color: var(--text-dim);
-        font-size: 18px;
-        transition: transform 0.2s;
-        flex-shrink: 0;
-      }
-
-      details[open] summary::before {
-        transform: rotate(90deg);
-      }
-      details[open] {
-        background: var(--bg-card);
-      }
-
-      .faq-body {
-        padding: 4px 18px 18px 42px;
-        color: var(--text-muted);
-        font-size: 14px;
-        line-height: 1.7;
-      }
-
-      .faq-body p {
-        margin-bottom: 10px;
-      }
-      .faq-body p:last-child {
-        margin-bottom: 0;
       }
 
       /* ── FOOTER ── */
-      .footer {
+      .docs-footer {
+        margin-top: 4rem;
+        padding-top: 2rem;
         border-top: 1px solid var(--border);
-        padding: 32px 0 0;
-        margin-top: 32px;
-        color: var(--text-dim);
-        font-size: 13px;
+        color: var(--muted);
+      }
+      .footer-main {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 1rem;
+        align-items: stretch;
+      }
+      .footer-main > div,
+      .footer-links-grid,
+      .footer-bottom {
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, #131c2e 0%, #0f1726 100%);
+        border-radius: 12px;
+      }
+      .footer-main > div {
+        padding: 1.25rem 1.35rem;
         display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
+        flex-direction: column;
       }
-
-      .footer a {
-        color: var(--text-muted);
-        text-decoration: none;
-      }
-      .footer a:hover {
+      .footer-brand strong {
+        display: block;
         color: var(--text);
+        font-size: 1.02rem;
+        line-height: 1.2;
+      }
+      .footer-brand span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-top: 0.15rem;
+      }
+      .docs-footer p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+        margin: 0 0 0.5rem;
+      }
+      .footer-cta { justify-content: flex-start; }
+      .footer-cta strong {
+        color: var(--text);
+        display: block;
+        margin-bottom: 0.45rem;
+        font-size: 0.98rem;
+      }
+      .footer-actions {
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+      .footer-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0.5rem 0.85rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0d1320;
+        color: var(--text);
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: border-color 0.15s ease, color 0.15s ease,
+          background 0.15s ease, transform 0.15s ease;
+      }
+      .footer-button:hover {
+        border-color: var(--accent);
+        color: var(--accent-light);
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+      .footer-button.primary {
+        background: rgba(40, 97, 248, 0.14);
+        border-color: rgba(40, 97, 248, 0.42);
+        color: var(--accent-light);
+      }
+      .footer-button.primary:hover { background: rgba(40, 97, 248, 0.22); }
+      .footer-button svg {
+        width: 14px;
+        height: 14px;
+        margin-right: 0.4rem;
+        flex-shrink: 0;
       }
 
-      /* ── MOBILE NAV ── */
-      .mobile-nav-toggle {
-        display: none;
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        font-size: 22px;
-        margin-left: auto;
-        padding: 4px;
+      /* Inline tip / callout icons (e.g. lightbulb in <strong>) */
+      .tip-icon {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.15em;
+        color: var(--yellow);
+        display: inline-block;
+        margin-right: 0.2em;
       }
+      .footer-links-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+        padding: 1.25rem 1.35rem;
+        margin-top: 1rem;
+      }
+      .footer-links-grid h3 {
+        margin: 0 0 0.65rem;
+        color: var(--text);
+        font-family: var(--font-sans);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .footer-links-grid a {
+        display: block;
+        color: var(--sky);
+        font-size: 0.88rem;
+        margin: 0.32rem 0;
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+      .footer-links-grid a:hover {
+        color: var(--accent-light);
+        text-decoration: underline;
+      }
+      .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.35rem;
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .footer-brand { margin-bottom: 0.85rem; }
+      .footer-brand span { margin-top: 0.15rem; }
 
-      @media (max-width: 899px) {
-        .mobile-nav-toggle {
-          display: block;
-        }
-        .sidebar.open {
-          display: block;
-          z-index: 99;
-        }
+      .kw { color: #ffd98c; }
+      .fn { color: #73d7ff; }
+      .str { color: #8cf0bb; }
+      .cm { color: #4b5563; font-style: italic; }
+      .num { color: #fb923c; }
+      .type { color: #fde68a; }
+
+      @media (max-width: 900px) {
+        .footer-main, .footer-links-grid { grid-template-columns: 1fr; }
+        .footer-actions { flex-direction: column; align-items: stretch; }
+        .footer-bottom { flex-direction: column; align-items: flex-start; text-align: left; }
+        .footer-button { justify-content: flex-start; }
+      }
+      @media (max-width: 768px) {
+        nav { display: none; }
+        main { padding: 1.5rem; }
+        .doc-header { align-items: flex-start; }
+        h1 { font-size: 2.25rem; }
       }
     </style>
   </head>
   <body>
-    <!-- TOPBAR -->
-    <header class="topbar">
-      <a href="#" class="topbar-logo">
-        <span class="owl-icon">🦉</span>
-        <span>oowl</span>
-      </a>
-      <span class="topbar-tagline">OpenCode Opinionated Workflow Layer</span>
-      <nav class="topbar-links">
-        <span class="badge">v1.1.3</span>
-        <a href="https://github.com/jimzandueta/oowl" target="_blank">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
-            />
-          </svg>
-          GitHub
-        </a>
-        <a
-          href="https://www.npmjs.com/package/@jimzandueta/oowl"
-          target="_blank"
-        >
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M0 0v24h24V0H0zm6.672 19.992H4.008V8.004h2.664v11.988zm5.328 0H9.336V8.004H12v8.652h2.664V8.004h2.664v11.988H12zm8.328 0h-2.664V8.004h2.664v11.988z"
-            />
-          </svg>
-          npm
-        </a>
-      </nav>
-      <button
-        class="mobile-nav-toggle"
-        onclick="document.querySelector('.sidebar').classList.toggle('open')"
-        aria-label="Toggle navigation"
-      >
-        ☰
-      </button>
-    </header>
-
+    <a href="#overview" class="skip-link">Skip to content</a>
+    <div class="reading-progress" id="reading-progress"></div>
     <div class="layout">
       <!-- SIDEBAR -->
-      <nav class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-          <div class="sidebar-heading">Getting started</div>
-          <a href="#overview" class="sidebar-link">Overview</a>
-          <a href="#quick-start" class="sidebar-link">Quick start</a>
-          <a href="#what-you-get" class="sidebar-link">What you get</a>
+      <nav>
+        <div class="logo">
+          <div class="brand-lockup">
+            <div>
+              <h1>oowl</h1>
+              <span>v1.1.3</span>
+            </div>
+          </div>
         </div>
-        <div class="sidebar-section">
-          <div class="sidebar-heading">Core concepts</div>
-          <a href="#how-it-works" class="sidebar-link">How it works</a>
-          <a href="#protocol-signals" class="sidebar-link">Protocol signals</a>
-          <a href="#agents" class="sidebar-link">Agents</a>
-          <a href="#model-profiles" class="sidebar-link">Model profiles</a>
-          <a href="#plugins" class="sidebar-link">Plugins</a>
-        </div>
-        <div class="sidebar-section">
-          <div class="sidebar-heading">Reference</div>
-          <a href="#install" class="sidebar-link">Install</a>
-          <a href="#customizing" class="sidebar-link">Customizing</a>
-          <a href="#faq" class="sidebar-link">Common issues</a>
-        </div>
-        <div class="sidebar-section">
-          <div class="sidebar-heading">Project</div>
-          <a href="#contributing" class="sidebar-link">Contributing</a>
-          <a
-            href="https://github.com/jimzandueta/oowl"
-            class="sidebar-link"
-            target="_blank"
-            >GitHub ↗</a
-          >
-          <a
-            href="https://www.npmjs.com/package/@jimzandueta/oowl"
-            class="sidebar-link"
-            target="_blank"
-            >npm ↗</a
-          >
-        </div>
+        <ul>
+          <div class="nav-section">Getting started</div>
+          <li><a href="#overview">Overview</a></li>
+          <li class="nav-group">
+            <a href="#quick-start" class="nav-h2">Quick start</a>
+            <ul>
+              <li><a href="#qs-commands" class="nav-sub">Commands</a></li>
+            </ul>
+          </li>
+          <li><a href="#what-you-get">What you get</a></li>
+
+          <div class="nav-section">Core concepts</div>
+          <li class="nav-group">
+            <a href="#how-it-works" class="nav-h2">How it works</a>
+            <ul>
+              <li><a href="#hw-artifacts" class="nav-sub">Artifacts</a></li>
+              <li><a href="#hw-tasks" class="nav-sub">Tasks</a></li>
+              <li><a href="#hw-tiers" class="nav-sub">Tiers</a></li>
+              <li><a href="#hw-review" class="nav-sub">Review</a></li>
+              <li><a href="#hw-trivial-fix" class="nav-sub">Trivial-fix fast path</a></li>
+              <li><a href="#hw-security" class="nav-sub">Security model</a></li>
+              <li><a href="#hw-no-guarantee" class="nav-sub">What oowl does not guarantee</a></li>
+              <li><a href="#hw-guardrails" class="nav-sub">Guardrails</a></li>
+              <li><a href="#hw-task-class" class="nav-sub">Task-class assignment</a></li>
+            </ul>
+          </li>
+          <li><a href="#protocol-signals">Protocol signals</a></li>
+          <li class="nav-group">
+            <a href="#agents" class="nav-h2">Agents</a>
+            <ul>
+              <li><a href="#agents-orchestration" class="nav-sub">Orchestration</a></li>
+              <li><a href="#agents-permissions" class="nav-sub">Permission boundaries</a></li>
+              <li><a href="#agents-artifact-owners" class="nav-sub">Artifact owners</a></li>
+              <li><a href="#agents-implementers" class="nav-sub">Implementation</a></li>
+              <li><a href="#agents-reviewers" class="nav-sub">Review</a></li>
+              <li><a href="#agents-escalation" class="nav-sub">Escalation</a></li>
+              <li><a href="#agents-low-tier" class="nav-sub">Low-tier bounded</a></li>
+            </ul>
+          </li>
+          <li class="nav-group">
+            <a href="#model-profiles" class="nav-h2">Model profiles</a>
+            <ul>
+              <li><a href="#profiles-bundled" class="nav-sub">Bundled profiles</a></li>
+              <li><a href="#profiles-custom" class="nav-sub">Custom profile</a></li>
+            </ul>
+          </li>
+          <li><a href="#plugins">Plugins</a></li>
+
+          <div class="nav-section">Reference</div>
+          <li class="nav-group">
+            <a href="#install" class="nav-h2">Install</a>
+            <ul>
+              <li><a href="#install-primary" class="nav-sub">npm + walkthrough</a></li>
+              <li><a href="#install-scripted" class="nav-sub">Scripted install</a></li>
+              <li><a href="#install-profile" class="nav-sub">oowl profile</a></li>
+              <li><a href="#install-update" class="nav-sub">oowl update</a></li>
+              <li><a href="#install-uninstall" class="nav-sub">Uninstall</a></li>
+            </ul>
+          </li>
+          <li class="nav-group">
+            <a href="#optional-skills" class="nav-h2">Optional skills</a>
+            <ul>
+              <li><a href="#os-how-it-works" class="nav-sub">How it works</a></li>
+              <li><a href="#os-skill-sources" class="nav-sub">Skill sources</a></li>
+              <li><a href="#os-commands" class="nav-sub">Commands</a></li>
+            </ul>
+          </li>
+          <li class="nav-group">
+            <a href="#customizing" class="nav-h2">Customizing</a>
+            <ul>
+              <li><a href="#custom-edit-agent" class="nav-sub">Edit an agent prompt</a></li>
+              <li><a href="#custom-add-agent" class="nav-sub">Add an agent</a></li>
+              <li><a href="#custom-workflow-rules" class="nav-sub">Change workflow rules</a></li>
+              <li><a href="#custom-add-profile" class="nav-sub">Add a custom profile</a></li>
+              <li><a href="#custom-slash-command" class="nav-sub">Add a slash command</a></li>
+              <li><a href="#custom-project-conventions" class="nav-sub">Add project conventions</a></li>
+              <li><a href="#custom-repo-layout" class="nav-sub">Repository layout</a></li>
+            </ul>
+          </li>
+          <li><a href="#faq">Common issues</a></li>
+
+          <div class="nav-section">Project</div>
+          <li><a href="#contributing">Contributing</a></li>
+          <li><a href="https://github.com/jimzandueta/oowl" target="_blank">GitHub ↗</a></li>
+          <li><a href="https://www.npmjs.com/package/@jimzandueta/oowl" target="_blank">npm ↗</a></li>
+        </ul>
       </nav>
 
       <!-- MAIN CONTENT -->
-      <main class="content">
+      <main>
         <!-- HERO -->
-        <div class="hero">
-          <div class="hero-owl-emoji">🦉</div>
-          <h1>oowl</h1>
-          <p class="hero-sub">
-            OpenCode Opinionated Workflow Layer.<br />Cheap models. Real
-            process. No magic.
-          </p>
-          <div class="hero-badges">
-            <img
-              src="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml/badge.svg"
-              alt="CI"
-            />
-            <a
-              href="https://www.npmjs.com/package/@jimzandueta/oowl"
-              target="_blank"
-              ><img
-                src="https://img.shields.io/npm/v/@jimzandueta/oowl?label=npm"
-                alt="npm"
-            /></a>
-            <img
-              src="https://img.shields.io/badge/License-MIT-yellow.svg"
-              alt="MIT"
-            />
-            <img
-              src="https://img.shields.io/badge/runtime-OpenCode-blue"
-              alt="OpenCode"
-            />
-          </div>
-          <a href="#quick-start" class="hero-cta">Get started →</a>
-        </div>
-
-        <!-- OVERVIEW -->
         <section id="overview">
-          <h2>Overview</h2>
-
-          <div
-            class="card"
-            style="
-              margin-bottom: 20px;
-              border-color: var(--accent);
-              background: rgba(79, 142, 247, 0.06);
-            "
-          >
-            <h3 style="font-size: 18px">Right model for the job</h3>
-            <p style="font-size: 14px; margin-top: 6px">
-              Architecture on Opus. Routing on DeepSeek Flash. A README scaffold
-              on a free model. Most workflows use one model for everything. You
-              pay premium rates for autocomplete. oowl routes each task to the
-              cheapest model that can actually do the work. The savings fund the
-              runs that actually need a frontier model.
-            </p>
-          </div>
-
-          <div class="cards" style="margin-bottom: 40px">
-            <div class="card">
-              <h3>Docs before code</h3>
-              <p>
-                Architect writes <code>design.md</code>. Planner writes
-                <code>implementation.md</code>. Both live in
-                <code>docs/specs/</code> and need your sign-off before anything
-                gets built. Agents can't skip straight to editing files.
-              </p>
+          <div class="doc-header">
+            <div class="doc-icon">
+              <img src="assets/oowl-logo-128.png" alt="oowl logo" />
             </div>
-            <div class="card">
-              <h3>You approve every gate</h3>
-              <p>
-                Two hard stops in every substantial workflow: design approval
-                and plan approval. Nothing moves to implementation without your
-                explicit sign-off. Trivial fixes skip the ceremony entirely.
-              </p>
-            </div>
-            <div class="card">
-              <h3>No faking done</h3>
-              <p>
-                Agents must return test output, lint results, or build logs
-                alongside <code>TASK_COMPLETE</code>. File paths are declared
-                upfront and locked. Protected spec files are tracked and must
-                remain intact.
-              </p>
+            <div>
+              <h1>oowl</h1>
+              <p class="subtitle">OpenCode Opinionated Workflow Layer</p>
             </div>
           </div>
 
-          <h3>The backstory</h3>
-          <p>
-            Claude Code and its proprietary models are great tools. They unblock
-            developers and accelerate real work. But they've become expensive
-            and increasingly restricted. Token limits. Session limits. Rate
-            limits.
+          <p class="badges">
+            <a href="https://www.npmjs.com/package/@jimzandueta/oowl" target="_blank" rel="noopener"><img src="https://img.shields.io/npm/v/@jimzandueta/oowl?label=npm&amp;logo=npm&amp;logoColor=white" alt="npm" /></a>
+            <a href="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml" target="_blank" rel="noopener"><img alt="CI" src="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml/badge.svg" /></a>
+            <a href="https://github.com/jimzandueta/oowl/tags" target="_blank" rel="noopener"><img alt="version" src="https://img.shields.io/badge/version-v1.1.3-1f6dff" /></a>
+            <a href="LICENSE" target="_blank" rel="noopener"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
+            <a href="https://opencode.ai/" target="_blank" rel="noopener"><img alt="Runtime: OpenCode" src="https://img.shields.io/badge/runtime-OpenCode-1f6dff" /></a>
+            <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-1f6dff" /></a>
           </p>
+
           <p>
-            I started looking for alternatives. A lot of open-weight models
-            match proprietary ones on SWE-Bench. DeepSeek Pro at 1M tokens costs
-            $0.10. GPT-4 costs $10. Two orders of magnitude.
+            oowl brings structured software engineering process to AI-assisted development
+            on <a href="https://opencode.ai/">OpenCode</a>. Instead of a single agent
+            designing, coding, and reviewing in one session, it routes work through
+            specialized roles with file locks, mandatory verification, and durable design
+            artifacts.
           </p>
+
+          <h2>Why oowl</h2>
           <p>
-            Then I found
-            <a href="https://opencode.ai/" target="_blank">OpenCode</a>. It's
-            model-agnostic, connects to anything. OpenCode Go gives you roughly
-            16,000 requests/month for $5 on request-based pricing. GitHub
-            Copilot caps at 1,500 for more money. The math was obvious.
+            oowl treats AI coding less like one heroic chat session and more like a
+            small engineering process. Four benefits, each with what you gain and
+            what you skip:
           </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Benefit</th>
+                <th>What you get</th>
+                <th>What you avoid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tier-matched models</strong></td>
+                <td>Cheap models route, mid models build, premium models only handle hard reasoning and security.</td>
+                <td>Premium model on mechanical work, or cheap model missing a real problem.</td>
+              </tr>
+              <tr>
+                <td><strong>Terse handoffs</strong></td>
+                <td>Handoff format is just files, tests, risk, scope.</td>
+                <td>One agent writing a thesis to another.</td>
+              </tr>
+              <tr>
+                <td><strong>Scoped context</strong></td>
+                <td>Each role gets only the context it needs.</td>
+                <td>A single context window dragging history into every call.</td>
+              </tr>
+              <tr>
+                <td><strong>Workflow gates</strong></td>
+                <td>Design → plan → approval → file locks → verification → review.</td>
+                <td>Agents editing whatever they want, with no contract for who owns what.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Six features that ship those benefits:</p>
+          <div class="cards vs-cards">
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <h3>File locks</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>One agent touches anything</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Each task has locked file boundaries</span></p>
+            </div>
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+                <h3>Persistent artifacts</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>Design vanishes when chat ends</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Design, plan, review persist in <code>docs/specs/</code></span></p>
+            </div>
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                <h3>Mandatory verification</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>"Looks done" is the only check</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Agents run verification before reporting complete</span></p>
+            </div>
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
+                <h3>Cost-tier profiles</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>Same model does everything</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Profiles assign cheap / mid / premium by role</span></p>
+            </div>
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                <h3>Security escalation</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>Security if you remember</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Sensitive areas auto-escalate</span></p>
+            </div>
+            <div class="vs-card">
+              <div class="vs-card-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+                <h3>Written reviews</h3>
+              </div>
+              <p class="vs-line vs-old"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span>Review if you ask</span></p>
+              <p class="vs-line vs-new"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span>Every feature ships with a written review</span></p>
+            </div>
+          </div>
+
+          <h2>How it works</h2>
           <p>
-            Once model-switching was available, the real problem came into
-            focus: <strong>same model for everything</strong>. You're paying
-            Opus rates to write a test scaffold or a routing comment. The
-            solution was to route different agents to different cost tiers:
-            cheap models for cheap work, stronger models only where the quality
-            delta matters.
+            A <code>dispatcher</code> reads your request, picks a tier, and routes to the
+            right agent. Substantial work goes through design, plan, and review gates
+            that you sign off on before any code ships.
           </p>
-          <p>
-            oowl is the workflow layer that makes that practical. Role-specific
-            agents, cost-tiered profiles, a structured design → plan → review
-            process built on top of
-            <a href="https://github.com/obra/superpowers" target="_blank"
-              >Superpowers</a
-            >, with Caveman-Lite keeping inter-agent chatter token-efficient.
+          <div class="flow">
+<span class="hl">your request</span> → dispatcher
+<span class="dim"> │</span>
+<span class="dim"> ├─</span> <span class="grn">trivial?</span> → one implementer → <span class="grn">done</span>
+<span class="dim"> │</span>
+<span class="dim"> └─</span> <span class="hl">substantial</span>
+<span class="dim">     ├─</span> architect writes <span class="hl">design.md</span>
+<span class="dim">     ├─</span> <span class="grn">[ you approve ]</span>
+<span class="dim">     ├─</span> planner writes <span class="hl">implementation.md</span> → plan-reviewer
+<span class="dim">     ├─</span> <span class="grn">[ you approve ]</span>
+<span class="dim">     ├─</span> builder schedules waves; agents implement with file locks
+<span class="dim">     ├─</span> reviewer writes <span class="hl">review.md</span>
+<span class="dim">     └─</span> <span class="grn">done</span>
+          </div>
+
+          <p class="overview-cta">
+            <a href="#quick-start">Get started</a>
+            ·
+            <a href="#how-it-works">How it works in detail</a>
+            ·
+            <a href="https://github.com/jimzandueta/oowl" target="_blank">GitHub</a>
+            ·
+            <a href="https://www.npmjs.com/package/@jimzandueta/oowl" target="_blank">npm</a>
           </p>
         </section>
 
         <!-- QUICK START -->
         <section id="quick-start">
-          <h2>Quick start</h2>
-          <p>
-            <strong>Prerequisites:</strong>
-            <a href="https://opencode.ai/" target="_blank">OpenCode</a>
-            installed and configured, Node.js 18+.
-          </p>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>Quick start</h2>
+          <p class="section-intro">Install the framework, open OpenCode, tell dispatcher what to build. Three steps to your first feature.</p>
+          <p><strong>Prerequisites:</strong> <a href="https://opencode.ai/">OpenCode</a> installed, Node.js 18+.</p>
 
           <div class="steps">
             <div class="step">
               <div class="step-body">
                 <h3>Install the framework</h3>
-                <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
+                <pre><code class="language-bash">npx @jimzandueta/oowl install</code></pre>
                 <p>
-                  The terminal walkthrough asks where to install and which model
-                  profile to use, then copies the framework into
-                  <code>.opencode/</code>. Choose the global option in the
-                  walkthrough to install into <code>~/.config/opencode/</code>.
+                  The walkthrough asks where to install and which model profile to use,
+                  then copies the framework into <code>.opencode/</code>.
                 </p>
               </div>
             </div>
@@ -870,49 +1417,49 @@
               <div class="step-body">
                 <h3>Open OpenCode</h3>
                 <pre><code class="language-bash">opencode</code></pre>
-                <p>
-                  Launch from your project root. OpenCode picks up the config
-                  and agents from <code>.opencode/</code>.
-                </p>
+                <p>Launch from your project root. OpenCode picks up the config and agents from <code>.opencode/</code>.</p>
               </div>
             </div>
             <div class="step">
               <div class="step-body">
                 <h3>Talk to dispatcher</h3>
-                <p>
-                  Type your request. The dispatcher routes it: trivial fixes go
-                  straight to one implementer, substantial work flows through
-                  design → plan → implementation → review with your approvals at
-                  each gate.
-                </p>
+                <pre><code class="language-text">You: "Add a login page with email/password and Google OAuth."
+
+Dispatcher → Architect → [you approve design]
+          → Planner → Plan-reviewer → [you approve plan]
+          → Builder schedules → agents implement
+          → Reviewer → [merge to main?]</code></pre>
               </div>
             </div>
           </div>
 
-          <h3>The three commands</h3>
-          <pre><code class="language-bash">npx @jimzandueta/oowl init      # terminal walkthrough
-npx @jimzandueta/oowl profile   # switch model profiles interactively
-npx @jimzandueta/oowl update    # update framework files with conflict detection</code></pre>
+          <h3 id="qs-commands">Commands</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>oowl install</code></td><td>Install the framework (interactive walkthrough)</td></tr>
+              <tr><td><code>oowl init</code></td><td>Configure Optional skills per project</td></tr>
+              <tr><td><code>oowl profile</code></td><td>Switch model profiles interactively</td></tr>
+              <tr><td><code>oowl profile &lt;name&gt;</code></td><td>Switch directly: <code>free</code>, <code>low</code>, <code>balanced</code>, <code>high</code>, <code>custom</code></td></tr>
+              <tr><td><code>oowl update</code></td><td>Update framework files with conflict detection</td></tr>
+              <tr><td><code>oowl --version</code></td><td>Print version</td></tr>
+            </tbody>
+          </table>
 
-          <p>
-            Need scripted install flags? Use <code>install.sh</code> instead:
-            <code>bash install.sh --global</code> or
-            <code>bash install.sh --project /path/to/project --force</code>.
-          </p>
-
-          <div class="callout info">
-            <span class="callout-icon">💡</span>
-            <p>
-              Install globally with
-              <code>npm install -g @jimzandueta/oowl</code> to drop the
-              <code>npx</code> prefix.
-            </p>
+          <div class="callout">
+            <strong><svg class="tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></strong> Install globally with <code>npm install -g @jimzandueta/oowl</code> to drop the <code>npx</code> prefix.
           </div>
         </section>
 
         <!-- WHAT YOU GET -->
         <section id="what-you-get">
-          <h2>What you get</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>What you get</h2>
+          <p class="section-intro">The full feature list at a glance: file locks, approval gates, persistent artifacts, 23 agents, model profiles, and more.</p>
           <table>
             <thead>
               <tr>
@@ -921,291 +1468,242 @@ npx @jimzandueta/oowl update    # update framework files with conflict detection
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><strong>23 role-specific agents</strong></td>
-                <td>
-                  Orchestration, design, implementation, review, escalation,
-                  low-tier bounded work
-                </td>
-              </tr>
-              <tr>
-                <td><strong>23 slash commands</strong></td>
-                <td>
-                  Workflow phases, domain specialists, escalation, low-tier
-                  workers
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Two approval gates</strong></td>
-                <td>
-                  Design approval and plan approval before any implementation
-                  begins
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Git branch gate</strong></td>
-                <td>
-                  Dispatcher can create an approved feature branch before design
-                  and handle the branch after review
-                </td>
-              </tr>
-              <tr>
-                <td><strong>File locks</strong></td>
-                <td>
-                  Every implementation task declares exact paths; parallel tasks
-                  are collision-checked
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Protected artifacts</strong></td>
-                <td>
-                  <code>design.md</code>, <code>ui-spec.md</code>,
-                  <code>implementation.md</code>, <code>review.md</code> under
-                  <code>docs/specs/</code>
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Verification evidence</strong></td>
-                <td>No proof, no <code>TASK_COMPLETE</code></td>
-              </tr>
-              <tr>
-                <td><strong>Sensitive-area safeguards</strong></td>
-                <td>
-                  Auth, IAM, payments, PII, secrets, production config require
-                  explicit approval
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Switchable profiles</strong></td>
-                <td>
-                  <code>low</code>, <code>balanced</code>, <code>high</code>,
-                  <code>custom</code> (from your connected models)
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Superpowers methodology</strong></td>
-                <td>
-                  TDD, brainstorming, writing plans, debugging, review
-                  discipline
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Caveman-Lite</strong></td>
-                <td>Terse, token-efficient agent handoffs</td>
-              </tr>
+              <tr><td><strong>File locks</strong></td><td>Each task declares exactly which files it touches. No more agents editing files they shouldn't.</td></tr>
+              <tr><td><strong>Approval gates</strong></td><td>You see the design and the implementation plan before anyone writes code.</td></tr>
+              <tr><td><strong>Persistent artifacts</strong></td><td>Design, plan, and review live in <code>docs/specs/</code>. Close the chat, they're still there.</td></tr>
+              <tr><td><strong>Mandatory verification</strong></td><td>Agents run tests, type checks, or lint before reporting complete.</td></tr>
+              <tr><td><strong>Agent skill customization</strong></td><td><code>oowl init</code> recommends community skills tuned to your project and writes them into each agent's config.</td></tr>
+              <tr><td><strong>23 agents &amp; slash commands</strong></td><td>Orchestrators, artifact owners, implementers, reviewers, escalation, and bounded workers.</td></tr>
+              <tr><td><strong>Git branch management</strong></td><td>Dispatcher creates feature branches before design and handles merge after review.</td></tr>
+              <tr><td><strong>Switchable profiles</strong></td><td><code>low</code> default, <code>balanced</code>, <code>high</code>, <code>free</code>, <code>custom</code> (from your connected models).</td></tr>
+              <tr><td><strong>Sensitive-area safeguards</strong></td><td>Auth, IAM, payments, PII, secrets, production config require explicit approval.</td></tr>
             </tbody>
           </table>
         </section>
 
         <!-- HOW IT WORKS -->
         <section id="how-it-works">
-          <h2>How it works</h2>
-
-          <div class="flow">
-            <span class="hl">your request</span> → dispatcher
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span>
-            <span class="grn">trivial?</span> (under ~20 lines, under 3 files,
-            nothing sensitive) <span class="dim"> │ └─</span> one implementer →
-            <span class="grn">done</span>
-            <span class="dim"> │</span>
-            <span class="dim"> └─</span> <span class="hl">substantial</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> optional Git feature branch
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> architect writes
-            <span class="hl">design.md</span> <span class="dim"> │ </span> +
-            designer writes <span class="hl">ui-spec.md</span> (if UI)
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span>
-            <span class="grn">[ you approve the design ]</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> planner writes
-            <span class="hl">implementation.md</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> plan-reviewer validates →
-            <span class="grn">PLAN_APPROVED</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span>
-            <span class="grn">[ you approve the plan ]</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> builder schedules implementation waves
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> dispatcher runs assigned agents
-            <span class="dim"> │ </span> (each with file locks + verification)
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> reviewer writes
-            <span class="hl">review.md</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> optional branch merge handoff
-            <span class="dim"> │</span>
-            <span class="dim"> └─</span> <span class="grn">done</span>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/></svg></span>How it works</h2>
+          <p class="section-intro">The full workflow from request to design to implementation to review. Read this to understand what oowl actually does — every other section references it.</p>
+          <div class="page-toc">
+            <span class="page-toc-label">On this page</span>
+            <ul>
+              <li><a href="#hw-artifacts">Artifacts</a></li>
+              <li><a href="#hw-tasks">Tasks</a></li>
+              <li><a href="#hw-tiers">Tiers</a></li>
+              <li><a href="#hw-review">Review</a></li>
+              <li><a href="#hw-trivial-fix">Trivial-fix fast path</a></li>
+              <li><a href="#hw-security">Security model</a></li>
+              <li><a href="#hw-no-guarantee">What oowl does not guarantee</a></li>
+              <li><a href="#hw-guardrails">Guardrails</a></li>
+              <li><a href="#hw-task-class">Task-class assignment</a></li>
+            </ul>
           </div>
 
-          <h3>Why this instead of one big agent</h3>
-          <table class="compare">
+          <div class="flow">
+<span class="hl">your request</span> → dispatcher
+<span class="dim"> │</span>
+<span class="dim"> ├─</span> <span class="grn">trivial?</span> (under ~20 lines, under 3 files, nothing sensitive)
+<span class="dim"> │   └─</span> one implementer → <span class="grn">done</span>
+<span class="dim"> │</span>
+<span class="dim"> └─</span> <span class="hl">substantial</span>
+<span class="dim">     ├─</span> optional Git feature branch
+<span class="dim">     ├─</span> architect writes <span class="hl">design.md</span> + designer writes <span class="hl">ui-spec.md</span> (if UI)
+<span class="dim">     ├─</span> <span class="grn">[ you approve the design ]</span>
+<span class="dim">     ├─</span> planner writes <span class="hl">implementation.md</span>
+<span class="dim">     ├─</span> plan-reviewer validates → <span class="grn">PLAN_APPROVED</span>
+<span class="dim">     ├─</span> <span class="grn">[ you approve the plan ]</span>
+<span class="dim">     ├─</span> builder schedules implementation waves
+<span class="dim">     ├─</span> dispatcher runs assigned agents (each with file locks + verification)
+<span class="dim">     ├─</span> reviewer writes <span class="hl">review.md</span>
+<span class="dim">     ├─</span> optional branch merge handoff
+<span class="dim">     └─</span> <span class="grn">done</span>
+          </div>
+
+          <h3 id="hw-artifacts">Artifacts</h3>
+          <p>Every substantial feature produces files under <code>docs/specs/&lt;feature&gt;/</code>:</p>
+          <pre><code>docs/specs/login-page/
+├── design.md           # architect: approach, tradeoffs, risks
+├── ui-spec.md          # designer: layout, interactions (if UI involved)
+├── implementation.md   # planner: task breakdown, file locks, verification
+└── review.md           # reviewer: what shipped, test results, risks</code></pre>
+          <p>Each artifact is owned by a specific agent. Non-owners can read them but cannot edit, delete, or overwrite them.</p>
+
+          <h3 id="hw-tasks">Tasks</h3>
+          <p>Planner decomposes the feature into tasks. Each task declares exactly which files it touches:</p>
+          <pre><code>Task: Add login form component
+Agent: frontend-engineer
+Files: src/components/LoginForm.tsx, src/components/LoginForm.test.tsx
+Verification: npm run typecheck && npm test -- --testPathPattern=LoginForm</code></pre>
+          <p>Parallel tasks are checked for file collisions. If two tasks touch the same file, they run sequentially.</p>
+
+          <h3 id="hw-tiers">Tiers</h3>
+          <p>Agents map to three model cost levels:</p>
+          <table>
             <thead>
               <tr>
-                <th>One mega-agent</th>
-                <th>oowl</th>
+                <th>Tier</th>
+                <th>Handles</th>
+                <th>Agents</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="vs-old">Edits unrelated files</td>
-                <td class="vs-new">File locks constrain every task</td>
-              </tr>
-              <tr>
-                <td class="vs-old">Design lives in chat history</td>
-                <td class="vs-new">
-                  design.md, ui-spec.md, plan, review live in
-                  <code>docs/specs/</code>
-                </td>
-              </tr>
-              <tr>
-                <td class="vs-old">"Looks done" is enough</td>
-                <td class="vs-new">Verification evidence required</td>
-              </tr>
-              <tr>
-                <td class="vs-old">Model choice is manual</td>
-                <td class="vs-new">
-                  Profiles assign cheap/mid/premium by role
-                </td>
-              </tr>
-              <tr>
-                <td class="vs-old">Security review if remembered</td>
-                <td class="vs-new">
-                  Sensitive areas trigger approval + escalation
-                </td>
-              </tr>
-              <tr>
-                <td class="vs-old">Agent handoffs are verbose</td>
-                <td class="vs-new">
-                  Caveman-Lite keeps runtime summaries concise
-                </td>
-              </tr>
+              <tr><td>Cheap</td><td>Routing, scheduling, bounded work</td><td><code>dispatcher</code>, <code>builder</code>, <code>low-*</code></td></tr>
+              <tr><td>Mid</td><td>Design, implementation, review</td><td><code>architect</code>, <code>planner</code>, specialists</td></tr>
+              <tr><td>Premium</td><td>Escalations, deep security</td><td><code>high-*</code>, <code>security-auditor</code></td></tr>
             </tbody>
           </table>
+          <p>Switch between bundled profiles (<code>low</code> default, <code>balanced</code>, <code>high</code>, <code>free</code>) or build a custom one with <code>oowl profile</code>.</p>
 
-          <h3>Trivial-fix fast path</h3>
+          <h3 id="hw-review">Review</h3>
           <p>
-            A request skips the full workflow when <em>all</em> of these are
-            true:
+            After implementation, <code>reviewer</code> writes a review covering what was built,
+            test results, verification evidence, risks, and readiness. It can also route to
+            <code>security-reviewer</code> for sensitive areas or <code>security-auditor</code>
+            for deep dives — threat modeling, auth flows, IAM, compliance.
           </p>
-          <ul
-            style="
-              color: var(--text-muted);
-              padding-left: 20px;
-              margin-bottom: 16px;
-            "
-          >
+
+          <h3 id="hw-trivial-fix">Trivial-fix fast path</h3>
+          <p>A request skips the full workflow when <em>all</em> of these are true:</p>
+          <ul>
             <li>Under ~20 lines, under 3 files</li>
-            <li>
-              No auth, IAM, payments, PII, secrets, or production config touched
-            </li>
+            <li>No auth, IAM, payments, PII, secrets, or production config touched</li>
             <li>No new dependency introduced</li>
             <li>No architectural decision required</li>
             <li>No new feature behavior or test-writing work required</li>
           </ul>
+          <p>You can also tell dispatcher explicitly: <em>"this is a trivial fix, skip the design phase."</em></p>
+
+          <h3 id="hw-security">Security model</h3>
+          <p><strong>Sensitive areas</strong> that require explicit user approval:</p>
+          <ul>
+            <li>Secrets, credentials, API keys, certificates, signing keys</li>
+            <li>PII and customer data</li>
+            <li>Payment processing and regulated financial flows</li>
+            <li>Authentication and authorization logic</li>
+            <li>IAM policies and access-control configuration</li>
+            <li>Production infrastructure and production configuration</li>
+            <li>Destructive database migrations on production-shaped data</li>
+            <li>Compliance-bound data (HIPAA, GDPR, PCI, SOC 2)</li>
+            <li>Cryptography, sessions, tokens, signing</li>
+          </ul>
+          <p>If a task touches any of these, the agent stops with <code>NEEDS_USER_INPUT</code>. Low-tier agents also return <code>ESCALATION_REQUEST</code> so a capable model handles the sensitive work.</p>
+
+          <h3 id="hw-no-guarantee">What oowl does not guarantee</h3>
+          <ul>
+            <li>File locks are workflow contracts, not OS-level ACLs — agents can still make mistakes</li>
+            <li>Model profiles are defaults, not pricing guarantees or benchmarks</li>
+            <li>oowl does not replace CI, branch protection, code owners, secret scanning, or human review</li>
+          </ul>
+
+          <h3 id="hw-guardrails">Guardrails</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Guardrail</th>
+                <th>Effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Central dispatch</td><td>Only <code>dispatcher</code> invokes implementation agents</td></tr>
+              <tr><td>Scheduler-only builder</td><td><code>builder</code> cannot implement, edit, run shell, or invoke Task</td></tr>
+              <tr><td>File locks</td><td>Every implementation task declares exact paths it may edit</td></tr>
+              <tr><td>Parallel-safety review</td><td><code>plan-reviewer</code> rejects parallel groups with lock collisions</td></tr>
+              <tr><td>Protected artifacts</td><td>Non-owner agents may read <code>docs/specs/**</code> but not modify it</td></tr>
+              <tr><td>Mandatory verification</td><td>Implementers must provide evidence before <code>TASK_COMPLETE</code></td></tr>
+              <tr><td>Sensitive-area routing</td><td>Sensitive work requires approval; low-tier agents must escalate</td></tr>
+              <tr><td>Trivial-fix fast path</td><td>Small, mechanical, non-sensitive fixes skip unnecessary ceremony</td></tr>
+            </tbody>
+          </table>
+
+          <h3 id="hw-task-class">Task-class assignment</h3>
           <p>
-            Trivial work goes directly to one implementation agent with a
-            complete task prompt and verification requirements. You can also
-            tell dispatcher explicitly:
-            <em>"this is a trivial fix, skip the design phase."</em>
+            Not every task needs a senior implementer. oowl classifies each
+            <code>implementation.md</code> task as <strong>mechanical</strong> or
+            <strong>behavior-changing</strong> and routes accordingly.
           </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>What it covers</th>
+                <th>Assigned to</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Mechanical</strong></td>
+                <td>
+                  Renames, constants, static-list edits, copy updates, dependency
+                  bumps with no behavior change. Existing tests already cover the
+                  surface.
+                </td>
+                <td>Low-tier — <code>low-engineer</code>, <code>low-task-worker</code></td>
+              </tr>
+              <tr>
+                <td><strong>Behavior-changing</strong></td>
+                <td>
+                  New feature behavior, new UI components / pages / routes, new
+                  API endpoints, new domain logic, schema changes, migrations, or
+                  anything that needs new tests.
+                </td>
+                <td>TDD-capable implementer — <code>backend-engineer</code>, <code>frontend-engineer</code>, <code>database-engineer</code>, <code>cloud-architect</code>, <code>test-engineer</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout callout-warning">
+            <p>
+              <strong>Low-tier is not a TDD bypass.</strong> <code>low-engineer</code>
+              is limited to tiny mechanical edits with existing local verification.
+              <code>low-task-worker</code> handles read-only checks and trivial file
+              creation with exact content. If a task introduces new behavior, new
+              components, new tests, or schema changes, it must go to a TDD-capable
+              implementer. <code>plan-reviewer</code> rejects plans that misclassify.
+            </p>
+          </div>
         </section>
 
         <!-- PROTOCOL SIGNALS -->
         <section id="protocol-signals">
-          <h2>Protocol signals</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12a10 10 0 0 1 20 0"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8 12a4 4 0 0 1 8 0"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></span>Protocol signals</h2>
+          <p class="section-intro">The structured handoffs between agents. Every signal has a name, required fields, and a clear sender/receiver. Click any signal below to see its full format.</p>
           <p>
-            Agents don't pass work through freeform chat. Every handoff is a
-            named, structured block with required fields. That's what keeps the
-            workflow machine-readable and stops agents from going off-script.
+            Agents don't pass work through freeform chat. Every handoff is a named
+            structured block with required fields. That's what keeps the workflow
+            machine-readable and stops agents from going off-script.
           </p>
 
-          <h3>How signals flow</h3>
           <div class="flow">
-            <span class="hl">dispatcher</span> classify request
-            <span class="dim">│</span>
-            <span class="dim">├─</span> trivial →
-            <span class="dim">│ </span>dispatcher emits
-            <span class="grn">TRIVIAL_FIX_DISPATCH</span> →
-            <span class="dim">│ </span>implementer returns
-            <span class="grn">TASK_COMPLETE</span>
-            <span class="dim">│</span>
-            <span class="dim">└─</span> substantial
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> dispatcher runs Git branch gate
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> architect →
-            <span class="grn">PHASE_COMPLETE</span> (phase: design)
-            <span class="dim"> │ └─</span> if UI → designer returns
-            <span class="dim"> │ </span>
-            <span class="grn">PHASE_COMPLETE</span> (phase: ui-spec)
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span>
-            <span class="grn">[ user approves design ]</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> planner →
-            <span class="grn">PHASE_COMPLETE</span>
-            <span class="dim"> ├─</span> plan-reviewer →
-            <span class="grn">PLAN_APPROVED</span> or
-            <span class="dim"> │ </span>
-            <span class="red">PLAN_REJECTED</span> → planner revises
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span>
-            <span class="grn">[ user approves plan ]</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> builder →
-            <span class="grn">REQUEST_CONSULT</span> (single)
-            <span class="dim"> │ </span> or
-            <span class="grn">REQUEST_CONSULT_BATCH</span> (2-3, atomic)
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> dispatcher dispatches implementers
-            <span class="dim"> │ ├─</span> success →
-            <span class="grn">TASK_COMPLETE</span>
-            <span class="dim"> │ ├─</span> blocked →
-            <span class="yellow">NEEDS_USER_INPUT</span>
-            <span class="dim"> │ ├─</span> sensitive →
-            <span class="yellow">NEEDS_USER_INPUT</span>
-            <span class="dim"> │ └─</span> low-tier + sensitive →
-            <span class="dim"> │ </span>
-            <span class="yellow">ESCALATION_REQUEST</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> parallel dispatch fail →
-            <span class="dim"> │ </span>
-            <span class="red">PARALLEL_DISPATCH_FAILED</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> protected artifact missing →
-            <span class="dim"> │ </span>
-            <span class="red">PROTECTED_ARTIFACT_MISSING</span> → STOP
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> reviewer →
-            <span class="grn">REVIEW_COMPLETE</span>
-            <span class="dim"> │</span>
-            <span class="dim"> ├─</span> dispatcher runs branch handoff if it
-            created a feature branch
-            <span class="dim"> │</span>
-            <span class="dim"> └─</span> escalation agent →
-            <span class="dim"> </span>
-            <span class="grn">ESCALATION_COMPLETE</span>
+<span class="hl">dispatcher</span> classify request
+<span class="dim">│</span>
+<span class="dim">├─</span> trivial → <span class="grn">TRIVIAL_FIX_DISPATCH</span> → implementer → <span class="grn">TASK_COMPLETE</span>
+<span class="dim">│</span>
+<span class="dim">└─</span> substantial
+<span class="dim">    ├─</span> dispatcher runs Git branch gate
+<span class="dim">    ├─</span> architect → <span class="grn">PHASE_COMPLETE</span> (phase: design)
+<span class="dim">    │   └─</span> if UI → designer → <span class="grn">PHASE_COMPLETE</span> (phase: ui-spec)
+<span class="dim">    ├─</span> <span class="grn">[ user approves design ]</span>
+<span class="dim">    ├─</span> planner → <span class="grn">PHASE_COMPLETE</span>
+<span class="dim">    ├─</span> plan-reviewer → <span class="grn">PLAN_APPROVED</span> | <span class="red">PLAN_REJECTED</span> → planner revises
+<span class="dim">    ├─</span> <span class="grn">[ user approves plan ]</span>
+<span class="dim">    ├─</span> builder → <span class="grn">REQUEST_CONSULT</span> (single) | <span class="grn">REQUEST_CONSULT_BATCH</span> (2-3, atomic)
+<span class="dim">    ├─</span> dispatcher dispatches implementers
+<span class="dim">    │   ├─</span> success → <span class="grn">TASK_COMPLETE</span>
+<span class="dim">    │   ├─</span> blocked → <span class="yellow">NEEDS_USER_INPUT</span>
+<span class="dim">    │   ├─</span> sensitive → <span class="yellow">NEEDS_USER_INPUT</span>
+<span class="dim">    │   └─</span> low-tier + sensitive → <span class="yellow">ESCALATION_REQUEST</span>
+<span class="dim">    ├─</span> parallel dispatch fail → <span class="red">PARALLEL_DISPATCH_FAILED</span>
+<span class="dim">    ├─</span> protected artifact missing → <span class="red">PROTECTED_ARTIFACT_MISSING</span> → STOP
+<span class="dim">    ├─</span> reviewer → <span class="grn">REVIEW_COMPLETE</span>
+<span class="dim">    ├─</span> dispatcher runs branch handoff if it created a feature branch
+<span class="dim">    └─</span> escalation agent → <span class="grn">ESCALATION_COMPLETE</span>
           </div>
 
-          <h3>Signal reference</h3>
-
-          <details open>
-            <summary>
-              <code>TRIVIAL_FIX_DISPATCH</code> (dispatcher → implementer)
-            </summary>
-            <div class="faq-body">
-              <p>
-                <strong>dispatcher</strong> sends this when a request qualifies
-                for the fast path. Design, planning, and review are skipped. The
-                implementer gets a complete task prompt and must return
-                <code>TASK_COMPLETE</code>.
-              </p>
-              <pre><code class="language-text">TRIVIAL_FIX_DISPATCH
+          <details>
+            <summary><code>TRIVIAL_FIX_DISPATCH</code> (dispatcher → implementer)</summary>
+            <pre><code>TRIVIAL_FIX_DISPATCH
 Justification:
 - under ~20 lines and under 3 files
 - no sensitive area touched
@@ -1216,21 +1714,11 @@ Task prompt: |
   &lt;complete prompt&gt;
 Files: &lt;expected files&gt;
 Verification: &lt;required checks&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>PHASE_COMPLETE</code> (architect / designer / planner /
-              reviewer → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Marks a workflow phase as complete. Used after design, UI spec,
-                build, and review. Includes the artifact list and the next phase
-                for dispatcher to move to.
-              </p>
-              <pre><code class="language-text">PHASE_COMPLETE
+            <summary><code>PHASE_COMPLETE</code> (architect / designer / planner / reviewer → dispatcher)</summary>
+            <pre><code>PHASE_COMPLETE
 Phase: &lt;design | implementation-spec | build | review | ui-spec&gt;
 Summary: &lt;summary&gt;
 Artifacts:
@@ -1239,47 +1727,26 @@ Next phase: &lt;user-design-approval | user-implementation-approval | plan-revie
 Risks: &lt;remaining risks&gt;
 Verification:
 - &lt;checks performed or required&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>PLAN_APPROVED</code> /
-              <code>PLAN_REJECTED</code> (plan-reviewer → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                <strong>plan-reviewer</strong> returns exactly one of these.
-                <code>PLAN_APPROVED</code> moves to the user approval gate.
-                <code>PLAN_REJECTED</code> sends the plan back to
-                <strong>planner</strong> with specific required changes. A new
-                version must be approved before the workflow continues.
-              </p>
-              <pre><code class="language-text">PLAN_APPROVED
+            <summary><code>PLAN_APPROVED</code> / <code>PLAN_REJECTED</code> (plan-reviewer → dispatcher)</summary>
+            <pre><code>PLAN_APPROVED
 Summary: &lt;why this plan is executable&gt;
 Next phase: user-implementation-approval
 Risks: &lt;remaining risks&gt;
 Verification: &lt;expected verification&gt;</code></pre>
-              <pre><code class="language-text">PLAN_REJECTED
+            <pre><code>PLAN_REJECTED
 Issues:
 - &lt;BLOCKER or WARNING&gt;: &lt;issue&gt;
 Required changes:
 - &lt;specific fix&gt;
 Return to: planner</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>REQUEST_CONSULT</code> (builder → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Builder sends this to hand a single task to dispatcher: full
-                prompt, file locks, and verification checks included. Dispatcher
-                forwards it unchanged.
-              </p>
-              <pre><code class="language-text">REQUEST_CONSULT
+            <summary><code>REQUEST_CONSULT</code> (builder → dispatcher)</summary>
+            <pre><code>REQUEST_CONSULT
 Target agent: &lt;agent-name&gt;
 Task ID: &lt;task id, if any&gt;
 File locks:
@@ -1290,21 +1757,11 @@ Expected output: &lt;expected result&gt;
 Verification requirements:
 - &lt;check&gt;
 Subagent summary: &lt;current state&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>REQUEST_CONSULT_BATCH</code> (builder → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Builder sends this to dispatch 2–3 agents
-                <strong>in the same assistant message</strong>. File locks must
-                not overlap across tasks. Issuing them one at a time when a
-                valid batch is possible is a protocol violation.
-              </p>
-              <pre><code class="language-text">REQUEST_CONSULT_BATCH
+            <summary><code>REQUEST_CONSULT_BATCH</code> (builder → dispatcher)</summary>
+            <pre><code>REQUEST_CONSULT_BATCH
 Max parallel: 3
 Wave: &lt;wave id&gt;
 Parallel group: &lt;group id&gt;
@@ -1321,21 +1778,11 @@ Tasks:
     - &lt;check&gt;
   Reason parallel-safe: &lt;reason&gt;
 Subagent summary: &lt;why this batch is safe&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>TASK_COMPLETE</code> (implementer → builder / dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                An implementer's success signal. Must include verification
-                evidence (test output, lint result, build output) and confirm
-                protected artifacts under <code>docs/specs/**</code> are still
-                present. No evidence, no completion.
-              </p>
-              <pre><code class="language-text">TASK_COMPLETE
+            <summary><code>TASK_COMPLETE</code> (implementer → builder / dispatcher)</summary>
+            <pre><code>TASK_COMPLETE
 Task ID: &lt;task id&gt;
 Files changed:
 - &lt;file&gt;
@@ -1347,62 +1794,30 @@ Notes:
 - &lt;brief note&gt;
 Protected artifacts:
 - confirmed docs/specs/** unchanged and present</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>NEEDS_USER_INPUT</code> (any agent → user via dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Any agent that hits a sensitive area, an ambiguity, or a
-                decision it can't make on its own sends this and stops. The
-                workflow waits. Includes a safe default so the user knows what
-                happens if they don't respond.
-              </p>
-              <pre><code class="language-text">NEEDS_USER_INPUT
+            <summary><code>NEEDS_USER_INPUT</code> (any agent → user via dispatcher)</summary>
+            <pre><code>NEEDS_USER_INPUT
 Question: &lt;one clear question&gt;
 Why needed: &lt;brief reason&gt;
 Default if unanswered: &lt;safe default&gt;
 Subagent summary: &lt;brief summary&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>ESCALATION_REQUEST</code> (low-tier agent → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Low-tier agents (<code>low-engineer</code>,
-                <code>low-task-worker</code>, <code>low-architect</code>,
-                <code>low-designer</code>) stop and send this when a task turns
-                out to need more than their tier allows: sensitive areas,
-                security implications, architectural decisions, feature
-                behavior, or test creation/update work. They don't attempt it.
-                Dispatcher upgrades to the right agent.
-              </p>
-              <pre><code class="language-text">ESCALATION_REQUEST
+            <summary><code>ESCALATION_REQUEST</code> (low-tier agent → dispatcher)</summary>
+            <pre><code>ESCALATION_REQUEST
 Target agent: &lt;high-engineer | high-architect | high-designer | security-auditor&gt;
 Why cheaper agents are insufficient: &lt;reason&gt;
 What was attempted: &lt;summary&gt;
 Specific output needed: &lt;decision or deliverable&gt;
 Risk if wrong: &lt;impact&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>ESCALATION_COMPLETE</code> (high-tier agent → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Sent by escalation agents (<code>high-engineer</code>,
-                <code>high-architect</code>, <code>high-designer</code>,
-                <code>security-auditor</code>) when escalated work is done.
-              </p>
-              <pre><code class="language-text">ESCALATION_COMPLETE
+            <summary><code>ESCALATION_COMPLETE</code> (high-tier agent → dispatcher)</summary>
+            <pre><code>ESCALATION_COMPLETE
 Reason escalation was justified: &lt;reason&gt;
 Result: &lt;summary&gt;
 Files changed or decisions made:
@@ -1411,114 +1826,66 @@ Verification:
 - &lt;command/result or recommended check&gt;
 Remaining risks:
 - &lt;risk or none&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>REVIEW_COMPLETE</code> (reviewer → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                End of review. Lists findings by severity, any blocking issues,
-                and gaps in verification coverage.
-              </p>
-              <pre><code class="language-text">REVIEW_COMPLETE
+            <summary><code>REVIEW_COMPLETE</code> (reviewer → dispatcher)</summary>
+            <pre><code>REVIEW_COMPLETE
 Summary: &lt;summary&gt;
 Findings:
 - &lt;finding count by severity&gt;
 Blocking issues: &lt;yes/no&gt;
 Verification gaps:
 - &lt;gap or none&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>PARALLEL_DISPATCH_FAILED</code> (dispatcher → builder)
-            </summary>
-            <div class="faq-body">
-              <p>
-                Dispatcher couldn't send a <code>REQUEST_CONSULT_BATCH</code> as
-                one atomic message, usually context pressure. Builder responds
-                with a fallback: run serially, split the batch, or hand the
-                decision to the user.
-              </p>
-              <pre><code class="language-text">PARALLEL_DISPATCH_FAILED
+            <summary><code>PARALLEL_DISPATCH_FAILED</code> (dispatcher → builder)</summary>
+            <pre><code>PARALLEL_DISPATCH_FAILED
 Reason: &lt;why concurrent dispatch was not possible&gt;
 Fallback proposed: &lt;serial execution | smaller batch | user decision&gt;</code></pre>
-            </div>
           </details>
 
           <details>
-            <summary>
-              <code>PROTECTED_ARTIFACT_MISSING</code> (any agent → dispatcher)
-            </summary>
-            <div class="faq-body">
-              <p>
-                An agent found that a protected file under
-                <code>docs/specs/**</code> is gone.
-                <strong>Stop everything</strong> and restore it from Git before
-                continuing.
-              </p>
-              <pre><code class="language-text">PROTECTED_ARTIFACT_MISSING
+            <summary><code>PROTECTED_ARTIFACT_MISSING</code> (any agent → dispatcher)</summary>
+            <pre><code>PROTECTED_ARTIFACT_MISSING
 Missing:
 - &lt;path&gt;
 Last task or batch: &lt;summary&gt;
 Required action: restore from git or snapshot before continuing</code></pre>
-              <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
-            </div>
+            <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
           </details>
         </section>
 
         <!-- AGENTS -->
         <section id="agents">
-          <h2>Agents</h2>
-          <p>
-            23 agents across 6 classes. All files live in
-            <code>framework/agents/</code> and are copied to
-            <code>.opencode/agents/</code> on install.
-          </p>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/></svg></span>Agents</h2>
+          <p class="section-intro">23 agents across 6 classes, with permission boundaries and Superpowers usage rules. Use this as a reference when customizing prompts or adding new agents.</p>
+          <div class="page-toc">
+            <span class="page-toc-label">On this page</span>
+            <ul>
+              <li><a href="#agents-orchestration">Orchestration</a></li>
+              <li><a href="#agents-permissions">Permission boundaries</a></li>
+              <li><a href="#agents-artifact-owners">Artifact owners</a></li>
+              <li><a href="#agents-implementers">Implementation</a></li>
+              <li><a href="#agents-reviewers">Review</a></li>
+              <li><a href="#agents-escalation">Escalation</a></li>
+              <li><a href="#agents-low-tier">Low-tier bounded</a></li>
+            </ul>
+          </div>
+          <p>23 agents across 6 classes. Files live in <code>framework/agents/</code> and are copied to <code>.opencode/agents/</code> on install.</p>
 
-          <h3>Orchestration</h3>
+          <h3 id="agents-orchestration">Orchestration</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-cheap">dispatcher</span>
             <span class="agent-tag tier-cheap">builder</span>
           </div>
-          <p>
-            <strong>dispatcher</strong> classifies requests and routes them. It
-            also owns substantial-work Git branch setup and final branch
-            handoff. Only dispatcher may invoke implementation agents via Task.
-            <strong>builder</strong> is scheduler-only: no file edits, no shell,
-            no Task calls.
-          </p>
+          <p><strong>dispatcher</strong> classifies requests, routes them, and handles Git branch setup and final branch handoff. Only dispatcher may invoke implementation agents via Task. <strong>builder</strong> is scheduler-only: no file edits, no shell, no Task calls.</p>
 
-          <h3>Permission boundaries</h3>
-          <p>
-            All agents can read, list, and search files for context. Artifact
-            owners can write only their owned files under
-            <code>docs/specs/</code>: <code>design.md</code>,
-            <code>ui-spec.md</code>, <code>implementation.md</code>, or
-            <code>review.md</code>. Implementation and escalation agents can ask
-            to edit scoped work files, but cannot modify
-            <code>docs/specs/**</code> or <code>AGENTS.md</code>. Review and
-            read-only agents cannot edit or write files. Dispatcher must not
-            edit during workflow routing; its protected-file denies stay narrow
-            so implementation agents launched through Task keep their own edit
-            tools.
-          </p>
-          <p>
-            Safe exploration shell commands such as <code>ls</code>,
-            <code>find</code>, <code>grep</code>, <code>rg</code>,
-            <code>cat</code>, and <code>git diff</code> are allowed where the
-            agent role permits shell use. <strong>dispatcher</strong> may also
-            inspect Git branch state, create an approved feature branch, and run
-            an approved post-review branch handoff.
-            <strong>builder</strong> remains shell-denied because it is
-            scheduler-only.
-          </p>
+          <h3 id="agents-permissions">Permission boundaries</h3>
+          <p>All agents can read, list, and search files for context. Artifact owners can write only their owned files under <code>docs/specs/</code>. Implementation and escalation agents can ask to edit scoped work files but cannot modify <code>docs/specs/**</code> or <code>AGENTS.md</code>. Dispatcher's protected-file denies stay narrow so implementation agents launched through Task keep their edit tools.</p>
 
-          <h3>Artifact owners</h3>
+          <h3 id="agents-artifact-owners">Artifact owners</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-mid">architect</span>
             <span class="agent-tag tier-mid">designer</span>
@@ -1526,7 +1893,7 @@ Required action: restore from git or snapshot before continuing</code></pre>
             <span class="agent-tag tier-mid">reviewer</span>
           </div>
 
-          <h3>Implementation</h3>
+          <h3 id="agents-implementers">Implementation</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-mid">frontend-engineer</span>
             <span class="agent-tag tier-mid">frontend-polisher</span>
@@ -1536,7 +1903,7 @@ Required action: restore from git or snapshot before continuing</code></pre>
             <span class="agent-tag tier-mid">test-engineer</span>
           </div>
 
-          <h3>Review</h3>
+          <h3 id="agents-reviewers">Review</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-mid">code-reviewer</span>
             <span class="agent-tag tier-mid">plan-reviewer</span>
@@ -1544,53 +1911,35 @@ Required action: restore from git or snapshot before continuing</code></pre>
             <span class="agent-tag tier-high">security-auditor</span>
           </div>
 
-          <h3>Escalation</h3>
+          <h3 id="agents-escalation">Escalation</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-high">high-engineer</span>
             <span class="agent-tag tier-high">high-architect</span>
             <span class="agent-tag tier-high">high-designer</span>
           </div>
 
-          <h3>Low-tier bounded</h3>
+          <h3 id="agents-low-tier">Low-tier bounded</h3>
           <div class="agent-grid">
             <span class="agent-tag tier-cheap">low-engineer</span>
             <span class="agent-tag tier-cheap">low-task-worker</span>
             <span class="agent-tag tier-cheap">low-architect</span>
             <span class="agent-tag tier-cheap">low-designer</span>
           </div>
-          <p>
-            Low-tier agents are not a TDD bypass. <code>low-task-worker</code>
-            may handle read-only checks, trivial file creation with exact
-            content, and tiny mechanical edits to explicitly named files.
-            <code>low-engineer</code> is limited to tiny mechanical edits with
-            existing local verification. New or changed behavior goes to a
-            TDD-capable implementation agent.
-          </p>
 
-          <div
-            style="
-              margin-top: 8px;
-              display: flex;
-              gap: 16px;
-              font-size: 12px;
-              color: var(--text-dim);
-            "
-          >
-            <span><span style="color: #3fb950">■</span> cheap/fast tier</span>
-            <span><span style="color: #4f8ef7">■</span> mid/balanced tier</span>
-            <span><span style="color: #d29922">■</span> premium/deep tier</span>
+          <div class="tier-legend">
+            <span><span style="color: #3fb950;">■</span> cheap/fast tier</span>
+            <span><span style="color: #1f6dff;">■</span> mid/balanced tier</span>
+            <span><span style="color: #d29922;">■</span> premium/deep tier</span>
           </div>
         </section>
 
         <!-- MODEL PROFILES -->
         <section id="model-profiles">
-          <h2>Model profiles</h2>
-          <p>
-            Profiles assign models to agent tiers. Switch anytime with
-            <code>oowl profile</code>.
-          </p>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 10 5.5-10 5.5L2 7.5 12 2Z"/><path d="m2 12 10 5.5L22 12"/><path d="m2 16.5 10 5.5 10-5.5"/></svg></span>Model profiles</h2>
+          <p class="section-intro">Profiles assign models to cost tiers. The default profile is <code>low</code>. Switch anytime with <code>oowl profile</code>. Use bundled profiles for OpenCode Go, use <code>free</code> for free OpenCode models, or build a custom one from your connected models.</p>
+          <p>Profiles assign models to agent tiers. Switch anytime with <code>oowl profile</code>.</p>
 
-          <h3>Bundled profiles (OpenCode Go)</h3>
+          <h3 id="profiles-bundled">Bundled profiles</h3>
           <table>
             <thead>
               <tr>
@@ -1599,106 +1948,26 @@ Required action: restore from git or snapshot before continuing</code></pre>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><code>low</code></td>
-                <td>Cost-first for long sessions and routine development</td>
-              </tr>
-              <tr>
-                <td><code>balanced</code></td>
-                <td>
-                  Daily fullstack. Stronger models where quality pays off.
-                </td>
-              </tr>
-              <tr>
-                <td><code>high</code></td>
-                <td>Quality-first for higher-stakes or shorter sessions</td>
-              </tr>
+              <tr><td><code>low</code></td><td>Default. Cost-first for long sessions and routine development</td></tr>
+              <tr><td><code>balanced</code></td><td>Daily fullstack. Stronger models where quality pays off.</td></tr>
+              <tr><td><code>high</code></td><td>Quality-first for higher-stakes or shorter sessions</td></tr>
+              <tr><td><code>free</code></td><td>Free OpenCode models. free-data will be used in training; do not use for private, proprietary, regulated, customer, or confidential data.</td></tr>
             </tbody>
           </table>
 
-          <h3>Custom profile (no OpenCode Go needed)</h3>
-          <p>
-            <code>oowl init</code> and <code>oowl profile → custom</code> scan
-            your connected OpenCode models and let you assign them to
-            cheap/mid/premium tiers. If fewer than 3 models are detected, you
-            can enter model IDs manually.
-          </p>
-
-          <h3>Balanced profile: current mapping</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Agents</th>
-                <th>Model</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <code>dispatcher</code>, <code>builder</code>,
-                  <code>low-engineer</code>, <code>low-task-worker</code>
-                </td>
-                <td><code>opencode-go/deepseek-v4-flash</code></td>
-              </tr>
-              <tr>
-                <td>
-                  <code>architect</code>, <code>planner</code>,
-                  <code>plan-reviewer</code>, <code>backend-engineer</code>,
-                  <code>database-engineer</code>, <code>code-reviewer</code>
-                </td>
-                <td><code>opencode-go/minimax-m2.5</code></td>
-              </tr>
-              <tr>
-                <td>
-                  <code>reviewer</code>, <code>designer</code>,
-                  <code>frontend-engineer</code>, <code>test-engineer</code>,
-                  <code>security-reviewer</code>, <code>low-architect</code>,
-                  <code>low-designer</code>
-                </td>
-                <td><code>opencode-go/qwen3.5-plus</code></td>
-              </tr>
-              <tr>
-                <td><code>frontend-polisher</code></td>
-                <td><code>opencode-go/kimi-k2.6</code></td>
-              </tr>
-              <tr>
-                <td><code>cloud-architect</code></td>
-                <td><code>opencode-go/deepseek-v4-pro</code></td>
-              </tr>
-              <tr>
-                <td><code>security-auditor</code></td>
-                <td><code>opencode-go/glm-5.1</code></td>
-              </tr>
-              <tr>
-                <td><code>high-engineer</code></td>
-                <td><code>github-copilot/gpt-5.5</code></td>
-              </tr>
-              <tr>
-                <td><code>high-architect</code></td>
-                <td><code>github-copilot/claude-sonnet-4.6</code></td>
-              </tr>
-              <tr>
-                <td><code>high-designer</code></td>
-                <td><code>github-copilot/claude-opus-4.7</code></td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            Model availability changes. Profiles are editable defaults, not
-            permanent benchmarks.
-          </p>
+          <h3 id="profiles-custom">Custom profile (no OpenCode Go needed)</h3>
+          <p><code>oowl install</code> and <code>oowl profile custom</code> scan your connected OpenCode models and let you assign them to cheap/mid/premium tiers. If fewer than 3 models are detected, you can enter model IDs manually.</p>
         </section>
 
         <!-- PLUGINS -->
         <section id="plugins">
-          <h2>Plugins</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2v6"/><path d="M15 2v6"/><path d="M6 8h12v4a6 6 0 0 1-12 0Z"/><path d="M12 18v4"/></svg></span>Plugins</h2>
+          <p class="section-intro">OpenCode plugins oowl loads by default: Superpowers (TDD, brainstorming, debugging) and Caveman (signal-dense compression).</p>
           <p><code>opencode.jsonc</code> loads two plugins out of the box:</p>
-
           <pre><code class="language-jsonc">"plugin": [
   "superpowers@git+https://github.com/obra/superpowers.git",
   "caveman@git+https://github.com/juliusbrussee/caveman.git"
 ]</code></pre>
-
           <table>
             <thead>
               <tr>
@@ -1708,29 +1977,12 @@ Required action: restore from git or snapshot before continuing</code></pre>
             </thead>
             <tbody>
               <tr>
-                <td>
-                  <a href="https://github.com/obra/superpowers" target="_blank"
-                    >obra/superpowers</a
-                  >
-                </td>
-                <td>
-                  Skills for TDD, brainstorming, planning, systematic debugging,
-                  and review discipline. Agents load them on demand.
-                </td>
+                <td><a href="https://github.com/obra/superpowers" target="_blank">obra/superpowers</a></td>
+                <td>Skills for TDD, brainstorming, planning, systematic debugging, and review discipline.</td>
               </tr>
               <tr>
-                <td>
-                  <a
-                    href="https://github.com/juliusbrussee/caveman"
-                    target="_blank"
-                    >juliusbrussee/caveman</a
-                  >
-                </td>
-                <td>
-                  Keeps agent handoffs short and signal-dense. Applied to
-                  routing summaries and completion signals , never to artifacts,
-                  code, or security findings.
-                </td>
+                <td><a href="https://github.com/juliusbrussee/caveman" target="_blank">juliusbrussee/caveman</a></td>
+                <td>Keeps agent handoffs short and signal-dense. Applied to routing summaries and completion signals only.</td>
               </tr>
             </tbody>
           </table>
@@ -1738,94 +1990,193 @@ Required action: restore from git or snapshot before continuing</code></pre>
 
         <!-- INSTALL -->
         <section id="install">
-          <h2>Install</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></span>Install</h2>
+          <p class="section-intro">Three install paths: interactive walkthrough, scripted shell for CI/CD, and npm + npx for one-off use. Pick what fits your environment.</p>
+          <div class="page-toc">
+            <span class="page-toc-label">On this page</span>
+            <ul>
+              <li><a href="#install-primary">npm + walkthrough</a></li>
+              <li><a href="#install-scripted">Scripted install</a></li>
+              <li><a href="#install-profile">oowl profile</a></li>
+              <li><a href="#install-update">oowl update</a></li>
+              <li><a href="#install-uninstall">Uninstall</a></li>
+            </ul>
+          </div>
+
+          <h3 id="install-primary">Primary: npm + walkthrough</h3>
+          <pre><code class="language-bash">npm install -g @jimzandueta/oowl
+oowl install</code></pre>
+          <p>The walkthrough asks: local vs global install, model profile, and overwrite confirmation. The default profile is <code>low</code>. Local installs write framework files under <code>.opencode/</code>, plus <code>AGENTS.md</code> and <code>.oowl.json</code> to the project root.</p>
+          <p>Prefer not to install the CLI permanently?</p>
+          <pre><code class="language-bash">npx @jimzandueta/oowl install</code></pre>
+
+          <h3 id="install-scripted">Scripted: install.sh</h3>
+          <p>For CI/CD, Dockerfiles, or automation:</p>
+          <pre><code class="language-bash">bash install.sh --global
+bash install.sh --project /path/to/project --force
+bash install.sh --project /path/to/project --dry-run</code></pre>
 
           <h3>oowl init</h3>
-          <pre><code class="language-bash">npx @jimzandueta/oowl init</code></pre>
-          <p>
-            Starts the terminal walkthrough. It asks for local vs global
-            install, model setup, and overwrite confirmation when needed. Local
-            installs write framework files and <code>opencode.jsonc</code> under
-            <code>.opencode/</code>, plus <code>AGENTS.md</code> and
-            <code>.oowl.json</code> to your project root.
-          </p>
-          <p>
-            For automation, use <code>install.sh</code>. Its flags include
-            <code>--global</code>, <code>--project</code>, <code>--force</code>,
-            <code>--no-jsonc</code>, and <code>--dry-run</code>.
-          </p>
+          <p>See the <a href="#optional-skills">Optional skills</a> section below — it covers the full <code>oowl init</code> flow, skill sources, and commands.</p>
 
-          <h3>oowl profile</h3>
-          <pre><code class="language-bash">oowl profile</code></pre>
-          <p>
-            Updates model assignments across all 23 agent files,
-            <code>opencode.jsonc</code>, and the recorded active profile.
-          </p>
+          <h3 id="install-profile">oowl profile</h3>
+          <pre><code class="language-bash">oowl profile
+oowl profile free
+oowl profile low
+oowl profile balanced
+oowl profile high</code></pre>
+          <p>The <code>free</code> profile uses free OpenCode models. free-data will be used in training, so do not use it for private, proprietary, regulated, customer, or confidential data.</p>
 
-          <h3>oowl update</h3>
+          <h3 id="install-update">oowl update</h3>
           <pre><code class="language-bash">oowl update</code></pre>
-          <p>
-            Updates framework files to the latest package version. Files you
-            haven't modified update silently. Modified files show a unified
-            diff. Keep yours or accept the update, per file.
-          </p>
+          <p>Updates framework files to the latest package version. Modified files show a unified diff — keep yours or accept the update. Old files no longer shipped are removed. Reapplies active profile and saved Optional skills.</p>
 
-          <h3>Uninstall</h3>
-          <p>
-            Use the bundled uninstall script from the repo or package checkout:
-          </p>
-          <pre><code class="language-bash"># local install in the current directory
+          <h3 id="install-uninstall">Uninstall</h3>
+          <pre><code class="language-bash"># local
 bash uninstall.sh --project
-
-# local install in another project
 bash uninstall.sh --project /path/to/project
 
-# global install
+# global
 bash uninstall.sh --global</code></pre>
+          <p>Add <code>--dry-run</code> to preview. Add <code>--keep-project-files</code> to keep <code>AGENTS.md</code>, <code>.oowl.json</code>, and legacy <code>opencode.jsonc</code>.</p>
+        </section>
+
+        <!-- OPTIONAL SKILLS -->
+        <section id="optional-skills">
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>Optional skills</h2>
+          <p class="section-intro">Beyond the required skills bundled with oowl, add <strong>Optional skills</strong> via <code>oowl init</code>. Three community repos, quality-gated, configurable per project.</p>
+
           <p>
-            Add <code>--dry-run</code> to preview removals. Add
-            <code>--keep-project-files</code> to remove
-            <code>.opencode/</code> but keep project-root files such as
-            <code>AGENTS.md</code>, <code>.oowl.json</code>, and legacy
-            <code>opencode.jsonc</code>.
+            Required skills (TDD, brainstorming, writing-plans, verification) ship with
+            oowl. <strong>Optional skills</strong> are community-built workflows that
+            agents load at session start — design taste, deployment pipelines,
+            architecture patterns, and more.
           </p>
+
+          <h3 id="os-how-it-works">How it works</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-body">
+                <h3>Run the wizard</h3>
+                <pre><code class="language-bash">oowl init</code></pre>
+                <p>
+                  Describe your project in free text or answer 5 structured questions —
+                  project type, frontend framework, cloud target, database, and priorities.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-body">
+                <h3>Review recommendations</h3>
+                <p>
+                  The recommendation engine matches your project profile against the
+                  <strong>skills registry</strong> and suggests skills organized by agent.
+                  You see a summary table with agent names and skill counts.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-body">
+                <h3>Approve, edit, or skip</h3>
+                <p>
+                  Approve everything, edit individual selections per agent, or skip entirely.
+                  Required skills (brainstorming, TDD, debugging) always apply — this only controls
+                  Optional community skills.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-body">
+                <h3>Install and wire</h3>
+                <p>
+                  The wizard clones the skill source repos, symlinks <code>SKILL.md</code> files
+                  into <code>.opencode/skills/</code>, and writes skill permissions into
+                  <code>opencode.jsonc</code> and each agent's frontmatter.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h3 id="os-skill-sources">Skill sources</h3>
+          <p>Optional skills come from three community repositories:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Repository</th>
+                <th>Skills</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="https://github.com/Leonxlnx/taste-skill" target="_blank">Leonxlnx/taste-skill</a></td>
+                <td>Design taste, minimalist UI, brutalist UI, high-end visual design, redesign workflows, full output enforcement</td>
+              </tr>
+              <tr>
+                <td><a href="https://github.com/wshobson/agents" target="_blank">wshobson/agents</a></td>
+                <td>Architecture patterns, API design, error handling, database migration, testing patterns, CI/CD, cloud observability, security — 30+ skills</td>
+              </tr>
+              <tr>
+                <td><a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank">nextlevelbuilder/ui-ux-pro-max-skill</a></td>
+                <td>UI/UX Pro Max — design and interaction patterns</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Each skill in the registry passes a quality gate (star count threshold) before
+            it's eligible for recommendation. The wizard only suggests gated skills.
+          </p>
+
+          <h3 id="os-commands">Commands</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>oowl init</code></td><td>Run the interactive wizard</td></tr>
+              <tr><td><code>oowl init --list</code></td><td>Show currently configured Optional skills</td></tr>
+              <tr><td><code>oowl init --reset</code></td><td>Clear all Optional skills and re-run the questionnaire</td></tr>
+              <tr><td><code>oowl init --apply</code></td><td>Re-write permissions from saved configuration without re-running the wizard</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong><svg class="tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></strong> Restart your OpenCode session after running <code>oowl init</code> — skills load at startup.
+          </div>
         </section>
 
         <!-- CUSTOMIZING -->
         <section id="customizing">
-          <h2>Customizing</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg></span>Customizing</h2>
+          <p class="section-intro">How to edit agents, add new agents, change workflow rules, add slash commands, set project conventions, and adjust model profiles.</p>
+          <div class="page-toc">
+            <span class="page-toc-label">On this page</span>
+            <ul>
+              <li><a href="#custom-edit-agent">Edit an agent prompt</a></li>
+              <li><a href="#custom-add-agent">Add an agent</a></li>
+              <li><a href="#custom-workflow-rules">Change workflow rules</a></li>
+              <li><a href="#custom-add-profile">Add a custom profile</a></li>
+              <li><a href="#custom-slash-command">Add a slash command</a></li>
+              <li><a href="#custom-project-conventions">Add project conventions</a></li>
+              <li><a href="#custom-repo-layout">Repository layout</a></li>
+            </ul>
+          </div>
 
-          <h3>Edit an agent prompt</h3>
-          <p>
-            Agent files live in <code>.opencode/agents/</code> (local) or
-            <code>~/.config/opencode/agents/</code> (global). Edit directly for
-            immediate effect. When <code>oowl update</code> runs and detects the
-            change, choose "keep mine" to preserve it.
-          </p>
+          <h3 id="custom-edit-agent">Edit an agent prompt</h3>
+          <p>Agent files live in <code>.opencode/agents/</code> (local) or <code>~/.config/opencode/agents/</code> (global). Edit directly for immediate effect. When <code>oowl update</code> detects the change, choose "keep mine" to preserve it.</p>
 
-          <h3>Add an agent</h3>
-          <ol
-            style="color: var(--text-muted); padding-left: 20px; line-height: 2"
-          >
-            <li>
-              Add a <code>.md</code> file under the right class in
-              <code>framework/agents/</code>
-            </li>
-            <li>
-              Add the agent to every profile JSON under
-              <code>agent_order</code> and <code>agents</code>
-            </li>
+          <h3 id="custom-add-agent">Add an agent</h3>
+          <ol>
+            <li>Add a <code>.md</code> file under the right class in <code>framework/agents/</code></li>
+            <li>Add the agent to every profile JSON under <code>agent_order</code> and <code>agents</code></li>
             <li>Update <code>framework/agents/README.md</code></li>
-            <li>
-              Add a command file in <code>framework/commands/</code> if needed
-            </li>
-            <li>
-              Run <code>oowl profile</code> to verify it appears in the model
-              strategy
-            </li>
+            <li>Add a command file in <code>framework/commands/</code> if needed</li>
+            <li>Run <code>oowl profile</code> to verify it appears in the model strategy</li>
           </ol>
 
-          <h3>Change workflow rules</h3>
+          <h3 id="custom-workflow-rules">Change workflow rules</h3>
           <table>
             <thead>
               <tr>
@@ -1834,165 +2185,136 @@ bash uninstall.sh --global</code></pre>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><code>framework/prompts/shared/routing.md</code></td>
-                <td>Trivial vs substantial thresholds</td>
-              </tr>
-              <tr>
-                <td><code>framework/prompts/shared/protocols.md</code></td>
-                <td>Core protocol blocks and agent communication</td>
-              </tr>
-              <tr>
-                <td><code>framework/prompts/shared/sensitive-data.md</code></td>
-                <td>Sensitive-area triggers and escalation rules</td>
-              </tr>
-              <tr>
-                <td>
-                  <code>framework/prompts/shared/implementation-safety.md</code>
-                </td>
-                <td>Test-first coverage and low-tier routing safety</td>
-              </tr>
-              <tr>
-                <td>
-                  <code>framework/prompts/shared/protected-artifacts.md</code>
-                </td>
-                <td>Artifact ownership and protection rules</td>
-              </tr>
+              <tr><td><code>framework/prompts/workflow/routing.md</code></td><td>Trivial vs substantial thresholds</td></tr>
+              <tr><td><code>framework/prompts/workflow/protocols.md</code></td><td>Core protocol blocks and agent communication</td></tr>
+              <tr><td><code>framework/prompts/execution/sensitive-data.md</code></td><td>Sensitive-area triggers and escalation rules</td></tr>
+              <tr><td><code>framework/prompts/execution/implementation-safety.md</code></td><td>Test-first coverage and low-tier routing safety</td></tr>
+              <tr><td><code>framework/prompts/workflow/protected-artifacts.md</code></td><td>Artifact ownership and protection rules</td></tr>
             </tbody>
           </table>
 
-          <h3>Add a custom profile</h3>
+          <h3 id="custom-add-profile">Add a custom profile</h3>
           <pre><code class="language-bash">cp framework/model-profiles/balanced.json framework/model-profiles/my-profile.json
 # edit my-profile.json with your model assignments
 bash scripts/apply-profile-models.sh framework/model-profiles/my-profile.json</code></pre>
+
+          <h3 id="custom-slash-command">Add a slash command</h3>
+          <p>Add a <code>.md</code> file under the appropriate class in <code>framework/commands/</code>. Installed commands are flattened into <code>.opencode/commands/</code>.</p>
+
+          <h3 id="custom-project-conventions">Add project conventions</h3>
+          <p>Engineering prompt files define project conventions that implementation agents load:</p>
+          <pre><code>framework/prompts/engineering/code-conventions.md  — naming, imports, formatting
+framework/prompts/engineering/file-structure.md    — directory layout, file naming
+framework/prompts/engineering/tool-preferences.md  — preferred libraries, banned tools
+framework/prompts/engineering/error-handling.md    — error envelopes, logging, retry</code></pre>
+          <p>Edit these files with your project's conventions. Implementation agents load them automatically.</p>
+
+          <h3 id="custom-repo-layout">Repository layout</h3>
+          <pre><code>bin/
+  oowl.js                       CLI entry point
+
+src/
+  cli.ts                        command router
+  commands/
+    install.ts                  oowl install walkthrough
+    init.ts                     Optional skills configuration
+    profile.ts                  oowl profile wizard
+    update.ts                   oowl update with checksum diffing
+  lib/
+    installer.ts                file copy and .oowl.json
+    frontmatter.ts              update model: lines in agent files
+    profiles.ts                 apply JSON profile to install
+    checksum.ts                 SHA-256 tracking
+    opencode-config-writer.ts   write installed opencode.jsonc permissions
+    opencode-scanner.ts         detect connected OpenCode models
+    paths.ts                    framework and install dir resolution
+    skill-recommender.ts        Optional skill recommendations
+
+framework/                      bundled files shipped with the package
+  agents/                       23 agents in 6 classes
+  commands/                     23 slash commands
+  prompts/
+    workflow/                   routing, protocols, protected-artifacts, git-workflow
+    execution/                  sensitive-data, implementation-safety
+    engineering/                code-conventions, file-structure, tool-preferences, error-handling
+    runtime/                    model-strategy
+    review/                     review policy
+    methodology/                test-first, caveman
+  model-profiles/               free.json, low.json, balanced.json, high.json
+  profile-models.json           bundled default active profile
+  AGENTS.md                     workflow definition template
+  opencode.jsonc                runtime config template
+
+scripts/
+  apply-profile-models.sh       legacy shell script (power users)
+
+install.sh                      shell installer for scripted installs
+uninstall.sh                    shell uninstaller</code></pre>
+          <p>After <code>oowl install</code>, files from <code>framework/</code> are copied to <code>.opencode/</code>. Edit the <code>.opencode/</code> copies directly — they take effect immediately and <code>oowl update</code> will diff them against the shipped versions.</p>
         </section>
 
         <!-- FAQ -->
         <section id="faq">
-          <h2>Common issues</h2>
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span>Common issues</h2>
+          <p class="section-intro">Common questions and how to fix them. Click any item to expand.</p>
 
-          <div class="faq">
-            <details>
-              <summary>Agents aren't showing up in OpenCode</summary>
-              <div class="faq-body">
-                <p>
-                  OpenCode must be launched from the project that contains the
-                  installed <code>.opencode/</code> directory.
-                </p>
-                <pre><code class="language-bash">ls .opencode/agents      # should list agent files
-ls .opencode/opencode.jsonc  # should exist</code></pre>
-                <p>
-                  If either is missing, re-run <code>oowl init</code> from your
-                  project root.
-                </p>
-              </div>
-            </details>
+          <details>
+            <summary>Agents aren't showing up in OpenCode</summary>
+            <p>OpenCode must be launched from the project that contains <code>.opencode/</code>.</p>
+            <pre><code class="language-bash">ls .opencode/agents
+ls .opencode/opencode.jsonc</code></pre>
+            <p>If either is missing, re-run <code>oowl install</code> from your project root.</p>
+          </details>
 
-            <details>
-              <summary>oowl command not found after npm install -g</summary>
-              <div class="faq-body">
-                <p>
-                  Your global npm bin directory may not be on <code>PATH</code>.
-                </p>
-                <pre><code class="language-bash">npm bin -g   # shows the path to add</code></pre>
-                <p>
-                  Alternatively, keep using <code>npx @jimzandueta/oowl</code>,
-                  which doesn't require a global install.
-                </p>
-              </div>
-            </details>
+          <details>
+            <summary>oowl command not found after npm install -g</summary>
+            <p>Your global npm bin directory may not be on <code>PATH</code>.</p>
+            <pre><code class="language-bash">npm bin -g   # shows the path to add</code></pre>
+            <p>Alternatively, keep using <code>npx @jimzandueta/oowl</code>.</p>
+          </details>
 
-            <details>
-              <summary>Wrong model after switching profiles</summary>
-              <div class="faq-body">
-                <p>
-                  Use <code>oowl profile</code>: it updates agent frontmatter,
-                  <code>opencode.jsonc</code>, and the recorded active profile.
-                  Installs created by <code>install.sh</code> include the
-                  metadata needed for profile switching and updates.
-                </p>
-              </div>
-            </details>
+          <details>
+            <summary>Wrong model after switching profiles</summary>
+            <p>Use <code>oowl profile</code>: it updates agent frontmatter, <code>opencode.jsonc</code>, and the recorded active profile.</p>
+          </details>
 
-            <details>
-              <summary>
-                Fewer than 3 models found during custom profile setup
-              </summary>
-              <div class="faq-body">
-                <p>
-                  oowl needs at least one model per tier (cheap, mid, premium).
-                  Connect more providers in OpenCode's settings, then run
-                  <code>oowl init</code> or <code>oowl profile</code> again, or
-                  enter model IDs manually.
-                </p>
-              </div>
-            </details>
+          <details>
+            <summary>Fewer than 3 models during custom profile setup</summary>
+            <p>Connect more providers in OpenCode's settings, then run <code>oowl profile custom</code> again, or enter model IDs manually.</p>
+          </details>
 
-            <details>
-              <summary>oowl update shows everything as modified</summary>
-              <div class="faq-body">
-                <p>
-                  <code>.oowl.json</code> is missing or predates checksum
-                  tracking. Reinstall with <code>oowl init</code> and confirm
-                  replacement when you are ready to replace the installed
-                  framework files. Future updates will detect changes correctly.
-                </p>
-              </div>
-            </details>
+          <details>
+            <summary>oowl update shows everything as modified</summary>
+            <p><code>.oowl.json</code> is missing or predates checksum tracking. Reinstall with <code>oowl install</code> and confirm replacement when you are ready to replace the installed framework files.</p>
+          </details>
 
-            <details>
-              <summary>Protected artifact disappeared mid-workflow</summary>
-              <div class="faq-body">
-                <p>Restore from Git:</p>
-                <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
-                <p>
-                  To protect against this, commit approved specs before
-                  implementation starts:
-                </p>
-                <pre><code class="language-bash">git add docs/specs
+          <details>
+            <summary>Protected artifact disappeared mid-workflow</summary>
+            <p>Restore from Git:</p>
+            <pre><code class="language-bash">git checkout -- docs/specs/&lt;feature&gt;/design.md</code></pre>
+            <p>To protect against this, commit approved specs before implementation starts:</p>
+            <pre><code class="language-bash">git add docs/specs
 git commit -m "chore: preserve approved specs for &lt;feature&gt;"</code></pre>
-              </div>
-            </details>
+          </details>
 
-            <details>
-              <summary>Caveman-Lite not activating</summary>
-              <div class="faq-body">
-                <p>
-                  The Caveman plugin is loaded via <code>opencode.jsonc</code>.
-                  Make sure OpenCode is running from the correct directory so it
-                  picks up the config. Check that the plugin URL is reachable
-                  from your network.
-                </p>
-              </div>
-            </details>
-
-            <details>
-              <summary>The workflow feels like too much ceremony</summary>
-              <div class="faq-body">
-                <p>
-                  Tell dispatcher explicitly:
-                  <em>"this is a trivial fix, skip the design phase."</em>
-                </p>
-                <p>
-                  Or adjust the routing thresholds directly in
-                  <code>framework/prompts/shared/routing.md</code>. The rules
-                  are yours to tune.
-                </p>
-              </div>
-            </details>
-          </div>
+          <details>
+            <summary>Workflow feels like too much ceremony</summary>
+            <p>Tell dispatcher explicitly: <em>"this is a trivial fix, skip the design phase."</em> Or adjust the routing thresholds in <code>framework/prompts/workflow/routing.md</code>.</p>
+          </details>
         </section>
 
         <!-- CONTRIBUTING -->
         <section id="contributing">
-          <h2>Contributing</h2>
-          <p>Before opening a PR, run:</p>
-          <pre><code class="language-bash"># Node tests
+          <h2><span class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Contributing</h2>
+          <p class="section-intro">Before opening a PR. Run the checks, keep the workflow rules intact, and commit design artifacts.</p>
+          <pre><code class="language-bash"># Tests
 npm test
 
-# CLI smoke tests
+# CLI smoke test
 node bin/oowl.js --help
-node bin/oowl.js foobar; echo "exit: $?"   # should exit 1
+
+# Framework invariants
+npm test -- --testPathPattern=invariants
 
 # Profile JSON validation
 for f in framework/model-profiles/*.json framework/profile-models.json; do
@@ -2003,62 +2325,74 @@ done
 npm pack --dry-run</code></pre>
 
           <p>Keep these intact:</p>
-          <ul
-            style="
-              color: var(--text-muted);
-              padding-left: 20px;
-              line-height: 2.2;
-            "
-          >
+          <ul>
             <li><code>dispatcher</code> owns dispatch: only it invokes Task</li>
-            <li>
-              <code>builder</code> schedules only: no file edits, no shell, no
-              Task
-            </li>
+            <li><code>builder</code> schedules only: no file edits, no shell, no Task</li>
             <li>Protected artifacts remain owner-controlled</li>
             <li>Implementation tasks require file locks</li>
-            <li>
-              Verification evidence required before <code>TASK_COMPLETE</code>
-            </li>
-            <li>
-              Sensitive flows require explicit approval and stricter routing
-            </li>
-            <li>
-              Caveman-Lite stays limited to runtime communication, not artifacts
-              or code
-            </li>
+            <li>Verification evidence required before <code>TASK_COMPLETE</code></li>
+            <li>Sensitive flows require explicit approval and stricter routing</li>
           </ul>
-
-          <p>
-            See
-            <a
-              href="https://github.com/jimzandueta/oowl/blob/main/CONTRIBUTING.md"
-              target="_blank"
-              >CONTRIBUTING.md</a
-            >
-            for the full process.
-          </p>
         </section>
 
         <!-- FOOTER -->
-        <div class="footer">
-          <span>MIT License</span>
-          <a href="https://github.com/jimzandueta/oowl" target="_blank"
-            >GitHub</a
-          >
-          <a
-            href="https://www.npmjs.com/package/@jimzandueta/oowl"
-            target="_blank"
-            >npm</a
-          >
-          <a href="https://opencode.ai/" target="_blank">OpenCode</a>
-          <a href="https://github.com/obra/superpowers" target="_blank"
-            >superpowers</a
-          >
-          <a href="https://github.com/juliusbrussee/caveman" target="_blank"
-            >caveman</a
-          >
-        </div>
+        <footer class="docs-footer">
+          <div class="footer-main">
+            <div>
+              <div class="footer-brand">
+                <strong>oowl</strong>
+                <span>OpenCode Opinionated Workflow Layer</span>
+              </div>
+              <p>
+                Structured multi-agent workflows for OpenCode. Cheap models,
+                real process, real shipping.
+              </p>
+              <div class="footer-actions">
+                <a href="#quick-start" class="footer-button primary">Quick start</a>
+                <a href="https://www.npmjs.com/package/@jimzandueta/oowl" class="footer-button" target="_blank">npm</a>
+              </div>
+            </div>
+            <div class="footer-cta">
+              <strong>Support</strong>
+              <p>Help oowl grow — star the repo, or chip in if it saved you time.</p>
+              <div class="footer-actions">
+                <a href="https://github.com/jimzandueta/oowl" class="footer-button primary" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Star on GitHub</a>
+                <a href="https://ko-fi.com/jimzandueta" class="footer-button" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>Buy me Ko-Fi</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-links-grid">
+            <div>
+              <h3>Product</h3>
+              <a href="#overview">Overview</a>
+              <a href="#quick-start">Quick start</a>
+              <a href="#how-it-works">How it works</a>
+              <a href="#agents">Agents</a>
+              <a href="#model-profiles">Model profiles</a>
+            </div>
+            <div>
+              <h3>Reference</h3>
+              <a href="#install">Install</a>
+              <a href="#protocol-signals">Protocol signals</a>
+              <a href="#customizing">Customizing</a>
+              <a href="#faq">Common issues</a>
+              <a href="#contributing">Contributing</a>
+            </div>
+            <div>
+              <h3>Ecosystem</h3>
+              <a href="https://opencode.ai/" target="_blank">OpenCode</a>
+              <a href="https://github.com/obra/superpowers" target="_blank">Superpowers</a>
+              <a href="https://github.com/juliusbrussee/caveman" target="_blank">Caveman</a>
+              <a href="https://github.com/jimzandueta/oowl" target="_blank">GitHub</a>
+              <a href="https://www.npmjs.com/package/@jimzandueta/oowl" target="_blank">npm</a>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <span>MIT License &copy; 2026 Jim Zandueta</span>
+          </div>
+        </footer>
       </main>
     </div>
 
@@ -2066,35 +2400,128 @@ npm pack --dry-run</code></pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script>
-      // Active sidebar link tracking
-      const links = document.querySelectorAll('.sidebar-link[href^="#"]');
-      const sections = [...links]
+      // Reading progress bar
+      const progressBar = document.getElementById("reading-progress");
+      const updateProgress = () => {
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? window.scrollY / docHeight : 0;
+        progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, progress))})`;
+      };
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+
+      // Scroll-reveal: fade in h2s, cards, callouts, and tables as they enter view
+      // with staggered cascading delays (80ms per child)
+      const revealParents = document.querySelectorAll(
+        "section[id], .cards, .steps, .footer-links-grid",
+      );
+      revealParents.forEach((parent) => {
+        const targets = parent.querySelectorAll(
+          ":scope > h2, :scope > h3, :scope > p, :scope > .card, :scope > .callout, :scope > .page-toc, :scope > table, :scope > .steps, :scope > .step, :scope > a, :scope > .code-block",
+        );
+        targets.forEach((el, i) => {
+          el.classList.add("reveal");
+          el.style.transitionDelay = `${Math.min(i * 60, 360)}ms`;
+        });
+      });
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
+
+      // Code blocks: wrap with header (language label + copy button)
+      const langNames = {
+        bash: "Bash",
+        sh: "Shell",
+        shell: "Shell",
+        json: "JSON",
+        javascript: "JavaScript",
+        js: "JavaScript",
+        typescript: "TypeScript",
+        ts: "TypeScript",
+        text: "Text",
+        plain: "Text",
+      };
+      document.querySelectorAll("pre > code").forEach((code) => {
+        const pre = code.parentElement;
+        if (pre.parentElement.classList.contains("code-block")) return;
+        const langClass = [...code.classList].find((c) => c.startsWith("language-"));
+        const langKey = langClass ? langClass.replace("language-", "") : "text";
+        const langLabel = langNames[langKey] || langKey.toUpperCase();
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block";
+        const header = document.createElement("div");
+        header.className = "code-block-header";
+        header.innerHTML =
+          '<span class="code-lang">' +
+          langLabel +
+          '</span><button class="code-copy" type="button" aria-label="Copy code">Copy</button>';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+
+        const copyBtn = header.querySelector(".code-copy");
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(code.innerText).then(() => {
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+          });
+        });
+      });
+
+      // Collapsible nav groups — click to toggle
+      document.querySelectorAll(".nav-group .nav-h2").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const group = link.closest(".nav-group");
+          group.classList.toggle("open");
+          window.location.hash = link.getAttribute("href");
+        });
+      });
+
+      // Active sidebar link tracking + auto-expand groups on scroll
+      const allLinks = document.querySelectorAll('nav a[href^="#"]');
+      const allSections = [...allLinks]
         .map((l) => document.querySelector(l.getAttribute("href")))
         .filter(Boolean);
-
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              links.forEach((l) => l.classList.remove("active"));
+              allLinks.forEach((l) => l.classList.remove("active"));
               const active = document.querySelector(
-                `.sidebar-link[href="#${entry.target.id}"]`,
+                `nav a[href="#${entry.target.id}"]`,
               );
-              if (active) active.classList.add("active");
+              if (active) {
+                active.classList.add("active");
+                // Expand the parent nav-group if any
+                const group = active.closest(".nav-group");
+                if (group) group.classList.add("open");
+              }
             }
           });
         },
         { rootMargin: "-20% 0px -70% 0px" },
       );
+      allSections.forEach((s) => observer.observe(s));
 
-      sections.forEach((s) => observer.observe(s));
-
-      // Close mobile sidebar on link click
-      document.querySelectorAll(".sidebar-link").forEach((l) => {
-        l.addEventListener("click", () =>
-          document.querySelector(".sidebar").classList.remove("open"),
-        );
-      });
+      // Open the nav-group of the initial active section on load
+      setTimeout(() => {
+        const firstActive = document.querySelector('nav a.active[href^="#"]');
+        if (firstActive) {
+          const group = firstActive.closest(".nav-group");
+          if (group) group.classList.add("open");
+        }
+      }, 100);
     </script>
   </body>
 </html>

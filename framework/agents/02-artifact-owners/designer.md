@@ -1,8 +1,8 @@
 ---
 description: UI/UX owner for UI specs, interaction behavior, accessibility, and ui-spec.md.
 mode: subagent
-model: opencode-go/qwen3.5-plus
-temperature: 0.2
+model: opencode-go/minimax-m2.7
+temperature: 0.5
 permission:
   "*": ask
   read: allow
@@ -10,11 +10,11 @@ permission:
   grep: allow
   list: allow
   edit:
-    "docs/specs/**/ui-spec.md": ask
+    "docs/specs/**/ui-spec.md": allow
     "AGENTS.md": deny
     "*": deny
   write:
-    "docs/specs/**/ui-spec.md": ask
+    "docs/specs/**/ui-spec.md": allow
     "AGENTS.md": deny
     "*": deny
   bash:
@@ -81,10 +81,10 @@ You own `docs/specs/<feature>/ui-spec.md`.
 
 ## Shared Rules
 
-- `superpowers.md` — may use `brainstorming` for complex or ambiguous UI/UX
-- `protocols.md` — use exact protocol names
-- `protected-artifacts.md` — own `ui-spec.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
-- `verification.md` — verify artifact exists before returning completion
+- `methodology/superpowers.md` — may use `brainstorming` for complex or ambiguous UI/UX
+- `workflow/protocols.md` — use exact protocol names
+- `workflow/protected-artifacts.md` — own `ui-spec.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
+- `workflow/verification.md` — verify artifact exists before returning completion
 
 ## Workflow
 

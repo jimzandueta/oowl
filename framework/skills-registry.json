@@ -1,0 +1,882 @@
+[
+  {
+    "id": "design-taste-frontend",
+    "name": "Design Taste Frontend",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-engineer",
+      "frontend-polisher"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "full-output-enforcement",
+    "name": "Full Output Enforcement",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-engineer",
+      "backend-engineer",
+      "high-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "high-end-visual-design",
+    "name": "High-End Visual Design",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-polisher",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "industrial-brutalist-ui",
+    "name": "Industrial Brutalist UI",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "minimalist-ui",
+    "name": "Minimalist UI",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer",
+      "frontend-polisher"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "redesign-existing-projects",
+    "name": "Redesign Existing Projects",
+    "source": "taste-skill",
+    "sourceUrl": "https://github.com/Leonxlnx/taste-skill",
+    "stars": 31700,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-polisher",
+      "designer",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "ui-ux-pro-max",
+    "name": "UI/UX Pro Max",
+    "source": "ui-ux-pro-max",
+    "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+    "stars": 86100,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer",
+      "frontend-polisher",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "api-design-principles",
+    "name": "api-design-principles",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "backend-engineer",
+      "code-reviewer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "architecture-decision-records",
+    "name": "architecture-decision-records",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "architecture-patterns",
+    "name": "architecture-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "changelog-automation",
+    "name": "changelog-automation",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "reviewer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "code-review-excellence",
+    "name": "code-review-excellence",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "code-reviewer",
+      "reviewer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "cost-optimization",
+    "name": "cost-optimization",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "cqrs-implementation",
+    "name": "cqrs-implementation",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "database-migration",
+    "name": "database-migration",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "database",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "database-engineer",
+      "architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "debugging-strategies",
+    "name": "debugging-strategies",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-engineer",
+      "backend-engineer",
+      "high-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "dependency-upgrade",
+    "name": "dependency-upgrade",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "backend-engineer",
+      "code-reviewer",
+      "high-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "deployment-pipeline-design",
+    "name": "deployment-pipeline-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "design-system-patterns",
+    "name": "design-system-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "distributed-tracing",
+    "name": "distributed-tracing",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "e2e-testing-patterns",
+    "name": "e2e-testing-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "testing",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "test-engineer",
+      "frontend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "error-handling-patterns",
+    "name": "error-handling-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "priority",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "backend-engineer",
+      "frontend-engineer",
+      "high-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "event-store-design",
+    "name": "event-store-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "database-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "github-actions-templates",
+    "name": "github-actions-templates",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "backend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "gitlab-ci-patterns",
+    "name": "gitlab-ci-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "grafana-dashboards",
+    "name": "grafana-dashboards",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "hybrid-cloud-networking",
+    "name": "hybrid-cloud-networking",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "incident-runbook-templates",
+    "name": "incident-runbook-templates",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "reviewer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "interaction-design",
+    "name": "interaction-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-polisher",
+      "designer",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "javascript-testing-patterns",
+    "name": "javascript-testing-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "testing",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "test-engineer",
+      "frontend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "microservices-patterns",
+    "name": "microservices-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "mobile-ios-design",
+    "name": "mobile-ios-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "monorepo-management",
+    "name": "monorepo-management",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "high-engineer",
+      "planner"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "multi-cloud-architecture",
+    "name": "multi-cloud-architecture",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "on-call-handoff-patterns",
+    "name": "on-call-handoff-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "postgresql-table-design",
+    "name": "postgresql-table-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "database",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "database-engineer",
+      "architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "postmortem-writing",
+    "name": "postmortem-writing",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "reviewer",
+      "high-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "prometheus-configuration",
+    "name": "prometheus-configuration",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "python-testing-patterns",
+    "name": "python-testing-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "testing",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "test-engineer",
+      "backend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "responsive-design",
+    "name": "responsive-design",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "frontend-engineer",
+      "frontend-polisher"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "saga-orchestration",
+    "name": "saga-orchestration",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "backend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "sast-configuration",
+    "name": "sast-configuration",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "security",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "security-reviewer",
+      "security-auditor"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "secrets-management",
+    "name": "secrets-management",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "security",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "backend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "service-mesh-observability",
+    "name": "service-mesh-observability",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "slo-implementation",
+    "name": "slo-implementation",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect",
+      "high-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "sql-optimization-patterns",
+    "name": "sql-optimization-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "database",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "database-engineer",
+      "backend-engineer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "terraform-module-library",
+    "name": "terraform-module-library",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "cloud",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "cloud-architect"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "visual-design-foundations",
+    "name": "visual-design-foundations",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "frontend",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "designer",
+      "frontend-polisher",
+      "high-designer"
+    ],
+    "activation": "Optional"
+  },
+  {
+    "id": "workflow-orchestration-patterns",
+    "name": "workflow-orchestration-patterns",
+    "source": "wshobson-agents",
+    "sourceUrl": "https://github.com/wshobson/agents",
+    "stars": 36300,
+    "category": "always-on",
+    "qualityGate": {
+      "passed": true,
+      "verifiedAt": "2026-06-02",
+      "gateBasis": "stars"
+    },
+    "assignedAgents": [
+      "architect",
+      "planner"
+    ],
+    "activation": "Optional"
+  }
+]

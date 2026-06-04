@@ -9,11 +9,22 @@ import {
   rmSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
-import { GLOBAL_INSTALL_DIR, getInstallRoot, getOpenCodeDir } from "./paths.js";
+import { GLOBAL_INSTALL_DIR, getInstallRoot, getOpenCodeDir, PACKAGE_JSON } from "./paths.js";
 import type { InstallLocation } from "./paths.js";
 import { buildChecksums } from "./checksum.js";
 
 const OOWL_JSON = ".oowl.json";
+
+function readPackageVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(PACKAGE_JSON, "utf8")) as {
+      version?: string;
+    };
+    return pkg.version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
 
 export interface OowlJson {
   version: string;
@@ -23,6 +34,8 @@ export interface OowlJson {
   installedAt: string;
   updatedAt: string;
   checksums?: Record<string, string>;
+  projectAnswers?: Record<string, unknown>;
+  optionalSkills?: Record<string, string[]>;
 }
 
 export interface InstallOptions {
@@ -294,7 +307,7 @@ export async function install({
     : {};
 
   const oowlData: OowlJson = {
-    version: "1.1.0",
+    version: readPackageVersion(),
     location,
     profile,
     opencodeGo,

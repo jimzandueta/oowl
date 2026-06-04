@@ -20,9 +20,10 @@ Apply a model profile from the profile root:
 scripts/apply-profile-models.sh low
 scripts/apply-profile-models.sh balanced
 scripts/apply-profile-models.sh high
+scripts/apply-profile-models.sh free
 ```
 
-The model-profile script updates runtime agent frontmatter, `opencode.jsonc`, `.opencode/profile-models.json`, and `.opencode/prompts/shared/model-strategy.md`.
+The model-profile script updates runtime agent frontmatter, `opencode.jsonc`, `.opencode/profile-models.json`, and `.opencode/prompts/runtime/model-strategy.md`.
 
 It does not update this file.
 

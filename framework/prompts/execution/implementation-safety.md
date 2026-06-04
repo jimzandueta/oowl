@@ -1,6 +1,6 @@
 # Implementation Safety
 
-Use this policy to keep feature work test-first and prevent low-tier shortcuts from bypassing required methodology.
+Use this policy to keep behavior changes test-first, prevent low-tier shortcuts, and route mechanical work to the cheapest capable tier.
 
 ## Test-First Rule
 
@@ -24,6 +24,30 @@ Assign new or changed behavior to a TDD-capable agent:
 - `test-engineer`
 - `high-engineer`
 
+## Mechanical vs Reasoning Dispatch
+
+To reduce cost, `builder` routes **mechanical** tasks to `low-engineer` even if the planner assigned a mid-tier agent.
+
+A task is **mechanical** if ALL of the following are true:
+
+- the input is a clear, unambiguous spec (complete design, exact file path, exact intended content or a well-defined template)
+- no design decisions, architecture choices, or domain judgment are required
+- no tests need to be created or updated
+- the output is a direct translation of the spec into code or configuration
+- verification is local (lint, typecheck, build)
+
+A task is **reasoning** if ANY of the following is true:
+
+- design decisions, component structure, or API shape must be inferred
+- tests must be created or updated
+- the spec is ambiguous or incomplete
+- the change crosses module or service boundaries
+- sensitive data or security logic is involved
+
+`builder` routes mechanical tasks to `low-engineer` and reasoning tasks to the assigned mid-tier agent.
+
+If `low-engineer` receives a mechanical task that turns out to require reasoning, it must return `ESCALATION_REQUEST` so `builder` can re-dispatch to the full agent.
+
 ## Low-Tier Limits
 
 Low-tier agents do not load Superpowers and must not be used to bypass TDD.
@@ -39,5 +63,7 @@ Low-tier agents do not load Superpowers and must not be used to bypass TDD.
 
 - `plan-reviewer` rejects any behavior-changing task without test-first work or a specific no-test rationale.
 - `plan-reviewer` rejects low-tier assignments that exceed the limits above.
-- `builder` schedules only approved task specs from `implementation.md`; it must not silently down-tier or rewrite assignments.
+- `plan-reviewer` validates that mechanical tasks have a clear, unambiguous spec - tasks with ambiguous specs must be marked as reasoning.
+- `builder` schedules only approved task specs from `implementation.md`; it must not rewrite task scope.
+- `builder` may route mechanical tasks to `low-engineer` even if the planner assigned a different agent. This is cost-optimized dispatch within the same task scope.
 - If `builder` finds a ready task that violates this policy, it stops and returns `NEEDS_USER_INPUT` asking `dispatcher` to send the plan back for planner revision.

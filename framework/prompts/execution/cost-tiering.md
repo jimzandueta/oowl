@@ -8,7 +8,7 @@ This framework runs three cost tiers. Use the cheapest tier that can do the work
 |---|---|---|
 | Low | `low-engineer`, `low-task-worker`, `low-architect`, `low-designer` | small, bounded, well-specified work with clear scope and no new feature behavior |
 | Mid | `architect`, `planner`, `reviewer`, `designer`, `frontend-engineer`, `frontend-polisher`, `backend-engineer`, `database-engineer`, `cloud-architect`, `test-engineer`, `code-reviewer`, `security-reviewer`, `plan-reviewer` | the default workflow path; substantial features and reviews |
-| High | `high-engineer`, `high-architect`, `high-designer`, `security-auditor` | escalations only \u2014 hard problems where mid-tier capability is insufficient |
+| High | `high-engineer`, `high-architect`, `high-designer`, `security-auditor` | escalations only - hard problems where mid-tier capability is insufficient |
 
 ## Why no `low-planner`
 
@@ -22,22 +22,28 @@ A subagent must return `ESCALATION_REQUEST` when one or more of the following is
 - the change exceeds the assignment's stated file count or line budget
 - the task prompt is ambiguous and a guess could produce silent incorrect behavior
 - the agent attempted a fix and verification failed in a way it cannot diagnose
-- the agent encounters sensitive data or sensitive code paths (see `sensitive-data.md`)
+- the agent encounters sensitive data or sensitive code paths (see `execution/sensitive-data.md`)
 
 ## When to De-escalate
 
-`dispatcher` and `planner` may route work to a lower tier when:
+`dispatcher`, `planner`, and `builder` may route work to a lower tier when:
 
 - the change is small (a few lines), local (a single file or a tightly bounded set), and obvious
 - the verification is local (lint, typecheck, focused unit test)
-- no sensitive area is touched (see `sensitive-data.md`)
+- no sensitive area is touched (see `execution/sensitive-data.md`)
 - no architectural decision is required
 
-The trivial-fix fast-path in `routing.md` formalizes this for the most common case.
+The trivial-fix fast-path in `workflow/routing.md` formalizes this for the most common case.
+
+## Mechanical Dispatch (Cost Optimization)
+
+To save cost, `builder` routes **mechanical** implementation tasks to `low-engineer` even if the planner assigned a mid-tier agent. See `execution/implementation-safety.md` for the exact mechanical vs reasoning criteria.
+
+Mechanical dispatch is the main cost lever. Preserve task scope, keep reasoning work on the assigned specialist, and route only clear mechanical work to low-tier.
 
 ## Low-Tier Limits
 
-Low-tier edit limits and test-first routing rules are defined in `implementation-safety.md`.
+Low-tier edit limits and test-first routing rules are defined in `execution/implementation-safety.md`.
 
 Low-tier agents must not be used as a TDD bypass. If the work exceeds that shared policy, escalate instead of implementing.
 
@@ -45,7 +51,7 @@ Low-tier agents must not be used as a TDD bypass. If the work exceeds that share
 
 | From | To | When |
 |---|---|---|
-| `low-engineer` | `frontend-engineer` / `backend-engineer` / etc. | the change requires domain judgment |
+| `low-engineer` | owning mid-tier specialist | the change requires domain judgment |
 | any mid-tier implementer | `high-engineer` | multi-file refactor, performance-critical change, or root-cause debugging |
 | `architect` | `high-architect` | escalated architecture, reliability, or cross-system tradeoff |
 | `designer` | `high-designer` | escalated UX or product-design decision |

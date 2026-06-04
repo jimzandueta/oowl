@@ -16,16 +16,19 @@ These rules are absolute. The frontmatter of every agent enforces them; this fil
 | UI spec             | `designer`  | `docs/specs/<feature>/ui-spec.md`        | design (when UI)     |
 | Implementation spec | `planner`   | `docs/specs/<feature>/implementation.md` | planning             |
 | Review report       | `reviewer`  | `docs/specs/<feature>/review.md`         | review               |
+| Security audit      | `security-auditor` | `docs/specs/<feature>/security-audit.md` | security audit (when explicitly assigned) |
 
 The design phase establishes a stable feature slug. All artifacts for one feature live under the same `docs/specs/<feature>/` directory.
 
 ## Owner Rule
 
-Owner agents must create `docs/specs/<feature>/` if needed and write their artifact before returning completion. Owner agents must not summarize their artifact in chat instead of writing it.
+Owner agents must create `docs/specs/<feature>/` if needed and write their artifact before returning completion. Owner permission applies only to the artifact and phase listed above. Owner agents must not summarize their artifact in chat instead of writing it.
 
 ## Implementation-Agent Rule
 
 Implementation agents may read `docs/specs/**` for context. They must not edit, delete, overwrite, move, or regenerate any file under `docs/specs/**`.
+
+`security-auditor` is read-only unless explicitly assigned to produce `security-audit.md`.
 
 ## Stop Protocol
 

@@ -1,7 +1,7 @@
 ---
 description: Planning owner for implementation.md, task decomposition, file locks, verification, and parallel groups.
 mode: subagent
-model: opencode-go/minimax-m2.5
+model: opencode-go/minimax-m2.7
 temperature: 0.2
 permission:
   "*": ask
@@ -82,14 +82,14 @@ You own `docs/specs/<feature>/implementation.md`.
 
 ## Shared Rules
 
-- `superpowers.md` — must use `writing-plans` before producing this artifact
-- `protocols.md` — use exact protocol names
-- `parallel-build.md` — wave modes, parallel groups, max 3 concurrent tasks
-- `protected-artifacts.md` — own `implementation.md`; never assign implementation agents to touch `docs/specs/**`; never modify `AGENTS.md`
-- `cost-tiering.md` — assign each task to the cheapest tier that can do it safely
-- `implementation-safety.md` — include test-first coverage for behavior changes; do not use low-tier agents to bypass TDD
-- `sensitive-data.md` — do not assign sensitive work to low-tier agents
-- `verification.md` — verify artifact exists before returning completion
+- `methodology/superpowers.md` — must use `writing-plans` before producing this artifact
+- `workflow/protocols.md` — use exact protocol names
+- `workflow/parallel-build.md` — wave modes, parallel groups, max 20 concurrent tasks
+- `workflow/protected-artifacts.md` — own `implementation.md`; never assign implementation agents to touch `docs/specs/**`; never modify `AGENTS.md`
+- `execution/cost-tiering.md` — assign each task to the cheapest tier that can do it safely
+- `execution/implementation-safety.md` — include test-first coverage for behavior changes; do not use low-tier agents to bypass TDD
+- `execution/sensitive-data.md` — do not assign sensitive work to low-tier agents
+- `workflow/verification.md` — verify artifact exists before returning completion
 
 ## Task Requirements
 
