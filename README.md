@@ -16,7 +16,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@jimzandueta/oowl"><img src="https://img.shields.io/npm/v/@jimzandueta/oowl?label=npm" alt="npm"></a>
   <a href="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://github.com/jimzandueta/oowl/tags"><img alt="version" src="https://img.shields.io/badge/version-v2.0.0-blue" /></a>
+  <a href="https://github.com/jimzandueta/oowl/tags"><img alt="version" src="https://img.shields.io/badge/version-v2.0.1-blue" /></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
   <br>
   <a href="https://opencode.ai/"><img alt="Runtime: OpenCode" src="https://img.shields.io/badge/runtime-OpenCode-blue" /></a>

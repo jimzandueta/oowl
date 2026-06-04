@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-06-04
+## [2.0.1] - 2026-06-04
+
+### Fixed
+
+- Fixed README doc links to point at GitHub Pages (`https://jimzandueta.github.io/oowl/docs/`).
+- Fixed logo image to use absolute URL so it renders on npmjs.com.
+- Synced `package-lock.json` to match `package.json` version.
+- Bumped version badge to `v2.0.1` (v2.0.0 was already published).
 
 ### Added
 
@@ -121,8 +128,8 @@ Initial npm release.
 - GitHub Pages documentation site.
 - MIT license.
 
-[Unreleased]: https://github.com/jimzandueta/oowl/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/jimzandueta/oowl/compare/v1.1.3...v2.0.0
+[Unreleased]: https://github.com/jimzandueta/oowl/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/jimzandueta/oowl/compare/v1.1.3...v2.0.1
 [1.1.3]: https://github.com/jimzandueta/oowl/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/jimzandueta/oowl/compare/v1.1.0...v1.1.2
 [1.1.0]: https://github.com/jimzandueta/oowl/compare/v1.0.7...v1.1.0
