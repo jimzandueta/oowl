@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/oowl-logo.png" alt="oowl" width="320">
+  <img src="https://raw.githubusercontent.com/jimzandueta/oowl/main/docs/assets/oowl-logo.png" alt="oowl" width="320">
 </p>
 
 <h1 align="center">oowl</h1>
@@ -10,13 +10,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jimzandueta/oowl">📖 Full documentation →</a>
+  <a href="https://jimzandueta.github.io/oowl/docs/">📖 Full documentation →</a>
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@jimzandueta/oowl"><img src="https://img.shields.io/npm/v/@jimzandueta/oowl?label=npm" alt="npm"></a>
   <a href="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/jimzandueta/oowl/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://github.com/jimzandueta/oowl/tags"><img alt="version" src="https://img.shields.io/badge/version-v1.1.3-blue" /></a>
+  <a href="https://github.com/jimzandueta/oowl/tags"><img alt="version" src="https://img.shields.io/badge/version-v2.0.0-blue" /></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
   <br>
   <a href="https://opencode.ai/"><img alt="Runtime: OpenCode" src="https://img.shields.io/badge/runtime-OpenCode-blue" /></a>
@@ -118,7 +118,7 @@ Switch between bundled profiles (`low` default, `balanced`, `high`, `free`) or b
 
 ## Documentation
 
-Workflow, agent reference, install options, model profiles, customization, common issues, and contributing guide → **[`https://github.com/jimzandueta/oowl`](https://github.com/jimzandueta/oowl)**.
+Workflow, agent reference, install options, model profiles, customization, common issues, and contributing guide → **[`https://jimzandueta.github.io/oowl/docs/`](https://jimzandueta.github.io/oowl/docs/)**.
 
 ## License
 
