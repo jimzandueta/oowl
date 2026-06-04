@@ -12,7 +12,7 @@
 ## Quick links
 
 - [GitHub repo](https://github.com/jimzandueta/oowl)
-- [npm package](https://www.npmjs.com/package/oowl)
+- [npm package](https://www.npmjs.com/package/@jimzandueta/oowl)
 - [OpenCode](https://opencode.ai/)
 - [obra/superpowers](https://github.com/obra/superpowers)
 - [juliusbrussee/caveman](https://github.com/juliusbrussee/caveman)

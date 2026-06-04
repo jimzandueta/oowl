@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { updateModelLine } from './frontmatter.js'
 
@@ -103,6 +103,108 @@ function findAgentFile(agentsDir: string, name: string): string | null {
 
 interface ApplicableProfile {
   agents: Record<string, { model: string }>
+}
+
+function tableCell(value: string | undefined): string {
+  return (value ?? '').replace(/\n/g, ' ').replace(/\|/g, '\\|')
+}
+
+export function renderModelStrategy(
+  profile: Profile,
+  profileSource = 'profile-models.json',
+): string {
+  const order =
+    profile.agent_order && profile.agent_order.length > 0
+      ? profile.agent_order
+      : Object.keys(profile.agents)
+  const lines: string[] = [
+    '# Model Strategy',
+    '',
+    `Profile: \`${profile.profile}\``,
+    '',
+  ]
+
+  if (profile.description) {
+    lines.push(profile.description, '')
+  }
+
+  lines.push(
+    'This file is generated from:',
+    '',
+    '```text',
+    profileSource,
+    '```',
+    '',
+    'Do not edit model assignments here directly. Update a JSON profile and run:',
+    '',
+    '```bash',
+    'scripts/apply-profile-models.sh <free|low|balanced|high|provider-agnostic|path-to-json>',
+    '```',
+    '',
+    'The `oowl profile` command and model-profile script both update runtime agent frontmatter and this strategy file. They do not update `AGENTS.md`.',
+    '',
+    '## Global Settings',
+    '',
+    '| Setting | Value |',
+    '|---|---|',
+    `| model | \`${profile.global.model}\` |`,
+    `| small_model | \`${profile.global.small_model}\` |`,
+    `| default_agent | \`${profile.global.default_agent}\` |`,
+    '',
+    '## Agent Model Map',
+    '',
+    '| Agent | Model | Reason |',
+    '|---|---|---|',
+  )
+
+  for (const agent of order) {
+    const cfg = profile.agents[agent]
+    if (!cfg) continue
+    lines.push(
+      `| \`${agent}\` | \`${cfg.model}\` | ${tableCell(cfg.reason)} |`,
+    )
+  }
+
+  lines.push(
+    '',
+    '## Runtime Rule',
+    '',
+    'The runtime source of truth is each agent file frontmatter:',
+    '',
+    '```text',
+    '.opencode/agents/<agent>.md',
+    '```',
+    '',
+    'The selected JSON profile is materialized into those frontmatter blocks by:',
+    '',
+    '```bash',
+    'oowl profile <free|low|balanced|high>',
+    'scripts/apply-profile-models.sh',
+    '```',
+    '',
+  )
+
+  return `${lines.join('\n')}\n`
+}
+
+export function writeProfileArtifacts(
+  profile: Profile,
+  openCodeDir: string,
+  profileSource = 'profile-models.json',
+): void {
+  writeFileSync(
+    join(openCodeDir, 'profile-models.json'),
+    `${JSON.stringify(profile, null, 2)}\n`,
+    'utf8',
+  )
+
+  const modelStrategyPath = join(openCodeDir, 'prompts', 'runtime', 'model-strategy.md')
+  mkdirSync(join(openCodeDir, 'prompts', 'runtime'), { recursive: true })
+  writeFileSync(
+    modelStrategyPath,
+    renderModelStrategy(profile, profileSource),
+    'utf8',
+  )
 }
 
 export async function applyProfile(

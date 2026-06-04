@@ -1,6 +1,6 @@
 # Sensitive Data
 
-Some code and data are sensitive enough that no agent may modify them without explicit user approval. This rule applies to every tier \u2014 it is not a low-tier rule.
+Some code and data are sensitive enough that no agent may modify them without explicit user approval. This rule applies to every tier - it is not a low-tier rule.
 
 ## Sensitive Areas
 

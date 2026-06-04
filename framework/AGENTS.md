@@ -20,9 +20,10 @@ Apply a model profile from the profile root:
 scripts/apply-profile-models.sh low
 scripts/apply-profile-models.sh balanced
 scripts/apply-profile-models.sh high
+scripts/apply-profile-models.sh free
 ```
 
-The model-profile script updates runtime agent frontmatter, `opencode.jsonc`, `.opencode/profile-models.json`, and `.opencode/prompts/shared/model-strategy.md`.
+The model-profile script updates runtime agent frontmatter, `opencode.jsonc`, `.opencode/profile-models.json`, and `.opencode/prompts/runtime/model-strategy.md`.
 
 It does not update this file.
 
@@ -65,7 +66,7 @@ OpenCode built-in `general` and `explore` subagents are not used.
 
 ## Test-First Implementation Policy
 
-The source of truth is `.opencode/prompts/shared/implementation-safety.md`.
+The source of truth is `.opencode/prompts/execution/implementation-safety.md`.
 
 New or changed behavior must be planned with test-first coverage or a specific no-test rationale. Low-tier agents must not be used to bypass TDD.
 

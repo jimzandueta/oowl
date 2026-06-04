@@ -1,6 +1,6 @@
 {
   "profile": "low",
-  "description": "Cost-first profile for long sessions and routine development. Preserves the same workflow while preferring the lowest practical runtime cost.",
+  "description": "Cost-first profile for long sessions and routine development. Uses Flash and Budget tiers for most agents, Mid and High only where production risk demands it.",
   "global": {
     "model": "opencode-go/deepseek-v4-flash",
     "small_model": "opencode/nemotron-3-super-free",
@@ -34,95 +34,95 @@
   "agents": {
     "dispatcher": {
       "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheap foreground routing, approval gates, and Task dispatch."
+      "reason": "Cheapest — pure routing, no reasoning needed."
     },
     "architect": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Design, architecture tradeoffs, and design.md creation."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — sufficient for design exploration and tradeoffs."
     },
     "planner": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Implementation planning, file locks, task prompts, and parallel groups."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — task decomposition and dependency ordering."
     },
     "plan-reviewer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Strict plan validation, task completeness, and parallel-safety review."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — validation, file lock overlap checking."
     },
     "builder": {
       "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Scheduler-only build coordination; does not implement or invoke Task."
+      "reason": "Cheapest — scheduler only, no implementation."
     },
     "reviewer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Review coordination, verification summary, and readiness recommendation."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — review coordination and verification summary."
     },
     "designer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "UI/UX design, layout, flows, accessibility, and ui-spec.md."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — UI/UX design and ui-spec.md."
     },
     "frontend-engineer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "React, TypeScript, forms, accessibility, frontend state, and tests."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — implementation, debugging, tests."
     },
     "frontend-polisher": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "High-polish UI, refined interaction behavior, and visual quality."
+      "model": "opencode-go/minimax-m2.5",
+      "reason": "Cheapest — visual tweaks, interaction polish."
     },
     "backend-engineer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "APIs, services, workers, validation, integrations, and domain logic."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — APIs, domain logic, integrations."
     },
     "database-engineer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Schema, migrations, indexes, transactions, and data integrity."
+      "model": "opencode-go/qwen3.6-plus",
+      "reason": "Mid — schema design and data integrity need broader context."
     },
     "cloud-architect": {
-      "model": "opencode-go/deepseek-v4-pro",
-      "reason": "Cloud, IaC, deployment, IAM, reliability, observability, and rollback safety."
+      "model": "opencode-go/qwen3.6-plus",
+      "reason": "Mid — infra design, IaC, reliability decisions."
     },
     "test-engineer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Unit tests, integration tests, regression coverage, fixtures, and verification."
+      "model": "opencode-go/mimo-v2.5",
+      "reason": "Cheapest — test creation and coverage analysis."
     },
     "code-reviewer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Read-only correctness, maintainability, performance, and architecture review."
+      "model": "opencode-go/minimax-m2.7",
+      "reason": "Low-mid — code correctness and maintainability."
     },
     "security-reviewer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "First-pass read-only security review."
+      "model": "opencode-go/glm-5",
+      "reason": "Mid — first-pass security analysis needs quality."
     },
     "security-auditor": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Deep security review for auth, IAM, secrets, PII, and production risk."
+      "model": "opencode-go/glm-5.1",
+      "reason": "High — production risk decisions need strongest model."
     },
     "low-engineer": {
       "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Lowest-cost bounded non-sensitive coding."
+      "reason": "Cheapest — non-sensitive bounded tasks."
     },
     "low-task-worker": {
       "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Lowest-cost bounded non-sensitive read/check/summarize work."
+      "reason": "Cheapest — read/check/summarize only."
     },
     "low-architect": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Cost-effective non-sensitive architecture reasoning."
+      "model": "opencode-go/mimo-v2.5",
+      "reason": "Cheapest — bounded non-sensitive architecture reasoning."
     },
     "low-designer": {
-      "model": "opencode-go/qwen3.5-plus",
-      "reason": "Cost-effective non-sensitive UI/product design."
+      "model": "opencode-go/mimo-v2.5",
+      "reason": "Cheapest — bounded non-sensitive design work."
     },
     "high-engineer": {
-      "model": "github-copilot/gpt-5.3-codex",
-      "reason": "Premium coding escalation."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — escalation coding needs better reasoning."
     },
     "high-architect": {
-      "model": "github-copilot/claude-sonnet-4.6",
-      "reason": "Premium architecture, reliability, cloud, and security escalation."
+      "model": "opencode-go/glm-5.1",
+      "reason": "High — escalation architecture and risk decisions."
     },
     "high-designer": {
-      "model": "github-copilot/claude-opus-4.7",
-      "reason": "Premium UX, product, and system-design escalation."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — escalation design needs better quality."
     }
   }
 }

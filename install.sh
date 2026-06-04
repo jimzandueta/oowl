@@ -198,7 +198,7 @@ const now = new Date().toISOString();
 const data = {
   version,
   location: mode === "global" ? "global" : "local",
-  profile: "balanced",
+  profile: "low",
   opencodeGo: true,
   installedAt: now,
   updatedAt: now,
@@ -218,5 +218,5 @@ log "Done."
 log ""
 log "Next steps:"
 log "  1. Apply a model profile:"
-log "       OPENCODE_DIR='$TARGET_BASE' bash '$REPO_DIR/scripts/apply-profile-models.sh' balanced"
+log "       OPENCODE_DIR='$TARGET_BASE' bash '$REPO_DIR/scripts/apply-profile-models.sh' low"
 log "  2. Open the project in OpenCode and verify agents load."

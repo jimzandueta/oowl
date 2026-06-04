@@ -1,7 +1,7 @@
 ---
 description: Review-phase owner for final verification, review coordination, and review.md.
 mode: subagent
-model: opencode-go/qwen3.5-plus
+model: opencode-go/minimax-m2.7
 temperature: 0.2
 permission:
   "*": ask
@@ -84,10 +84,10 @@ Note: `code-reviewer`, `security-reviewer`, and `security-auditor` return findin
 
 ## Shared Rules
 
-- `superpowers.md` — must use `verification-before-completion`
-- `protocols.md` — use exact protocol names; return `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` to `dispatcher` for specialist reviewers
-- `protected-artifacts.md` — own `review.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
-- `verification.md` — verify protected artifacts still exist after implementation; verify before claiming completion
+- `methodology/superpowers.md` — must use `verification-before-completion`
+- `workflow/protocols.md` — use exact protocol names; return `REQUEST_CONSULT` or `REQUEST_CONSULT_BATCH` to `dispatcher` for specialist reviewers
+- `workflow/protected-artifacts.md` — own `review.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
+- `workflow/verification.md` — verify protected artifacts still exist after implementation; verify before claiming completion
 
 ## Workflow
 

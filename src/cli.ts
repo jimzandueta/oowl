@@ -2,9 +2,10 @@ import { readFileSync } from 'node:fs'
 import kleur from 'kleur'
 
 const COMMANDS: Record<string, (args: string[]) => Promise<void>> = {
+  install: args => import('./commands/install.js').then(m => m.install(args)),
   init: args => import('./commands/init.js').then(m => m.init(args)),
-  profile: () => import('./commands/profile.js').then(m => m.profile()),
-  update: () => import('./commands/update.js').then(m => m.update()),
+  profile: args => import('./commands/profile.js').then(m => m.profile(args)),
+  update: args => import('./commands/update.js').then(m => m.update(args)),
 }
 
 function readPackageVersion(): string {
@@ -26,12 +27,14 @@ ${kleur.bold('Usage:')}
   oowl <command>
 
 ${kleur.bold('Commands:')}
-  ${kleur.cyan('init')}     Install the OOWL multi-agent framework
+  ${kleur.cyan('install')}  Install the OOWL multi-agent framework
+  ${kleur.cyan('init')}     Configure Optional skills for your project
   ${kleur.cyan('profile')}  Switch to a different model cost profile
   ${kleur.cyan('update')}   Update framework files to the latest version
 
 ${kleur.bold('Examples:')}
-  npx @jimzandueta/oowl init
+  npx @jimzandueta/oowl install
+  oowl init
   oowl profile
   oowl update
 `)

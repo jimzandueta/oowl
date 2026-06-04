@@ -23,30 +23,30 @@ Add a `.md` file under the appropriate class in `framework/commands/`. Installed
 ## Change workflow rules
 
 ```text
-framework/prompts/shared/protocols.md          — core protocol blocks
-framework/prompts/shared/routing.md            — trivial vs substantial thresholds
-framework/prompts/shared/git-workflow.md       — dispatcher branch gate and final branch handoff
-framework/prompts/shared/implementation-safety.md — test-first coverage and low-tier routing safety
-framework/prompts/shared/protected-artifacts.md — artifact ownership rules
+framework/prompts/workflow/protocols.md             — core protocol blocks
+framework/prompts/workflow/routing.md               — trivial vs substantial thresholds
+framework/prompts/workflow/git-workflow.md          — dispatcher branch gate and final branch handoff
+framework/prompts/execution/implementation-safety.md — test-first coverage and low-tier routing safety
+framework/prompts/workflow/protected-artifacts.md   — artifact ownership rules
 ```
 
 ## Add project conventions
 
-Four placeholder files let you define project-specific conventions that all implementation agents follow:
+Engineering prompt files define project conventions that implementation agents load:
 
 ```text
-framework/prompts/shared/code-conventions.md  — naming, imports, formatting, test conventions
-framework/prompts/shared/file-structure.md    — directory layout, file naming, asset organization
-framework/prompts/shared/tool-preferences.md  — preferred libraries, frameworks, banned tools
-framework/prompts/shared/error-handling.md    — error envelopes, logging, retry/circuit-breaking
+framework/prompts/engineering/code-conventions.md  — naming, imports, formatting, test conventions
+framework/prompts/engineering/file-structure.md    — directory layout, file naming, asset organization
+framework/prompts/engineering/tool-preferences.md  — preferred libraries, frameworks, banned tools
+framework/prompts/engineering/error-handling.md    — error envelopes, logging, retry/circuit-breaking
 ```
 
-Each file starts as a blank template with a comment header. Edit it with your project's conventions. Implementation agents load these files automatically.
+Edit these files with your project's conventions. Implementation agents load them automatically.
 
 ## Change sensitive-data routing
 
 ```text
-framework/prompts/shared/sensitive-data.md
+framework/prompts/execution/sensitive-data.md
 ```
 
 ## Add a model profile
@@ -69,24 +69,27 @@ install.sh                      shell installer for scripted installs
 uninstall.sh                    shell uninstaller
 
 src/
-  cli.js                        command router
+  cli.ts                        command router
   commands/
-    init.js                     oowl init walkthrough
-    profile.js                  oowl profile wizard
-    update.js                   oowl update with checksum diffing
+    install.ts                  oowl install walkthrough
+    init.ts                     Optional skills configuration
+    profile.ts                  oowl profile wizard
+    update.ts                   oowl update with checksum diffing
   lib/
-    installer.js                file copy and .oowl.json
-    frontmatter.js              update model: lines in agent files
-    profiles.js                 apply JSON profile to install
-    checksum.js                 SHA-256 tracking
-    opencode-scanner.js         detect connected OpenCode models
-    paths.js                    framework and install dir resolution
+    installer.ts                file copy and .oowl.json
+    frontmatter.ts              update model: lines in agent files
+    profiles.ts                 apply JSON profile to install
+    checksum.ts                 SHA-256 tracking
+    opencode-config-writer.ts   write installed opencode.jsonc permissions
+    opencode-scanner.ts         detect connected OpenCode models
+    paths.ts                    framework and install dir resolution
+    skill-recommender.ts        Optional skill recommendations
 
 framework/                      bundled files shipped with the package
   agents/                       23 agents in 6 classes
   commands/                     23 slash commands
-  prompts/shared/               shared workflow rules and policies
-  model-profiles/               low.json, balanced.json, high.json
+  prompts/                      grouped workflow, execution, engineering, review, runtime, methodology prompts
+  model-profiles/               free.json, low.json, balanced.json, high.json
   profile-models.json           bundled default active profile
   AGENTS.md                     workflow definition template
   opencode.jsonc                runtime config template

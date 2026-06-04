@@ -1,8 +1,8 @@
 ---
 description: Design-phase owner for architecture, tradeoffs, and design.md.
 mode: subagent
-model: opencode-go/minimax-m2.5
-temperature: 0.2
+model: opencode-go/minimax-m2.7
+temperature: 0.5
 permission:
   "*": ask
   read: allow
@@ -81,11 +81,11 @@ You own `docs/specs/<feature>/design.md`.
 
 ## Shared Rules
 
-- `superpowers.md` — must use `brainstorming` before producing this artifact
-- `protocols.md` — use exact protocol names
-- `approval-gates.md` — design approval gate applies after this phase
-- `protected-artifacts.md` — own `design.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
-- `verification.md` — verify artifact exists before returning completion
+- `methodology/superpowers.md` — must use `brainstorming` before producing this artifact
+- `workflow/protocols.md` — use exact protocol names
+- `workflow/approval-gates.md` — design approval gate applies after this phase
+- `workflow/protected-artifacts.md` — own `design.md`; never delete it; never modify other agents' artifacts or `AGENTS.md`
+- `workflow/verification.md` — verify artifact exists before returning completion
 
 ## Workflow
 

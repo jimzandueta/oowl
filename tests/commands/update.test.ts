@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { detectModifiedFiles } from '../../src/commands/update.js'
+import { detectModifiedFiles, detectObsoleteFiles } from '../../src/commands/update.js'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -42,7 +42,7 @@ describe('detectModifiedFiles', () => {
 
   it('ignores model-strategy.md regardless of changes', async () => {
     const dir = makeTempDir()
-    const promptsDir = join(dir, 'prompts', 'shared')
+    const promptsDir = join(dir, 'prompts', 'runtime')
     mkdirSync(promptsDir, { recursive: true })
     writeFileSync(join(promptsDir, 'model-strategy.md'), 'original')
 
@@ -86,5 +86,29 @@ describe('detectModifiedFiles', () => {
     const modified = await detectModifiedFiles(dir, originalChecksums)
     assert.ok(!modified.includes('new-file.md'))
     rmSync(dir, { recursive: true })
+  })
+
+  it('detects installed framework-managed files removed from the current framework', async () => {
+    const openCodeDir = makeTempDir()
+    const frameworkDir = makeTempDir()
+
+    mkdirSync(join(openCodeDir, 'prompts', 'shared'), { recursive: true })
+    mkdirSync(join(openCodeDir, 'agents'), { recursive: true })
+    mkdirSync(join(frameworkDir, 'prompts', 'runtime'), { recursive: true })
+    mkdirSync(join(frameworkDir, 'agents', '01-orchestration'), { recursive: true })
+
+    writeFileSync(join(openCodeDir, 'prompts', 'shared', 'routing.md'), 'old')
+    writeFileSync(join(openCodeDir, 'agents', 'dispatcher.md'), 'agent')
+    writeFileSync(join(frameworkDir, 'prompts', 'runtime', 'routing.md'), 'new')
+    writeFileSync(join(frameworkDir, 'agents', '01-orchestration', 'dispatcher.md'), 'agent')
+
+    const { buildChecksums } = await import('../../src/lib/checksum.js')
+    const originalChecksums = await buildChecksums(openCodeDir)
+
+    const obsolete = await detectObsoleteFiles(openCodeDir, originalChecksums, frameworkDir)
+    assert.deepEqual(obsolete, ['prompts/shared/routing.md'])
+
+    rmSync(openCodeDir, { recursive: true })
+    rmSync(frameworkDir, { recursive: true })
   })
 })
