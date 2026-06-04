@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-06-04
+
+### Added
+
+- **Skills system.** Split `oowl install` (framework setup) from `oowl init` (Optional skills wizard). New skills registry with 49 quality-gated skills across 3 community repos (taste-skill, wshobson/agents, ui-ux-pro-max). New `src/lib/skill-recommender.ts` and `src/lib/opencode-config-writer.ts` for deterministic recommendation and config wiring.
+- **Prompt library restructuring.** Replaced flat `framework/prompts/shared/` with 6 categorized groups: `workflow/`, `execution/`, `methodology/`, `runtime/`, `engineering/`, `review/`. All agent and command references updated to category-qualified paths.
+- **Per-agent model differentiation.** 23 agents each now get a workload-tuned model assignment in all three profiles (low, balanced, high), instead of the uniform qwen3.5-plus mid-tier default. Added `free.json` model profile.
+- **Low-tier routing guard.** Explicit 5-item list of tasks `low-*` agents must never be routed for: security decisions, schema/migration, architecture, tasks spanning 5+ files, costly-to-reverse changes.
+- **Batch dispatch limit raised.** `REQUEST_CONSULT_BATCH` atomic dispatch from 2–3 tasks up to 20 tasks.
+- **New prompt files:** `workflow/dispatcher-routing.md`, `review/plan-completeness.md`, `review/security-review-checklist.md`, `engineering/architecture-principles.md`.
+- **Free model profile.** `framework/model-profiles/free.json` for zero-cost model use.
+
+### Changed
+
+- **Docs overhaul.** README rewritten to stocksjs layout (centered logo, h1, tagline, 6 shields.io badges, streamlined sections). `docs/index.html` rebuilt as a single-file dark-themed SPA (2524 lines, 13 sections, 34 Lucide SVGs, scroll-reveal, copy buttons, grain overlay, reading progress bar, footer with aligned CTAs).
+- **Temperature tuning.** `architect` and `designer` raised from 0.2 to 0.5 for creative exploration. `frontend-polisher` raised to 0.3. All other agents remain at 0.2.
+- **Dispatcher agent expanded.** New `## Operating Boundaries` section, new `## Low-Tier Routing Guard` section.
+- **New logo assets.** 8 files (`oowl-logo.png`, multi-size PNGs, favicon 16/32/ICO, apple-touch-icon) generated from the user-provided owl logo.
+- **`opencode.jsonc`** now includes agent-level skill permissions (`ui-ux-pro-max` on `designer`, `high-designer`, `architect`) and a global `instructions` array referencing the 4 new prompt files.
+- **All 23 agent prompts and 23 command prompts** updated with category-qualified path references.
+
+### Fixed
+
+- Tone/voice alignment across README and all docs/ files: removed AI-tell buzzwords, aligned trivial-fix criteria with docs, removed redundant Features section from README, fixed broken npm link in `docs/index.md`.
+
+### Breaking
+
+- Prompt path references changed from `shared/` prefix to category-qualified (`workflow/`, `execution/`, etc.). Existing installs must reinstall via `oowl install` or manually update references.
+
 ## [1.1.3] - 2026-05-29
 
 ### Fixed
@@ -92,7 +121,8 @@ Initial npm release.
 - GitHub Pages documentation site.
 - MIT license.
 
-[Unreleased]: https://github.com/jimzandueta/oowl/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/jimzandueta/oowl/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/jimzandueta/oowl/compare/v1.1.3...v2.0.0
 [1.1.3]: https://github.com/jimzandueta/oowl/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/jimzandueta/oowl/compare/v1.1.0...v1.1.2
 [1.1.0]: https://github.com/jimzandueta/oowl/compare/v1.0.7...v1.1.0
