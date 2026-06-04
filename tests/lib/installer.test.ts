@@ -6,7 +6,7 @@ import {
   readOowlJson,
   writeOowlJson,
 } from "../../src/lib/installer.js";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -23,7 +23,7 @@ function makeFrameworkDir() {
   const frameworkDir = makeTempDir();
   mkdirSync(join(frameworkDir, "agents", "01-test"), { recursive: true });
   mkdirSync(join(frameworkDir, "commands", "01-workflow"), { recursive: true });
-  mkdirSync(join(frameworkDir, "prompts", "shared"), { recursive: true });
+  mkdirSync(join(frameworkDir, "prompts", "runtime"), { recursive: true });
   mkdirSync(join(frameworkDir, "model-profiles"), { recursive: true });
   writeFileSync(
     join(frameworkDir, "agents", "01-test", "dispatcher.md"),
@@ -39,7 +39,7 @@ function makeFrameworkDir() {
     "# Commands readme",
   );
   writeFileSync(
-    join(frameworkDir, "prompts", "shared", "model-strategy.md"),
+    join(frameworkDir, "prompts", "runtime", "model-strategy.md"),
     "# Strategy",
   );
   writeFileSync(join(frameworkDir, "model-profiles", "balanced.json"), "{}");
@@ -59,6 +59,24 @@ describe("readOowlJson / writeOowlJson", () => {
       opencodeGo: false,
       installedAt: "",
       updatedAt: "",
+    };
+    writeOowlJson(dir, data);
+    const read = readOowlJson(dir);
+    assert.deepEqual(read, data);
+    rmSync(dir, { recursive: true });
+  });
+
+  it("round-trips optional init metadata fields", () => {
+    const dir = makeTempDir();
+    const data = {
+      version: "1.1.0",
+      location: "local" as const,
+      profile: "low",
+      opencodeGo: false,
+      installedAt: "",
+      updatedAt: "",
+      projectAnswers: { projectType: "web" },
+      optionalSkills: { "domain-frontend-engineer": ["react-performance"] },
     };
     writeOowlJson(dir, data);
     const read = readOowlJson(dir);
@@ -159,7 +177,11 @@ describe("install", () => {
     });
 
     const oowl = readOowlJson(cwd);
+    const pkg = JSON.parse(
+      readFileSync(join(process.cwd(), "package.json"), "utf8"),
+    ) as { version: string };
     assert.ok(oowl !== null);
+    assert.equal(oowl.version, pkg.version);
     assert.equal(oowl.location, "local");
     assert.equal(oowl.profile, "low");
     rmSync(cwd, { recursive: true });

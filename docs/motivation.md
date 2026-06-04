@@ -1,14 +1,14 @@
 # Why oowl exists
 
-Claude Code and its proprietary models sit at the top of the food chain for AI-assisted development. They are amazing tools — they unblock developers and accelerate real work. But the tool has become increasingly expensive and less accessible. Token limits. Session limits. Rate limits. How am I supposed to experiment and iterate on the side when the tools I rely on keep getting more restrictive and more expensive?
+Claude Code and its proprietary models are strong tools for AI-assisted development. They unblock developers and accelerate real work. But the tool has become increasingly expensive and less accessible. Token limits. Session limits. Rate limits. How am I supposed to experiment and iterate on the side when the tools I rely on keep getting more restrictive and more expensive?
 
 So I started digging in two directions: **alternative models**, and **an alternative TUI that could act as a drop-in replacement for Claude Code**.
 
 ## The open models
 
-A lot of open-weight models match proprietary ones on SWE-Bench and other benchmarks. If you have the hardware, you can run GLM 5.1 or DeepSeek Pro locally with unlimited tokens and unlimited sessions, and they hold their own against Claude Opus 4.6 and GPT 5.4. They are also drastically cheaper: 1M tokens of GPT 5.4 is around $10; the same on DeepSeek Pro is around $0.10. Two orders of magnitude.
+A lot of open-weight models match proprietary ones on SWE-Bench and other benchmarks. If you have the hardware, you can run GLM 5.1 or DeepSeek Pro locally with unlimited tokens and unlimited sessions, and they hold their own against Claude Opus 4.6 and GPT 5.4. They are also much cheaper: 1M tokens of GPT 5.4 is around $10; the same on DeepSeek Pro is around $0.10. Two orders of magnitude.
 
-I don't have the hardware, so I looked for other ways in. I knew Ollama offered cloud access to these models, so I patched Claude Code to point at a local Ollama server instead of Anthropic's API. It worked — I got decent uninterrupted work done. But it felt clanky and hacky. Claude Code was not really *meant* for open models, and the seams showed.
+I don't have the hardware, so I looked for other ways in. I knew Ollama offered cloud access to these models, so I patched Claude Code to point at a local Ollama server instead of Anthropic's API. It worked — I got decent uninterrupted work done. But it felt clunky. Claude Code was not built for open models.
 
 ## The TUI replacement
 
@@ -17,7 +17,7 @@ So I went looking for an alternative. I found [OpenCode](https://opencode.ai/). 
 - **OpenCode Zen** — pay-as-you-go access to open models, no commitment.
 - **OpenCode Go** — request-based pricing instead of token-based. DeepSeek v4 is roughly 16,000 requests/month for $5. For comparison, GitHub Copilot caps at 1,500 requests/month. More than 10× the budget at a fraction of the cost.
 
-That was the no-brainer. OpenCode gave me access to the open models *and* a TUI flexible enough to switch between them on the fly.
+OpenCode gave me access to the open models *and* a TUI flexible enough to switch between them on the fly.
 
 ## Where the pain met the solution
 

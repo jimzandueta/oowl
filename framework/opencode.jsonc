@@ -4,6 +4,8 @@
   // Profile-specific agent and command definitions live in .opencode/.
   // Global Task access is ask; only dispatcher receives an explicit Task allow-list.
 
+  // Framework plugins: built-in methodology skills and compression mode.
+  // Optional skills approved by `oowl init` are installed under .opencode/skills.
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
     "caveman@git+https://github.com/juliusbrussee/caveman.git"
@@ -12,6 +14,30 @@
   "model": "opencode-go/deepseek-v4-flash",
   "small_model": "opencode/nemotron-3-super-free",
   "default_agent": "dispatcher",
+
+  "agent": {
+    "designer": {
+      "permission": {
+        "skill": {
+          "ui-ux-pro-max": "allow"
+        }
+      }
+    },
+    "high-designer": {
+      "permission": {
+        "skill": {
+          "ui-ux-pro-max": "allow"
+        }
+      }
+    },
+    "architect": {
+      "permission": {
+        "skill": {
+          "ui-ux-pro-max": "allow"
+        }
+      }
+    }
+  },
 
   "permission": {
     "*": "ask",
@@ -23,11 +49,11 @@
 
     // AGENTS.md is the workflow definition. No agent may edit, write, or delete it.
     "edit": {
-      "*": "ask",
+      "*": "allow",
       "AGENTS.md": "deny"
     },
     "write": {
-      "*": "ask",
+      "*": "allow",
       "AGENTS.md": "deny"
     },
 
@@ -74,6 +100,13 @@
     "todowrite": "allow",
     "lsp": "allow"
   },
+
+  "instructions": [
+    "prompts/workflow/dispatcher-routing.md",
+    "prompts/review/plan-completeness.md",
+    "prompts/review/security-review-checklist.md",
+    "prompts/engineering/architecture-principles.md"
+  ],
 
   "compaction": {
     "auto": true,

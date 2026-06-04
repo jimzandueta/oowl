@@ -3,12 +3,19 @@ import { spawnSync } from "node:child_process";
 /**
  * Known model tier classifications based on OpenCode Zen pricing data.
  *
- * Methodology: Models are classified by input cost per 1M tokens:
- *   cheap/fast:    free or ≤ $0.30/1M input tokens
- *   mid/balanced:  $0.50 – $1.75/1M input tokens
+ * Methodology: Models are classified by input cost per 1M tokens where
+ * OpenCode publishes pricing:
+ *   cheap/fast:    free or < $0.50/1M input tokens
+ *   mid/balanced:  $0.50 – $1.99/1M input tokens
  *   premium/deep:  ≥ $2.00/1M input tokens
  *
- * Source: https://opencode.ai/docs/zen/#pricing
+ * API-listed models without published pricing are classified conservatively.
+ *
+ * Sources:
+ *   https://opencode.ai/docs/zen/#pricing
+ *   https://opencode.ai/docs/go/#usage-limits
+ *   https://opencode.ai/zen/v1/models
+ *   https://opencode.ai/zen/go/v1/models
  *
  * Update this map on every npm patch release to keep in sync with
  * OpenCode's evolving model catalog.
@@ -18,26 +25,27 @@ export const KNOWN_MODEL_TIERS: Record<
   "cheap/fast" | "mid/balanced" | "premium/deep"
 > = {
   // ═══════════════════════════════════════════════════
-  // CHEAP / FAST — free or ≤ $0.30/1M input tokens
+  // CHEAP / FAST — free or < $0.50/1M input tokens
   // ═══════════════════════════════════════════════════
 
   // Free models
   "big-pickle": "cheap/fast",
-  "hy3-preview-free": "cheap/fast",
-  "minimax-m2.5-free": "cheap/fast",
+  "deepseek-v4-flash-free": "cheap/fast",
+  "mimo-v2.5-free": "cheap/fast",
+  "minimax-m3-free": "cheap/fast",
   "nemotron-3-super-free": "cheap/fast",
-  "trinity-large-preview-free": "cheap/fast",
+  "qwen3.6-plus-free": "cheap/fast",
 
-  // ≤ $0.30 input — OpenCode Zen/Go
+  // < $0.50 input — OpenCode Zen/Go
   "deepseek-v4-flash": "cheap/fast",
   "gpt-5-nano": "cheap/fast",
   "gpt-5.1-codex-mini": "cheap/fast",
   "gpt-5.4-nano": "cheap/fast",
   "mimo-v2.5": "cheap/fast",
-  "mimo-v2-omni": "cheap/fast",
   "minimax-m2.5": "cheap/fast",
   "minimax-m2.7": "cheap/fast",
   "qwen3.5-plus": "cheap/fast",
+  "qwen3.7-plus": "cheap/fast",
 
   // Popular 3rd-party cheap models
   "claude-3-5-haiku": "cheap/fast",
@@ -54,14 +62,17 @@ export const KNOWN_MODEL_TIERS: Record<
   "ring-2.6-1t-free": "cheap/fast",
 
   // ═══════════════════════════════════════════════════
-  // MID / BALANCED — $0.50 – $1.75/1M input tokens
+  // MID / BALANCED — $0.50 – $1.99/1M input tokens
   // ═══════════════════════════════════════════════════
 
   // OpenCode Zen/Go mid-tier models
   "claude-haiku-4-5": "mid/balanced",
   "deepseek-v4-pro": "mid/balanced",
+  "gemini-3.5-flash": "mid/balanced",
   "gemini-3-flash": "mid/balanced",
   "glm-5": "mid/balanced",
+  "glm-5.1": "mid/balanced",
+  "grok-build-0.1": "mid/balanced",
   "gpt-5": "mid/balanced",
   "gpt-5.1": "mid/balanced",
   "gpt-5.1-codex": "mid/balanced",
@@ -74,8 +85,11 @@ export const KNOWN_MODEL_TIERS: Record<
   "gpt-5-codex": "mid/balanced",
   "kimi-k2.5": "mid/balanced",
   "kimi-k2.6": "mid/balanced",
+  "mimo-v2-omni": "mid/balanced",
   "mimo-v2-pro": "mid/balanced",
   "mimo-v2.5-pro": "mid/balanced",
+  "minimax-m3": "mid/balanced",
+  "hy3-preview": "mid/balanced",
   "qwen3.6-plus": "mid/balanced",
 
   // Popular 3rd-party mid models
@@ -93,6 +107,7 @@ export const KNOWN_MODEL_TIERS: Record<
   // ═══════════════════════════════════════════════════
 
   // OpenCode Zen/Go premium models
+  "claude-opus-4-8": "premium/deep",
   "claude-opus-4-1": "premium/deep",
   "claude-opus-4-5": "premium/deep",
   "claude-opus-4-6": "premium/deep",
@@ -102,11 +117,11 @@ export const KNOWN_MODEL_TIERS: Record<
   "claude-sonnet-4-6": "premium/deep",
   "gemini-3.1-pro": "premium/deep",
   "gemini-3.1-pro-preview": "premium/deep",
-  "glm-5.1": "premium/deep",
   "gpt-5.4": "premium/deep",
   "gpt-5.4-pro": "premium/deep",
   "gpt-5.5": "premium/deep",
   "gpt-5.5-pro": "premium/deep",
+  "qwen3.7-max": "premium/deep",
 
   // Popular 3rd-party premium models
   "o1-pro": "premium/deep",

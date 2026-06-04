@@ -6,15 +6,37 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmdirSync,
+  rmSync,
   statSync,
 } from 'node:fs'
-import { join, relative } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { createPatch } from 'diff'
 import { FRAMEWORK_DIR } from '../lib/paths.js'
 import { findOowlInstall, writeOowlJson } from '../lib/installer.js'
 import { hashFile, buildChecksums } from '../lib/checksum.js'
+import { applyProfile, writeProfileArtifacts } from '../lib/profiles.js'
+import type { Profile } from '../lib/profiles.js'
+import { writeAgentPermissions, writeAgentSkillPermissions } from '../lib/opencode-config-writer.js'
+import { applyProfileJsonToJsonc } from './profile.js'
 
-const EXEMPT_FILES = ['.oowl.json', 'prompts/shared/model-strategy.md']
+const EXEMPT_FILES = ['.oowl.json', 'prompts/runtime/model-strategy.md']
+
+function printHelp(): void {
+  console.log(`
+${kleur.bold('Usage:')} oowl update
+
+Update framework-managed OOWL files in the current install.
+
+${kleur.bold('Options:')}
+  --help, -h  Show this help message
+
+${kleur.bold('Behavior:')}
+  - Detects locally modified framework files before overwriting
+  - Prompts before applying updates
+  - Removes unmodified framework-managed files that are no longer shipped
+`)
+}
 
 function normalizePath(filePath: string): string {
   return filePath.replace(/\\/g, '/')
@@ -40,6 +62,24 @@ export async function detectModifiedFiles(
     }
   }
   return modified
+}
+
+export async function detectObsoleteFiles(
+  openCodeDir: string,
+  originalChecksums: Record<string, string>,
+  frameworkDir: string = FRAMEWORK_DIR,
+): Promise<string[]> {
+  const obsolete: string[] = []
+  for (const relPath of Object.keys(originalChecksums)) {
+    if (isExemptFile(relPath)) continue
+    const installed = join(openCodeDir, relPath)
+    if (!existsSync(installed)) continue
+    const source = resolveFrameworkPath(frameworkDir, relPath)
+    if (!existsSync(source)) {
+      obsolete.push(relPath)
+    }
+  }
+  return obsolete
 }
 
 function findByBasename(dir: string, basename: string): string | null {
@@ -77,6 +117,52 @@ function resolveFrameworkPath(frameworkDir: string, installedRelPath: string): s
   }
 
   return direct
+}
+
+function readProfileJson(filePath: string): Profile | null {
+  if (!existsSync(filePath)) return null
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf8')) as Profile
+  } catch {
+    return null
+  }
+}
+
+function loadActiveProfile(openCodeDir: string, profileName: string): {
+  profile: Profile
+  source: string
+} | null {
+  const activeProfilePath = join(openCodeDir, 'profile-models.json')
+  const activeProfile = readProfileJson(activeProfilePath)
+  if (activeProfile) {
+    return {
+      profile: activeProfile,
+      source:
+        activeProfile.profile === 'custom'
+          ? 'profile-models.json'
+          : `model-profiles/${activeProfile.profile}.json`,
+    }
+  }
+
+  const installedProfilePath = join(openCodeDir, 'model-profiles', `${profileName}.json`)
+  const installedProfile = readProfileJson(installedProfilePath)
+  if (installedProfile) {
+    return {
+      profile: installedProfile,
+      source: `model-profiles/${profileName}.json`,
+    }
+  }
+
+  const frameworkProfilePath = join(FRAMEWORK_DIR, 'model-profiles', `${profileName}.json`)
+  const frameworkProfile = readProfileJson(frameworkProfilePath)
+  if (frameworkProfile) {
+    return {
+      profile: frameworkProfile,
+      source: `model-profiles/${profileName}.json`,
+    }
+  }
+
+  return null
 }
 
 function showDiff(relPath: string, installedContent: string, newContent: string): void {
@@ -169,12 +255,36 @@ async function copyFlatSelective(
   }
 }
 
-export async function update(): Promise<void> {
+function removeEmptyParents(filePath: string, stopDir: string): void {
+  let current = dirname(filePath)
+  while (current !== stopDir && current.startsWith(stopDir)) {
+    try {
+      rmdirSync(current)
+      current = dirname(current)
+    } catch {
+      return
+    }
+  }
+}
+
+export async function update(args: string[] = []): Promise<void> {
+  if (args.includes('--help') || args.includes('-h')) {
+    printHelp()
+    return
+  }
+
+  if (args.length > 0) {
+    console.error(kleur.red(`Unknown option: ${args[0]}`))
+    printHelp()
+    process.exitCode = 1
+    return
+  }
+
   const cwd = process.cwd()
   const install = findOowlInstall(cwd)
 
   if (!install) {
-    console.error(kleur.red('OOWL is not installed in this directory. Run `oowl init` first.'))
+    console.error(kleur.red('OOWL is not installed in this directory. Run `oowl install` first.'))
     process.exitCode = 1
     return
   }
@@ -183,12 +293,22 @@ export async function update(): Promise<void> {
 
   console.log(kleur.bold('\nOOWL Updater\n'))
 
+  const activeProfile = loadActiveProfile(openCodeDir, oowl.profile)
+
   const storedChecksums = oowl.checksums ?? {}
   const modifiedFiles = await detectModifiedFiles(openCodeDir, storedChecksums)
+  const obsoleteFiles = await detectObsoleteFiles(openCodeDir, storedChecksums)
 
   if (modifiedFiles.length > 0) {
     console.log(kleur.yellow(`\n${modifiedFiles.length} file(s) have been modified since install:`))
     for (const f of modifiedFiles) console.log(`  ${kleur.cyan(f)}`)
+    console.log()
+  }
+
+  if (obsoleteFiles.length > 0) {
+    console.log(kleur.yellow(`\n${obsoleteFiles.length} framework-managed file(s) are no longer shipped:`))
+    for (const f of obsoleteFiles) console.log(`  ${kleur.cyan(f)}`)
+    console.log(kleur.dim('  Unmodified obsolete files will be removed during update.'))
     console.log()
   }
 
@@ -216,6 +336,15 @@ export async function update(): Promise<void> {
       .map(([f]) => f)
   )
 
+  for (const relPath of obsoleteFiles) {
+    if (skipFiles.has(relPath)) continue
+    const target = join(openCodeDir, relPath)
+    if (existsSync(target)) {
+      rmSync(target, { force: true })
+      removeEmptyParents(target, openCodeDir)
+    }
+  }
+
   for (const sub of ['agents', 'commands']) {
     const src = join(FRAMEWORK_DIR, sub)
     if (!existsSync(src)) continue
@@ -236,6 +365,19 @@ export async function update(): Promise<void> {
     if (existsSync(src) && !skipFiles.has(file)) {
       copyFileSync(src, dest)
     }
+  }
+
+  if (activeProfile) {
+    await applyProfile(activeProfile.profile, openCodeDir)
+    writeProfileArtifacts(activeProfile.profile, openCodeDir, activeProfile.source)
+    applyProfileJsonToJsonc(join(openCodeDir, 'opencode.jsonc'), activeProfile.profile)
+  } else {
+    console.log(kleur.yellow(`Could not find active profile '${oowl.profile}' to reapply after update.`))
+  }
+
+  if (oowl.optionalSkills && Object.keys(oowl.optionalSkills).length > 0) {
+    writeAgentPermissions(join(openCodeDir, 'opencode.jsonc'), oowl.optionalSkills)
+    writeAgentSkillPermissions(join(openCodeDir, 'agents'), oowl.optionalSkills)
   }
 
   // Rebuild checksums

@@ -54,7 +54,7 @@ After review approval, if `dispatcher` created the feature branch, it asks wheth
 `dispatcher` may bypass the full workflow and route directly to an implementer when **all** of the following are true:
 
 - the change is small (under ~20 lines, under 3 files)
-- no schema, auth, security, payment, IAM, secrets, PII, or production configuration is touched (see `sensitive-data.md`)
+- no schema, auth, security, payment, IAM, secrets, PII, or production configuration is touched (see `execution/sensitive-data.md`)
 - no new dependencies are introduced
 - no architectural decision is required (the fix is mechanical or obvious)
 - no new feature behavior, new UI component/page/route, new API endpoint, or new domain behavior is introduced
@@ -64,7 +64,7 @@ On the trivial fix path:
 
 - no `design.md`, `implementation.md`, or `review.md` is created
 - `dispatcher` returns `TRIVIAL_FIX_DISPATCH` and dispatches one implementation agent with a complete task prompt and verification requirements
-- low-tier routing must follow `implementation-safety.md`
+- low-tier routing must follow `execution/implementation-safety.md`
 - `reviewer` runs only if the user requests a final review
 
 If any condition is uncertain, route through the default flow.

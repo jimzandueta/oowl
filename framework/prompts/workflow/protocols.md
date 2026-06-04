@@ -4,15 +4,16 @@ Use exact protocol names. Do not invent variants.
 
 ## Universal Agent Constraints
 
-All agents must not:
+Only `dispatcher` may invoke the Task tool.
 
-- invoke the Task tool (except `dispatcher`)
+No agent may:
+
 - use `general`
 - use `explore`
 
 These are enforced by frontmatter and restated here for reference.
 
-All agents should use Caveman Lite (see `caveman.md`) for runtime protocol blocks, routing summaries, and scheduling notes. Do not compress human-reviewed artifacts, code blocks, file paths, JSON/YAML, protocol blocks, approval questions, security warnings, or irreversible-action confirmations.
+Agents may use Caveman Lite (see `methodology/caveman.md`) for routing summaries, scheduling notes, and completion summaries. Do not compress human-reviewed artifacts, code blocks, file paths, JSON/YAML, protocol blocks, approval questions, security warnings, or irreversible-action confirmations.
 
 ## NEEDS_USER_INPUT
 
@@ -37,7 +38,7 @@ Task ID: <task id, if any>
 File locks:
 - <path>
 Task prompt: |
-  <complete prompt dispatcher should send directly>
+  <complete prompt for dispatcher to send directly>
 Expected output: <expected result>
 Verification requirements:
 - <check>
@@ -48,13 +49,13 @@ Subagent summary: <current state>
 
 `REQUEST_CONSULT_BATCH` is atomic.
 
-When `dispatcher` receives a valid batch with 2-3 eligible tasks, it must issue all Task calls in the same assistant message before waiting for any result.
+When `dispatcher` receives a valid batch with up to 20 eligible tasks, it must issue all Task calls in the same assistant message before waiting for any result.
 
 This is a text protocol, not a Task invocation. Non-dispatcher agents must return this block to `dispatcher`; they must not call Task themselves.
 
 ```text
 REQUEST_CONSULT_BATCH
-Max parallel: 3
+Max parallel: 20
 Wave: <wave id>
 Parallel group: <group id>
 Atomic dispatch required: yes
@@ -64,7 +65,7 @@ Tasks:
   File locks:
     - <path>
   Task prompt: |
-    <complete prompt dispatcher should send directly>
+    <complete prompt for dispatcher to send directly>
   Expected output: <expected result>
   Verification requirements:
     - <check>
@@ -102,10 +103,13 @@ Verification: <expected verification>
 
 ```text
 PLAN_REJECTED
-Issues:
+rejection_reason: <summary of why the plan was rejected>
+specific_issues:
 - <BLOCKER or WARNING>: <issue>
-Required changes:
+- ...
+suggested_changes:
 - <specific fix>
+- ...
 Return to: planner
 ```
 
@@ -187,7 +191,7 @@ The workflow must stop until protected artifacts are restored.
 
 ## TRIVIAL_FIX_DISPATCH
 
-`dispatcher` uses this when bypassing the full workflow for a trivial fix (see `routing.md`).
+`dispatcher` uses this when bypassing the full workflow for a trivial fix (see `workflow/routing.md`).
 
 ```text
 TRIVIAL_FIX_DISPATCH

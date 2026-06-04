@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx/esm --test tests/lib/checksum.test.ts tests/lib/frontmatter.test.ts tests/lib/profiles.test.ts tests/lib/installer.test.ts tests/lib/opencode-scanner.test.ts tests/commands/init.test.ts tests/commands/update.test.ts tests/framework/invariants.test.ts",
+    "test": "node --import tsx/esm --test tests/lib/checksum.test.ts tests/lib/frontmatter.test.ts tests/lib/profiles.test.ts tests/lib/installer.test.ts tests/lib/opencode-scanner.test.ts tests/lib/skill-recommender.test.ts tests/lib/opencode-config-writer.ts tests/commands/init.test.ts tests/commands/update.test.ts tests/framework/invariants.test.ts",
     "pretest": "tsc",
     "smoke:cli": "node bin/oowl.js --help && node bin/oowl.js --version && node bin/oowl.js badcmd || test $? -eq 1",
     "pack:check": "npm pack --dry-run",

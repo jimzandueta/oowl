@@ -1,8 +1,8 @@
 # Verification
 
-Before reporting completion, provide evidence.
+Before reporting completion, provide evidence. If a check could not be run, name it and explain why.
 
-Prefer:
+Evidence preference order:
 
 - focused tests
 - typecheck
@@ -12,7 +12,7 @@ Prefer:
 - `git diff`
 - manual verification notes when automation is unavailable
 
-Never say "done" unless verification was performed or unverified parts are explicitly listed.
+Never report completion unless verification was performed or unverified parts are explicitly listed.
 
 ## Protected Artifact Verification
 

@@ -28,9 +28,9 @@ fi
 
 INPUT="${1:-$FRAMEWORK_DIR/profile-models.json}"
 
-# Accept shorthand profile names: low, balanced, high, provider-agnostic.
+# Accept shorthand profile names: free, low, balanced, high, provider-agnostic.
 case "$INPUT" in
-  low|balanced|high|provider-agnostic)
+  free|low|balanced|high|provider-agnostic)
     PROFILE_JSON="$FRAMEWORK_DIR/model-profiles/$INPUT.json"
     ;;
   *)
@@ -39,8 +39,8 @@ case "$INPUT" in
 esac
 
 AGENTS_DIR="$FRAMEWORK_DIR/agents"
-MODEL_STRATEGY="$FRAMEWORK_DIR/prompts/shared/model-strategy.md"
-OPENCODE_JSONC="$ROOT_DIR/opencode.jsonc"
+MODEL_STRATEGY="$FRAMEWORK_DIR/prompts/runtime/model-strategy.md"
+OPENCODE_JSONC="$FRAMEWORK_DIR/opencode.jsonc"
 ACTIVE_PROFILE="$FRAMEWORK_DIR/profile-models.json"
 
 require_file() {
@@ -97,6 +97,10 @@ PROFILE_DESCRIPTION="$(jq -r '.description // ""' "$PROFILE_JSON")"
 
 echo "Applying model profile: $PROFILE_NAME"
 echo "Profile source: $PROFILE_JSON"
+if [[ "$PROFILE_NAME" == "free" ]]; then
+  echo
+  echo "Warning: free-data will be used in training. Do not use this profile for private, proprietary, regulated, customer, or confidential data."
+fi
 
 # Use declared agent_order when available; otherwise use sorted agent keys.
 AGENTS=()
@@ -162,7 +166,7 @@ if [[ ${#placeholder_hits[@]} -gt 0 ]]; then
   echo
   echo "Warning: provider-agnostic placeholder model names detected."
   echo "These are not real models. Map them in opencode.jsonc or substitute concrete model identifiers per agent."
-  echo "See: .opencode/prompts/shared/model-mapping.md"
+  echo "See: .opencode/prompts/runtime/model-mapping.md"
   for hit in "${placeholder_hits[@]}"; do
     echo "  - $hit"
   done
@@ -217,10 +221,10 @@ mkdir -p "$(dirname "$MODEL_STRATEGY")"
   echo "Do not edit model assignments here directly. Update a JSON profile and run:"
   echo
   echo '```bash'
-  echo "scripts/apply-profile-models.sh <low|balanced|high|provider-agnostic|path-to-json>"
+  echo "scripts/apply-profile-models.sh <free|low|balanced|high|provider-agnostic|path-to-json>"
   echo '```'
   echo
-  echo "This script updates runtime agent frontmatter and this strategy file. It does not update \`AGENTS.md\`."
+  echo "The \`oowl profile\` command and model-profile script both update runtime agent frontmatter and this strategy file. They do not update \`AGENTS.md\`."
   echo
 
   echo "## Global Settings"
@@ -256,6 +260,7 @@ mkdir -p "$(dirname "$MODEL_STRATEGY")"
   echo "The selected JSON profile is materialized into those frontmatter blocks by:"
   echo
   echo '```bash'
+  echo "oowl profile <free|low|balanced|high>"
   echo "scripts/apply-profile-models.sh"
   echo '```'
 } > "$MODEL_STRATEGY"
