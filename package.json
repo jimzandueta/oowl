@@ -2,6 +2,14 @@
   "name": "@jimzandueta/oowl",
   "version": "2.0.1",
   "description": "OpenCode Opinionated Workflow Layer — install and manage the OOWL multi-agent framework",
+  "homepage": "https://github.com/jimzandueta/oowl#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jimzandueta/oowl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jimzandueta/oowl/issues"
+  },
   "license": "MIT",
   "author": "",
   "type": "module",
