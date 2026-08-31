@@ -2,8 +2,8 @@
   "profile": "free",
   "description": "free-data will be used in training. Do not use this profile for private, proprietary, regulated, customer, or confidential data. Uses only free OpenCode models for lowest-cost experimentation.",
   "global": {
-    "model": "opencode/deepseek-v4-flash-free",
-    "small_model": "opencode/nemotron-3-super-free",
+    "model": "opencode/ling-3.0-flash-fin-free",
+    "small_model": "opencode/nemotron-3-ultra-free",
     "default_agent": "dispatcher"
   },
   "agent_order": [
@@ -33,75 +33,75 @@
   ],
   "agents": {
     "dispatcher": {
-      "model": "opencode/deepseek-v4-flash-free",
+      "model": "opencode/ling-3.0-flash-fin-free",
       "reason": "Free fast routing model for dispatch decisions."
     },
     "architect": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for design and tradeoffs."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for design and tradeoffs."
     },
     "planner": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for implementation planning."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for implementation planning."
     },
     "plan-reviewer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for plan validation."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for plan validation."
     },
     "builder": {
-      "model": "opencode/big-pickle",
-      "reason": "Free model for scheduler-only coordination."
+      "model": "opencode/ling-3.0-flash-fin-free",
+      "reason": "Free fast model for scheduler-only coordination."
     },
     "reviewer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for verification summary."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for verification summary."
     },
     "designer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for UI and product design."
+      "model": "opencode/nemotron-3-ultra-free",
+      "reason": "Strong free reasoning option for UI and product design."
     },
     "frontend-engineer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for frontend implementation."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for frontend implementation."
     },
     "frontend-polisher": {
       "model": "opencode/mimo-v2.5-free",
       "reason": "Free fast option for visual and interaction polish."
     },
     "backend-engineer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for APIs and domain logic."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for APIs and domain logic."
     },
     "database-engineer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for schema and data integrity work."
+      "model": "opencode/nemotron-3-ultra-free",
+      "reason": "Strong free reasoning option for schema and data integrity work."
     },
     "cloud-architect": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for infrastructure design."
+      "model": "opencode/nemotron-3-ultra-free",
+      "reason": "Strong free reasoning option for infrastructure design."
     },
     "test-engineer": {
       "model": "opencode/mimo-v2.5-free",
       "reason": "Free fast option for tests and coverage analysis."
     },
     "code-reviewer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for code review."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for code review."
     },
     "security-reviewer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for first-pass security review."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for first-pass security review."
     },
     "security-auditor": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option available for security audit."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option available for security audit."
     },
     "low-engineer": {
-      "model": "opencode/deepseek-v4-flash-free",
+      "model": "opencode/ling-3.0-flash-fin-free",
       "reason": "Free fast option for tiny mechanical edits."
     },
     "low-task-worker": {
-      "model": "opencode/nemotron-3-super-free",
+      "model": "opencode/big-pickle",
       "reason": "Free small option for read-only checks and summaries."
     },
     "low-architect": {
@@ -113,16 +113,16 @@
       "reason": "Free fast option for bounded design notes."
     },
     "high-engineer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for escalation coding."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for escalation coding."
     },
     "high-architect": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for escalation architecture."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for escalation architecture."
     },
     "high-designer": {
-      "model": "opencode/minimax-m3-free",
-      "reason": "Free strongest reasoning option for escalation design."
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "reason": "Strongest free reasoning option for escalation design."
     }
   }
 }

@@ -1,7 +1,7 @@
 ---
 description: Planning owner for implementation.md, task decomposition, file locks, verification, and parallel groups.
 mode: subagent
-model: opencode-go/minimax-m2.7
+model: opencode-go/gpt-5.6-luna
 temperature: 0.2
 permission:
   "*": ask

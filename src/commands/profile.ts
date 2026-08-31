@@ -14,12 +14,13 @@ import {
 import type { Model, ScanResult } from "../lib/opencode-scanner.js";
 
 export const FREE_PROFILE = "free";
+export const OPENAI_PROFILE = "openai";
 export const FREE_PROFILE_WARNING =
   "free-data will be used in training. Do not use this profile for private, proprietary, regulated, customer, or confidential data.";
-export const BUILT_IN_PROFILES = ["low", "balanced", "high", FREE_PROFILE];
+export const BUILT_IN_PROFILES = ["low", "balanced", "high", OPENAI_PROFILE, FREE_PROFILE];
 
 export function profileRequiresOpenCodeGo(profile: string): boolean {
-  return profile !== FREE_PROFILE;
+  return profile !== FREE_PROFILE && profile !== OPENAI_PROFILE;
 }
 
 export function profileChoiceName(profile: string, opencodeGo: boolean): string {
@@ -42,7 +43,7 @@ type TierKey = "cheap/fast" | "mid/balanced" | "premium/deep";
 
 function printHelp(): void {
   console.log(`
-${kleur.bold("Usage:")} oowl profile [free|low|balanced|high|custom]
+${kleur.bold("Usage:")} oowl profile [free|low|balanced|high|openai|custom]
 
 Switch the installed OOWL model cost profile.
 

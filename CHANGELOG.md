@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-08-31
+
+### Added
+
+- **`openai` model profile.** `framework/model-profiles/openai.json` maps all 23 agents to OpenAI models only: frontier `gpt-5.6-terra`/`gpt-5.6-sol` for planning, review, and escalation; `gpt-5.3-codex-spark` for coding; cheap `gpt-5.4-mini`/`gpt-5.4-fast` for mechanical and low-tier work.
+
+### Changed
+
+- **Model profiles refreshed for the current OpenCode Go catalog.** Retired models removed (`glm-5`, `minimax-m2.5`, `nemotron-3-super-free`, `deepseek-v4-flash-free`, `minimax-m3-free`); new models adopted (`glm-5.3`, `qwen3.8-max`, `qwen3.8-flash`, `kimi-k3`, `kimi-k2.7-code`, `grok-4.6`, `gpt-5.6-luna`, `hy3`, `hy4-preview`, `longcat-2.0`).
+- **Cost-tier alignment.** `low` now uses `gpt-5.6-luna` for core reasoning at cheap pricing; `balanced` stays mid-tier; `high` uses frontier `qwen3.8-max`/`kimi-k3`/`grok-4.6`. `free` remapped to the current free models.
+- **`small_model`** bumped `nemotron-3-super-free` → `nemotron-3-ultra-free` across all profiles.
+- **`dispatcher` and `builder`** moved off the cheapest tier to a mid-tier model in every profile (routing and prompt-framing quality).
+- **Scanner tier map** (`KNOWN_MODEL_TIERS`) and `model-mapping.md` updated to classify the new catalog by input cost.
+
 ## [2.0.1] - 2026-06-04
 
 ### Fixed

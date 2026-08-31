@@ -232,7 +232,7 @@ describe('framework invariants', () => {
     assert.match(script, /OPENCODE_JSONC="\$FRAMEWORK_DIR\/opencode\.jsonc"/)
     assert.match(script, /MODEL_STRATEGY="\$FRAMEWORK_DIR\/prompts\/runtime\/model-strategy\.md"/)
     assert.match(script, /ACTIVE_PROFILE="\$FRAMEWORK_DIR\/profile-models\.json"/)
-    assert.match(script, /free\|low\|balanced\|high\|provider-agnostic/)
+    assert.match(script, /free\|low\|balanced\|high\|openai\|provider-agnostic/)
     assert.match(script, /free-data will be used in training/)
   })
 

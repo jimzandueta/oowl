@@ -1,7 +1,7 @@
 ---
 description: Review-phase owner for final verification, review coordination, and review.md.
 mode: subagent
-model: opencode-go/minimax-m2.7
+model: opencode-go/gpt-5.6-luna
 temperature: 0.2
 permission:
   "*": ask

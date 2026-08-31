@@ -35,6 +35,10 @@ export const KNOWN_MODEL_TIERS: Record<
   "minimax-m3-free": "cheap/fast",
   "nemotron-3-super-free": "cheap/fast",
   "qwen3.6-plus-free": "cheap/fast",
+  "ling-3.0-flash-fin-free": "cheap/fast",
+  "muse-spark-1.2-contributor-free": "cheap/fast",
+  "nemotron-3-ultra-free": "cheap/fast",
+  "nemotron-3.5-lightning-free": "cheap/fast",
 
   // < $0.50 input — OpenCode Zen/Go
   "deepseek-v4-flash": "cheap/fast",
@@ -46,6 +50,14 @@ export const KNOWN_MODEL_TIERS: Record<
   "minimax-m2.7": "cheap/fast",
   "qwen3.5-plus": "cheap/fast",
   "qwen3.7-plus": "cheap/fast",
+  "qwen3.8-flash": "cheap/fast",
+  "deepseek-v4-flash-vision-exp": "cheap/fast",
+  "glm-5.3-flash": "cheap/fast",
+  "hy3": "cheap/fast",
+  "longcat-2.0": "cheap/fast",
+  "muse-spark-1.2-contributor": "cheap/fast",
+  "gpt-5.6-luna": "cheap/fast",
+  "gpt-5.6-luna-fast": "cheap/fast",
 
   // Popular 3rd-party cheap models
   "claude-3-5-haiku": "cheap/fast",
@@ -72,6 +84,8 @@ export const KNOWN_MODEL_TIERS: Record<
   "gemini-3-flash": "mid/balanced",
   "glm-5": "mid/balanced",
   "glm-5.1": "mid/balanced",
+  "glm-5.2": "mid/balanced",
+  "glm-5.3": "mid/balanced",
   "grok-build-0.1": "mid/balanced",
   "gpt-5": "mid/balanced",
   "gpt-5.1": "mid/balanced",
@@ -85,12 +99,16 @@ export const KNOWN_MODEL_TIERS: Record<
   "gpt-5-codex": "mid/balanced",
   "kimi-k2.5": "mid/balanced",
   "kimi-k2.6": "mid/balanced",
+  "kimi-k2.7-code": "mid/balanced",
   "mimo-v2-omni": "mid/balanced",
   "mimo-v2-pro": "mid/balanced",
   "mimo-v2.5-pro": "mid/balanced",
   "minimax-m3": "mid/balanced",
   "hy3-preview": "mid/balanced",
+  "hy4-preview": "mid/balanced",
   "qwen3.6-plus": "mid/balanced",
+  "gpt-5.6-sol-fast": "mid/balanced",
+  "gpt-5.6-terra-fast": "mid/balanced",
 
   // Popular 3rd-party mid models
   "deepseek-reasoner": "mid/balanced",
@@ -121,7 +139,12 @@ export const KNOWN_MODEL_TIERS: Record<
   "gpt-5.4-pro": "premium/deep",
   "gpt-5.5": "premium/deep",
   "gpt-5.5-pro": "premium/deep",
+  "gpt-5.6-sol": "premium/deep",
+  "gpt-5.6-terra": "premium/deep",
   "qwen3.7-max": "premium/deep",
+  "qwen3.8-max": "premium/deep",
+  "grok-4.6": "premium/deep",
+  "kimi-k3": "premium/deep",
 
   // Popular 3rd-party premium models
   "o1-pro": "premium/deep",
