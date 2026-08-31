@@ -26,9 +26,9 @@ These are starting points. Pick the variant that matches your account access and
 
 | Placeholder    | Model                          |
 | -------------- | ------------------------------ |
-| `cheap-fast`   | `openai/gpt-4o-mini`           |
-| `mid-balanced` | `openai/gpt-5.1-codex`         |
-| `premium-deep` | `openai/gpt-5.5`               |
+| `cheap-fast`   | `openai/gpt-5.4-mini`          |
+| `mid-balanced` | `openai/gpt-5.3-codex-spark`   |
+| `premium-deep` | `openai/gpt-5.6-terra`         |
 
 ### Google
 
@@ -43,8 +43,8 @@ These are starting points. Pick the variant that matches your account access and
 | Placeholder    | Model                                |
 | -------------- | ------------------------------------ |
 | `cheap-fast`   | `opencode-go/deepseek-v4-flash`      |
-| `mid-balanced` | `opencode-go/qwen3.5-plus`           |
-| `premium-deep` | `opencode-go/deepseek-v4-pro`        |
+| `mid-balanced` | `opencode-go/minimax-m3`             |
+| `premium-deep` | `opencode-go/kimi-k3`                |
 
 ### GitHub Copilot
 

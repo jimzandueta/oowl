@@ -1,7 +1,7 @@
 ---
 description: UI/UX owner for UI specs, interaction behavior, accessibility, and ui-spec.md.
 mode: subagent
-model: opencode-go/minimax-m2.7
+model: opencode-go/gpt-5.6-luna
 temperature: 0.5
 permission:
   "*": ask

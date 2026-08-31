@@ -1,7 +1,7 @@
 ---
 description: Frontend polish specialist.
 mode: subagent
-model: opencode-go/minimax-m2.5
+model: opencode-go/minimax-m2.7
 temperature: 0.3
 permission:
   "*": ask

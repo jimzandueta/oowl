@@ -144,12 +144,12 @@ describe('classifyModels', () => {
 
   it('classifies free models as cheap', () => {
     const models = [
-      { id: 'opencode/minimax-m3-free' },
-      { id: 'opencode/deepseek-v4-flash-free' },
       { id: 'opencode/big-pickle' },
+      { id: 'opencode/ling-3.0-flash-fin-free' },
       { id: 'opencode/mimo-v2.5-free' },
-      { id: 'opencode/nemotron-3-super-free' },
-      { id: 'opencode/qwen3.6-plus-free' },
+      { id: 'opencode/muse-spark-1.2-contributor-free' },
+      { id: 'opencode/nemotron-3-ultra-free' },
+      { id: 'opencode/nemotron-3.5-lightning-free' },
     ]
     const result = classifyModels(models)
     assert.equal(result.cheap.length, 6)
@@ -213,22 +213,29 @@ describe('classifyModels', () => {
     const modelIds = [
       'minimax-m3',
       'minimax-m2.7',
-      'minimax-m2.5',
       'kimi-k2.6',
-      'kimi-k2.5',
+      'kimi-k2.7-code',
+      'kimi-k3',
       'glm-5.1',
-      'glm-5',
+      'glm-5.2',
+      'glm-5.3',
+      'glm-5.3-flash',
       'deepseek-v4-pro',
       'deepseek-v4-flash',
+      'deepseek-v4-flash-vision-exp',
+      'gpt-5.6-luna',
+      'grok-4.6',
+      'hy3',
+      'hy4-preview',
+      'longcat-2.0',
       'qwen3.7-max',
       'qwen3.7-plus',
       'qwen3.6-plus',
-      'qwen3.5-plus',
-      'mimo-v2-pro',
-      'mimo-v2-omni',
+      'qwen3.8-max',
+      'qwen3.8-flash',
       'mimo-v2.5-pro',
       'mimo-v2.5',
-      'hy3-preview',
+      'muse-spark-1.2-contributor',
     ]
 
     const result = classifyModels(modelIds.map(id => ({ id: `opencode-go/${id}` })))

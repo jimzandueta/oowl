@@ -1,7 +1,7 @@
 ---
 description: Foreground orchestration agent for routing, approval gates, Task dispatch, and phase control.
 mode: primary
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/minimax-m2.7
 temperature: 0.2
 permission:
   "*": ask

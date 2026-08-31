@@ -2,8 +2,8 @@
   "profile": "balanced",
   "description": "Balanced profile for daily fullstack work. Uses Mid tier for most agents, High tier for production-risk decisions, and Flash for routing/scheduling.",
   "global": {
-    "model": "opencode-go/deepseek-v4-flash",
-    "small_model": "opencode/nemotron-3-super-free",
+    "model": "opencode-go/minimax-m3",
+    "small_model": "opencode/nemotron-3-ultra-free",
     "default_agent": "dispatcher"
   },
   "agent_order": [
@@ -33,8 +33,8 @@
   ],
   "agents": {
     "dispatcher": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheapest — pure routing, no reasoning needed."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — routing and complete prompt framing for every dispatch."
     },
     "architect": {
       "model": "opencode-go/minimax-m3",
@@ -49,8 +49,8 @@
       "reason": "High — strict plan validation and parallel-safety review."
     },
     "builder": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheapest — scheduler only."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — turns implementation.md into concrete task specs."
     },
     "reviewer": {
       "model": "opencode-go/kimi-k2.6",
@@ -89,12 +89,12 @@
       "reason": "High — read-only correctness and architecture review."
     },
     "security-reviewer": {
-      "model": "opencode-go/glm-5",
+      "model": "opencode-go/glm-5.3",
       "reason": "Mid-pro — first-pass security review."
     },
     "security-auditor": {
-      "model": "opencode-go/glm-5.1",
-      "reason": "High — deep security audit for production risk."
+      "model": "opencode-go/glm-5.3",
+      "reason": "Mid — deep security audit for production risk."
     },
     "low-engineer": {
       "model": "opencode-go/deepseek-v4-flash",
@@ -117,12 +117,12 @@
       "reason": "Mid-pro — escalation coding needs strong reasoning."
     },
     "high-architect": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "High — premium architecture and system design."
+      "model": "opencode-go/qwen3.8-max",
+      "reason": "Premium — escalation architecture and system design."
     },
     "high-designer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "High — premium UX and product design escalation."
+      "model": "opencode-go/qwen3.8-max",
+      "reason": "Premium — escalation UX and product design."
     }
   }
 }

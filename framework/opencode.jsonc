@@ -11,8 +11,8 @@
     "caveman@git+https://github.com/juliusbrussee/caveman.git"
   ],
 
-  "model": "opencode-go/deepseek-v4-flash",
-  "small_model": "opencode/nemotron-3-super-free",
+  "model": "opencode-go/minimax-m2.7",
+  "small_model": "opencode/nemotron-3-ultra-free",
   "default_agent": "dispatcher",
 
   "agent": {

@@ -92,7 +92,7 @@ describe('buildCustomProfile', () => {
     )
     assert.match(strategy, /Profile: `custom`/)
     assert.match(strategy, /cheap-model/)
-    assert.match(strategy, /oowl profile <free\|low\|balanced\|high>/)
+    assert.match(strategy, /oowl profile <free\|low\|balanced\|high\|openai>/)
 
     rmSync(dir, { recursive: true })
   })
@@ -116,18 +116,18 @@ describe('built-in profile JSON', () => {
       ...Object.values(profile.agents).map((cfg: any) => cfg.model),
     ])
     for (const model of [
-      'opencode/minimax-m3-free',
-      'opencode/deepseek-v4-flash-free',
+      'opencode/nemotron-3.5-lightning-free',
+      'opencode/nemotron-3-ultra-free',
+      'opencode/ling-3.0-flash-fin-free',
       'opencode/big-pickle',
       'opencode/mimo-v2.5-free',
-      'opencode/nemotron-3-super-free',
     ]) {
       assert.ok(models.has(model), `free profile should use ${model}`)
     }
   })
 
   it('keeps every built-in profile mapped for every ordered agent', () => {
-    for (const name of ['free', 'low', 'balanced', 'high']) {
+    for (const name of ['free', 'low', 'balanced', 'high', 'openai']) {
       const profile = JSON.parse(
         readFileSync(
           join(process.cwd(), 'framework', 'model-profiles', `${name}.json`),

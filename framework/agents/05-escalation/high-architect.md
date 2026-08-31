@@ -1,7 +1,7 @@
 ---
 description: High-tier architecture escalation specialist.
 mode: subagent
-model: opencode-go/glm-5.1
+model: opencode-go/glm-5.3
 temperature: 0.2
 permission:
   "*": ask

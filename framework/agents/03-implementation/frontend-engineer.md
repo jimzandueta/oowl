@@ -1,7 +1,7 @@
 ---
 description: Frontend implementation specialist.
 mode: subagent
-model: opencode-go/minimax-m2.7
+model: opencode-go/gpt-5.6-luna
 temperature: 0.2
 permission:
   "*": ask

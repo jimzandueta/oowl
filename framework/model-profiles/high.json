@@ -1,9 +1,9 @@
 {
   "profile": "high",
-  "description": "Quality-first profile for high-stakes or shorter sessions. Uses Qwen3.7 Max for all implementation and review agents, GLM-5.1 for security audit. Flash only for routing and bounded low-tier tasks.",
+  "description": "Quality-first profile for large or high-stakes projects. Premium frontier models (Qwen3.8 Max, Kimi K3, Grok 4.6) for all reasoning and implementation; cheap models only for routing and mechanical low-tier work.",
   "global": {
-    "model": "opencode-go/deepseek-v4-flash",
-    "small_model": "opencode/nemotron-3-super-free",
+    "model": "opencode-go/minimax-m3",
+    "small_model": "opencode/nemotron-3-ultra-free",
     "default_agent": "dispatcher"
   },
   "agent_order": [
@@ -33,72 +33,72 @@
   ],
   "agents": {
     "dispatcher": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheapest — pure routing, no reasoning needed."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — routing and complete prompt framing."
     },
     "architect": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — architecture tradeoffs and design.md."
     },
     "planner": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — implementation planning and task decomposition."
     },
     "plan-reviewer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — strict plan validation and parallel-safety."
     },
     "builder": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheapest — scheduler only."
+      "model": "opencode-go/minimax-m3",
+      "reason": "Mid — turns implementation.md into concrete task specs."
     },
     "reviewer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — verification summary and readiness."
     },
     "designer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — UI/UX design and ui-spec.md."
     },
     "frontend-engineer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — React, TypeScript, and complex frontend logic."
+      "model": "opencode-go/qwen3.8-max",
+      "reason": "Premium — frontend implementation and complex logic."
     },
     "frontend-polisher": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — high-polish UI and refined interactions."
+      "model": "opencode-go/qwen3.8-flash",
+      "reason": "Cheap — mechanical visual and interaction polish."
     },
     "backend-engineer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — APIs, domain logic, and integrations."
     },
     "database-engineer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — schema design, migrations, data integrity."
+      "model": "opencode-go/qwen3.8-max",
+      "reason": "Premium — schema design, migrations, and data integrity."
     },
     "cloud-architect": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — infra, IaC, reliability, observability."
+      "model": "opencode-go/grok-4.6",
+      "reason": "Premium — infra design, IaC, and reliability."
     },
     "test-engineer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — test suite creation and coverage analysis."
+      "model": "opencode-go/kimi-k2.6",
+      "reason": "Mid — test suite creation and coverage analysis."
     },
     "code-reviewer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/qwen3.8-max",
       "reason": "Premium — code correctness and architecture review."
     },
     "security-reviewer": {
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/grok-4.6",
       "reason": "Premium — first-pass security review."
     },
     "security-auditor": {
-      "model": "opencode-go/glm-5.1",
+      "model": "opencode-go/kimi-k3",
       "reason": "Best — deepest security analysis for production risk."
     },
     "low-engineer": {
       "model": "opencode-go/deepseek-v4-flash",
-      "reason": "Cheapest — non-sensitive bounded tasks."
+      "reason": "Cheapest — non-sensitive bounded mechanical edits."
     },
     "low-task-worker": {
       "model": "opencode-go/deepseek-v4-flash",
@@ -106,23 +106,23 @@
     },
     "low-architect": {
       "model": "opencode-go/minimax-m3",
-      "reason": "Mid — even low-tier architecture gets decent quality."
+      "reason": "Mid — bounded architecture notes."
     },
     "low-designer": {
       "model": "opencode-go/minimax-m3",
-      "reason": "Mid — even low-tier design gets decent quality."
+      "reason": "Mid — bounded design notes."
     },
     "high-engineer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — escalation coding."
+      "model": "opencode-go/kimi-k3",
+      "reason": "Best — escalation coding."
     },
     "high-architect": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — escalation architecture."
+      "model": "opencode-go/kimi-k3",
+      "reason": "Best — escalation architecture."
     },
     "high-designer": {
-      "model": "opencode-go/qwen3.7-max",
-      "reason": "Premium — escalation design."
+      "model": "opencode-go/kimi-k3",
+      "reason": "Best — escalation design."
     }
   }
 }

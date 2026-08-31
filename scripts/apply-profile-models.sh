@@ -28,9 +28,9 @@ fi
 
 INPUT="${1:-$FRAMEWORK_DIR/profile-models.json}"
 
-# Accept shorthand profile names: free, low, balanced, high, provider-agnostic.
+# Accept shorthand profile names: free, low, balanced, high, openai, provider-agnostic.
 case "$INPUT" in
-  free|low|balanced|high|provider-agnostic)
+  free|low|balanced|high|openai|provider-agnostic)
     PROFILE_JSON="$FRAMEWORK_DIR/model-profiles/$INPUT.json"
     ;;
   *)
@@ -221,7 +221,7 @@ mkdir -p "$(dirname "$MODEL_STRATEGY")"
   echo "Do not edit model assignments here directly. Update a JSON profile and run:"
   echo
   echo '```bash'
-  echo "scripts/apply-profile-models.sh <free|low|balanced|high|provider-agnostic|path-to-json>"
+  echo "scripts/apply-profile-models.sh <free|low|balanced|high|openai|provider-agnostic|path-to-json>"
   echo '```'
   echo
   echo "The \`oowl profile\` command and model-profile script both update runtime agent frontmatter and this strategy file. They do not update \`AGENTS.md\`."
@@ -260,7 +260,7 @@ mkdir -p "$(dirname "$MODEL_STRATEGY")"
   echo "The selected JSON profile is materialized into those frontmatter blocks by:"
   echo
   echo '```bash'
-  echo "oowl profile <free|low|balanced|high>"
+  echo "oowl profile <free|low|balanced|high|openai>"
   echo "scripts/apply-profile-models.sh"
   echo '```'
 } > "$MODEL_STRATEGY"

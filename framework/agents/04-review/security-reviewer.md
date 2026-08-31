@@ -1,7 +1,7 @@
 ---
 description: Read-only security reviewer.
 mode: subagent
-model: opencode-go/glm-5
+model: opencode-go/glm-5.3
 temperature: 0.2
 permission:
   "*": ask

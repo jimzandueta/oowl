@@ -1,7 +1,7 @@
 ---
 description: Scheduler-only build agent for approved implementation specs.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/minimax-m2.7
 temperature: 0.2
 permission:
   "*": ask

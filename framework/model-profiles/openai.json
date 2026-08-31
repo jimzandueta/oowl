@@ -1,0 +1,128 @@
+{
+  "profile": "openai",
+  "description": "OpenAI-only profile. Frontier GPT-5.6 models for planning and review; fast/mini models for mechanical and bounded work. Requires an OpenAI API key configured in OpenCode.",
+  "global": {
+    "model": "openai/gpt-5.4",
+    "small_model": "openai/gpt-5.4-mini",
+    "default_agent": "dispatcher"
+  },
+  "agent_order": [
+    "dispatcher",
+    "architect",
+    "planner",
+    "plan-reviewer",
+    "builder",
+    "reviewer",
+    "designer",
+    "frontend-engineer",
+    "frontend-polisher",
+    "backend-engineer",
+    "database-engineer",
+    "cloud-architect",
+    "test-engineer",
+    "code-reviewer",
+    "security-reviewer",
+    "security-auditor",
+    "low-engineer",
+    "low-task-worker",
+    "low-architect",
+    "low-designer",
+    "high-engineer",
+    "high-architect",
+    "high-designer"
+  ],
+  "agents": {
+    "dispatcher": {
+      "model": "openai/gpt-5.4",
+      "reason": "Mid — classification plus complete prompt framing for every dispatch."
+    },
+    "architect": {
+      "model": "openai/gpt-5.6-terra",
+      "reason": "Frontier — architecture design and tradeoffs."
+    },
+    "planner": {
+      "model": "openai/gpt-5.6-terra",
+      "reason": "Frontier — implementation planning and task decomposition."
+    },
+    "plan-reviewer": {
+      "model": "openai/gpt-5.6-sol",
+      "reason": "Frontier — strict plan validation and parallel-safety."
+    },
+    "builder": {
+      "model": "openai/gpt-5.4",
+      "reason": "Mid — turns implementation.md into concrete task specs."
+    },
+    "reviewer": {
+      "model": "openai/gpt-5.6-sol",
+      "reason": "Frontier — verification summary and readiness recommendation."
+    },
+    "designer": {
+      "model": "openai/gpt-5.5",
+      "reason": "Mid — UI/UX design and ui-spec.md."
+    },
+    "frontend-engineer": {
+      "model": "openai/gpt-5.3-codex-spark",
+      "reason": "Codex — coding-specialized frontend implementation."
+    },
+    "frontend-polisher": {
+      "model": "openai/gpt-5.6-terra-fast",
+      "reason": "Fast frontier — visual tweaks and interaction polish."
+    },
+    "backend-engineer": {
+      "model": "openai/gpt-5.3-codex-spark",
+      "reason": "Codex — APIs, domain logic, and integrations."
+    },
+    "database-engineer": {
+      "model": "openai/gpt-5.4",
+      "reason": "Mid — schema design, migrations, and data integrity."
+    },
+    "cloud-architect": {
+      "model": "openai/gpt-5.6-sol-fast",
+      "reason": "Fast frontier — infra design, IaC, and reliability."
+    },
+    "test-engineer": {
+      "model": "openai/gpt-5.5-fast",
+      "reason": "Fast — mechanical test creation and coverage analysis."
+    },
+    "code-reviewer": {
+      "model": "openai/gpt-5.6-luna-fast",
+      "reason": "Fast — read-only correctness and maintainability review."
+    },
+    "security-reviewer": {
+      "model": "openai/gpt-5.6-sol",
+      "reason": "Frontier — first-pass security review."
+    },
+    "security-auditor": {
+      "model": "openai/gpt-5.6-terra",
+      "reason": "Frontier — deepest security analysis for production risk."
+    },
+    "low-engineer": {
+      "model": "openai/gpt-5.4-fast",
+      "reason": "Cheap — non-sensitive bounded mechanical edits."
+    },
+    "low-task-worker": {
+      "model": "openai/gpt-5.4-mini-fast",
+      "reason": "Cheapest — read/check/summarize only."
+    },
+    "low-architect": {
+      "model": "openai/gpt-5.4-mini",
+      "reason": "Cheap — bounded non-sensitive architecture notes."
+    },
+    "low-designer": {
+      "model": "openai/gpt-5.4-mini",
+      "reason": "Cheap — bounded non-sensitive design notes."
+    },
+    "high-engineer": {
+      "model": "openai/gpt-5.6-luna",
+      "reason": "Mid — escalation coding needs strong reasoning."
+    },
+    "high-architect": {
+      "model": "openai/gpt-5.6-terra",
+      "reason": "Frontier — escalation architecture and risk decisions."
+    },
+    "high-designer": {
+      "model": "openai/gpt-5.6-sol",
+      "reason": "Frontier — escalation UX and product design."
+    }
+  }
+}
