@@ -149,7 +149,11 @@ describe('agent permissions', () => {
 
     assert.ok(!dispatcher.includes('\n  edit: deny\n'))
     assert.ok(!dispatcher.includes('\n  write: deny\n'))
-    assert.ok(dispatcher.includes('"docs/specs/**": deny'))
+    // docs/specs/** must be "ask", not "deny": OpenCode inherits parent deny
+    // rules into Task child sessions, so a deny here would override the
+    // artifact-owner agents' own docs/specs/** write allows.
+    assert.ok(!dispatcher.includes('"docs/specs/**": deny'))
+    assert.ok(dispatcher.includes('"docs/specs/**": ask'))
     assert.ok(dispatcher.includes('"AGENTS.md": deny'))
   })
 
